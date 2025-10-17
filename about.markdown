@@ -1,18 +1,36 @@
 ---
 layout: page
-title: About
+title: about
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+wrenches dot online, owned and operated by prof cane llc pte ltd shell corp inc org dot com. 
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, femboys, racists, racist femboys, rust shills
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+### links
 
+- [the model](https://www.youtube.com/watch?v=eT-hHc9x_2c)
+- [angels in camo](https://www.youtube.com/watch?v=Egxg01Gd9Ws)
+- [how to install gentoo 2026 guide](https://www.youtube.com/watch?v=OZDyH_vu5QM)
+- [china steps](https://www.youtube.com/watch?v=HatWZVfxHUk)
+- [anthems for a seventeen year old girl](https://www.youtube.com/watch?v=9XffxfvcLFA)
+- [yukiko san](https://www.youtube.com/watch?v=i32MroZp7yE)
+- [reversing wannacry](https://www.youtube.com/watch?v=Sv8yu12y5zM)
 
-[jekyll-organization]: https://github.com/jekyll
+### passions
+- pwn, rev, crypto
+- pipeline punch juice monster energy juice 500ml can
+- ncmpcpp, nvim
+- joan didion, guyliner, taobao
+- my friends who i love
+
+### beliefs
+- death penalty for vibe coders
+- trans rights are human rights
+- be good at what you do or quit
+
+### friend blogs
+- [scuffed](https://scuffed.online)
+- [azazo](http://azazo.me)
+- [nikola](https://ndgsghdj.github.io)

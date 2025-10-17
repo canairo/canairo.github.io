@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>project postmortem</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="project postmortem" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about." />
+<meta property="og:description" content="i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about." />
+<link rel="canonical" href="http://localhost:4000/2025/10/18/project-postmortem.html" />
+<meta property="og:url" content="http://localhost:4000/2025/10/18/project-postmortem.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-10-18T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="project postmortem" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-10-18T05:40:00+08:00","datePublished":"2025-10-18T05:40:00+08:00","description":"i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.","headline":"project postmortem","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/18/project-postmortem.html"},"url":"http://localhost:4000/2025/10/18/project-postmortem.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-10-18 05:40:00 +0800">2025-10-18 05:40:00 +0800</time>
+  </p>
+  
+  <h1>project postmortem</h1>
+
+  <p>i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.</p>
+
+<h3 id="project-specifications">project specifications</h3>
+
+<p>essentially it just had to be a web app that would take in an email and determine whether or not it was phishing based on some pre-defined criteria. there is not a lot of space for creativity within these criteria (altho i think my teammates did a vv good job of coming up with cool interesting stuff to implement that wasn’t specified in the proj requirements) and so a lot of the interesting stuff i encountered was actually in the nitty gritty implementation details of stuff, like:</p>
+
+<h3 id="big-data">big data</h3>
+
+<p>so the way our model worked is we would have certain criteria (functions) that wld accept a <code class="language-plaintext highlighter-rouge">ProcessedEmail</code> class and return an integer. using a labeled dataset of emails (w/ label corresponding to phishing | non-phishing), collect the <code class="language-plaintext highlighter-rouge">int</code> avgs of how each category of email ‘performs’ against the different criteria, which provides a good benchmark w/ which to compare.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ProcessedEmail</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                       <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                       <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                       <span class="n">attachments</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> 
+                       <span class="n">is_phishing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                       <span class="n">auxiliary_scans_enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">sender</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">subject</span> <span class="o">=</span> <span class="n">subject</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">attachments</span> <span class="o">=</span> <span class="n">attachments</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">is_phishing</span> <span class="o">=</span> <span class="n">is_phishing</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">auxiliary_scans_enabled</span> <span class="o">=</span> <span class="n">auxiliary_scans_enabled</span>
+</code></pre></div></div>
+
+<p>e.g. say for a certain criteria <code class="language-plaintext highlighter-rouge">domain-check</code> most non-phishing emails score -0.5 around there, and most phishing emails score 0.5. if i test an email and it scores 0.9, it’s likely to be phishing, for obvious reasons. we just take our score and see which average it falls towards quicker.</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
