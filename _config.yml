@@ -28,7 +28,11 @@ twitter_username: sama
 github_username:  canairo
 
 # Build settings
-theme: no-style-please
+
+remote_theme: "riggraz/no-style-please"
+plugins:
+  - jekyll-remote-theme
+
 
 highlighter: rouge
 markdown: kramdown

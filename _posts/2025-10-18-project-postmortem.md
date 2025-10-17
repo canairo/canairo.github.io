@@ -30,4 +30,6 @@ class ProcessedEmail:
         self.auxiliary_scans_enabled = auxiliary_scans_enabled
 ```
 
-e.g. say for a certain criteria `domain-check` most non-phishing emails score -0.5 around there, and most phishing emails score 0.5. if i test an email and it scores 0.9, it's likely to be phishing, for obvious reasons. we just take our score and see which average it falls towards quicker.
+e.g. say for a certain criteria `domain-check` most non-phishing emails score -0.5 around there, and most phishing emails score 0.5. if i test an email and it scores 0.9, it's likely to be phishing, for obvious reasons. we just take our score and see which average it's nearer to.
+
+
