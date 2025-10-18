@@ -28,7 +28,7 @@ dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, fembo
 ### beliefs
 - death penalty for vibe coders
 - trans rights are human rights
-- be good at what you do or quit
+- be good at what you do, take pride in it
 
 ### friend blogs
 - [scuffed](https://scuffed.online)

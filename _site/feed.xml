@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-18T07:26:51+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">project postmortem</title><link href="http://localhost:4000/2025/10/18/project-postmortem.html" rel="alternate" type="text/html" title="project postmortem" /><published>2025-10-18T05:40:00+08:00</published><updated>2025-10-18T05:40:00+08:00</updated><id>http://localhost:4000/2025/10/18/project-postmortem</id><content type="html" xml:base="http://localhost:4000/2025/10/18/project-postmortem.html"><![CDATA[<p>i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-18T08:24:12+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">project postmortem</title><link href="http://localhost:4000/2025/10/18/project-postmortem.html" rel="alternate" type="text/html" title="project postmortem" /><published>2025-10-18T05:40:00+08:00</published><updated>2025-10-18T05:40:00+08:00</updated><id>http://localhost:4000/2025/10/18/project-postmortem</id><content type="html" xml:base="http://localhost:4000/2025/10/18/project-postmortem.html"><![CDATA[<p>i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.</p>
 
 <h3 id="project-specifications">project specifications</h3>
 
@@ -23,4 +23,276 @@
         <span class="bp">self</span><span class="p">.</span><span class="n">auxiliary_scans_enabled</span> <span class="o">=</span> <span class="n">auxiliary_scans_enabled</span>
 </code></pre></div></div>
 
-<p>e.g. say for a certain criteria <code class="language-plaintext highlighter-rouge">domain-check</code> most non-phishing emails score -0.5 around there, and most phishing emails score 0.5. if i test an email and it scores 0.9, it’s likely to be phishing, for obvious reasons. we just take our score and see which average it’s nearer to.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.]]></summary></entry></feed>
+<p>e.g. say for a certain criteria <code class="language-plaintext highlighter-rouge">domain-check</code> most non-phishing emails score -0.5 around there, and most phishing emails score 0.5. if i test an email and it scores 0.9, it’s likely to be phishing, for obvious reasons. we just take our score and see which average it’s nearer to.</p>
+
+<p>our dataset was around 50k emails large spread out across multiple <code class="language-plaintext highlighter-rouge">.csv</code> files which necessitates normalization - different <code class="language-plaintext highlighter-rouge">.csv</code> files, different header cols, also some cols wld just be completely nulled out - also what happens if i want to add more files</p>
+
+<p>to make this easier for myself i just made the following file:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">"filename"</span><span class="p">:</span> <span class="s">"CEAS_08.csv"</span><span class="p">,</span>
+        <span class="s">"cols"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"sender"</span><span class="p">:</span> <span class="s">"sender"</span><span class="p">,</span>
+            <span class="s">"message"</span><span class="p">:</span> <span class="s">"body"</span><span class="p">,</span>
+            <span class="s">"subject"</span><span class="p">:</span> <span class="s">"subject"</span><span class="p">,</span>
+            <span class="s">"attachments"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s">"is_phishing"</span><span class="p">:</span> <span class="s">"label"</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">"filename"</span><span class="p">:</span> <span class="s">"Ling.csv"</span><span class="p">,</span>
+        <span class="s">"cols"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"sender"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s">"message"</span><span class="p">:</span> <span class="s">"body"</span><span class="p">,</span>
+            <span class="s">"subject"</span><span class="p">:</span> <span class="s">"subject"</span><span class="p">,</span>
+            <span class="s">"attachments"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s">"is_phishing"</span><span class="p">:</span> <span class="s">"label"</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">"filename"</span><span class="p">:</span> <span class="s">"SpamAssasin.csv"</span><span class="p">,</span>
+        <span class="s">"cols"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"sender"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s">"message"</span><span class="p">:</span> <span class="s">"body"</span><span class="p">,</span>
+            <span class="s">"subject"</span><span class="p">:</span> <span class="s">"subject"</span><span class="p">,</span>
+            <span class="s">"attachments"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s">"is_phishing"</span><span class="p">:</span> <span class="s">"label"</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p>neat little <code class="language-plaintext highlighter-rouge">metadata.json</code> file that i can just add to if i ever want to change anything, and this is kind of a microcosm of my design philosophy throughout the whole thing: i want to be able to add stuff quick and i want to make it easier for myself to do so, no hard-baking any values it should be directory | os | filename | colname agnostic or whatever. we were also graded for ‘modularity’ and ‘reusability’ so i suppose this falls under that rubric</p>
+
+<p>anyways so the actual way this gets stored is as a python pickle file:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">normalize_email_datasets</span><span class="p">(</span><span class="n">email_csv_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="n">emails</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">email_csv_files</span><span class="p">:</span>
+        <span class="nb">file</span> <span class="o">=</span> <span class="n">current_filepath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">/</span> <span class="s">'datasets'</span> <span class="o">/</span> <span class="s">'emails'</span> <span class="o">/</span> <span class="n">f</span><span class="p">[</span><span class="s">'filename'</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s">'cols'</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">''</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cols</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span>
+                <span class="n">emails</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s">'sender'</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">'sender'</span><span class="p">],</span>
+                    <span class="s">'message'</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">'message'</span><span class="p">],</span>
+                    <span class="s">'subject'</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">'subject'</span><span class="p">],</span>
+                    <span class="s">'attachments'</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">'attachments'</span><span class="p">],</span>
+                    <span class="s">'is_phishing'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">'is_phishing'</span><span class="p">]),</span>
+                    <span class="s">'auxiliary_scans_enabled'</span><span class="p">:</span> <span class="bp">False</span>
+                <span class="p">})</span>
+    <span class="k">return</span> <span class="n">emails</span>
+</code></pre></div></div>
+
+<p>we first generate this list and then we pickle it</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">initialize_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">current_filepath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">/</span> <span class="s">'datasets'</span> <span class="o">/</span> <span class="s">'emails'</span> <span class="o">/</span> <span class="s">'metadata.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">email_csv_files</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">current_filepath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">/</span> <span class="s">'datasets'</span> <span class="o">/</span> <span class="s">'domains'</span> <span class="o">/</span> <span class="s">'metadata.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">domain_files</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">compiled_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">dataset_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">'filename'</span><span class="p">:</span> <span class="s">'emails'</span><span class="p">,</span>
+            <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">normalize_email_datasets</span><span class="p">,</span>
+            <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">email_csv_files</span><span class="p">,)</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">'filename'</span><span class="p">:</span> <span class="s">'keywords'</span><span class="p">,</span>
+            <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">get_keywords</span><span class="p">,</span>
+            <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">compiled_datasets</span><span class="p">[</span><span class="s">'emails'</span><span class="p">],)</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">'filename'</span><span class="p">:</span> <span class="s">'domains'</span><span class="p">,</span>
+            <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">normalize_domain_datasets</span><span class="p">,</span>
+            <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">domain_files</span><span class="p">,)</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">data_dict</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_filepath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">/</span> <span class="s">'pickled-datasets'</span> <span class="o">/</span> <span class="n">data_dict</span><span class="p">[</span><span class="s">'filename'</span><span class="p">]).</span><span class="n">with_suffix</span><span class="p">(</span><span class="s">'.pkl'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="p">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">data_dict</span><span class="p">[</span><span class="s">"filename"</span><span class="p">]</span><span class="si">}</span><span class="s"> already saved to disk!'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">data_dict</span><span class="p">[</span><span class="s">"filename"</span><span class="p">]</span><span class="si">}</span><span class="s"> not saved to disk. generating from scratch - this might take a while...'</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s">'args'</span><span class="p">]()</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s">'function'</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span> 
+                    <span class="n">pickle</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+        <span class="n">compiled_datasets</span><span class="p">[</span><span class="n">data_dict</span><span class="p">[</span><span class="s">'filename'</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filepath</span> 
+    <span class="k">return</span> <span class="n">compiled_datasets</span>
+</code></pre></div></div>
+
+<p>again note that i actually just store all the dataset funcs in a dict that i can just add to at will:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dataset_list</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">'filename'</span><span class="p">:</span> <span class="s">'emails'</span><span class="p">,</span>
+        <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">normalize_email_datasets</span><span class="p">,</span>
+        <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">email_csv_files</span><span class="p">,)</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">'filename'</span><span class="p">:</span> <span class="s">'keywords'</span><span class="p">,</span>
+        <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">get_keywords</span><span class="p">,</span>
+        <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">compiled_datasets</span><span class="p">[</span><span class="s">'emails'</span><span class="p">],)</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">'filename'</span><span class="p">:</span> <span class="s">'domains'</span><span class="p">,</span>
+        <span class="s">'function'</span><span class="p">:</span> <span class="n">dataset_functions</span><span class="p">.</span><span class="n">normalize_domain_datasets</span><span class="p">,</span>
+        <span class="s">'args'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">domain_files</span><span class="p">,)</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>also some of the datasets r actually dependent on other datasets to be generated, so we use a lil trick by lazily loading them - if we load them on runtime, they wont be defined, and the code will error. but if we wrap in a function, the values will only get returned when that func is called, so we can resolve the refs when they actually exist</p>
+
+<p>this results in really ugly code but its ok, the way we actlly cal the funcs is even uglier:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">args</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s">'args'</span><span class="p">]()</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s">'function'</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>so first we have to <em>call</em> the func <code class="language-plaintext highlighter-rouge">args()</code> to get our arg tup, then we need to unpack it w/ the unpacking star op to pass it as a valid arg tuple. we actually need it as a tuple because python funcs always require tuples to be their input. it can just be a singleton tuple or actually a tuple w/ nothing in it as w a method like <code class="language-plaintext highlighter-rouge">sort()</code> for strings but, you need that tuple because i <em>think</em> that’s how it works on the cpython lvl - it’s also how it works on the bytecode level, too</p>
+
+<h3 id="brief-diversion-into-lambda-calc">brief diversion into lambda calc</h3>
+
+<p>so thats decently cursed but i found it quite cool bc it shows that funcs are just like any other object and can be called ‘indirectly’, consider the following</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">x</span><span class="p">)(</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>like thats just defining a func and then calling it afterwards which is perfectly fine if not a bit weird looking but this is the basis for more complicated currying:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">(</span><span class="n">y</span><span class="p">))((</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>like this is a mess of brackets but still works because of the same kind of concept, it’s highly unintuitive (as lambda calculus is wont to be) but like.. it makes sense:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">second_order_func</span><span class="p">(</span><span class="n">first_order_func</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">first_order_func</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">second_order_func</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>both are equivalent codeblocks that do the exact same thing one’s just more obfuscated. once you internalize the idea that a function is just an object like any other, you can do a lot of neat stuff!</p>
+
+<h3 id="python-pickle-chan">python pickle-chan</h3>
+
+<p>i got a love hate relationship w/ pickle, it was completely unnecessary for this proj imo but i just really wanted to use it (which led to python segfaults). i have a lot of niche knowledge abt python pickles because i am a deranged loser. given this is my blog i am going to inundate you with that knowledge.</p>
+
+<p>a python pickle is actually a stack machine</p>
+
+<p>yea</p>
+
+<p>isnt that fucked up</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pickletools</span><span class="p">.</span><span class="n">dis</span><span class="p">(</span><span class="n">z</span><span class="p">.</span><span class="n">read</span><span class="p">()[:</span><span class="mi">1000</span><span class="p">])</span>
+    <span class="mi">0</span><span class="p">:</span> \<span class="n">x80</span> <span class="n">PROTO</span>      <span class="mi">4</span>
+    <span class="mi">2</span><span class="p">:</span> \<span class="n">x95</span> <span class="n">FRAME</span>      <span class="mi">65543</span>
+   <span class="mi">11</span><span class="p">:</span> <span class="p">}</span>    <span class="n">EMPTY_DICT</span>
+   <span class="mi">12</span><span class="p">:</span> \<span class="n">x94</span> <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="mi">13</span><span class="p">:</span> <span class="p">(</span>    <span class="n">MARK</span>
+   <span class="mi">14</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0123456789nonexistent.com'</span>
+   <span class="mi">41</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">1</span><span class="p">)</span>
+   <span class="mi">42</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+   <span class="mi">43</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0980b6e8fe.com'</span>
+   <span class="mi">59</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">2</span><span class="p">)</span>
+   <span class="mi">60</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+   <span class="mi">61</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0aa0cf0637d66c0d.com'</span>
+   <span class="mi">83</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">3</span><span class="p">)</span>
+   <span class="mi">84</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+   <span class="mi">85</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0b8c767b16.com'</span>
+  <span class="mi">101</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">4</span><span class="p">)</span>
+  <span class="mi">102</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+  <span class="mi">103</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0cf.io'</span>
+  <span class="mi">111</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">5</span><span class="p">)</span>
+  <span class="mi">112</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+  <span class="mi">113</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0cgrf.site'</span>
+  <span class="mi">125</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">6</span><span class="p">)</span>
+  <span class="mi">126</span><span class="p">:</span> \<span class="n">x89</span>     <span class="n">NEWFALSE</span>
+  <span class="mi">127</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'0d9539106a.com'</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">proto, frame</code> r just metadata and not esp relevant but you can see the following:</p>
+
+<p><code class="language-plaintext highlighter-rouge">EMPTY_DICT</code> pushes a dict obj on the stack, and then <code class="language-plaintext highlighter-rouge">MARK</code> marks the ‘beginning’ of this dict</p>
+
+<p>from here on out, we keep pushing more things onto the stack, which are actually just our <code class="language-plaintext highlighter-rouge">(key, value)</code> pairs in our dict, one by one, w/ <code class="language-plaintext highlighter-rouge">SHORT_BINUNICODE</code> and <code class="language-plaintext highlighter-rouge">NEWFALSE</code> or <code class="language-plaintext highlighter-rouge">NEWTRUE</code>.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">425719</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'18.208.133.97'</span>
+<span class="mi">425734</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">19997</span><span class="p">)</span>
+<span class="mi">425735</span><span class="p">:</span> \<span class="n">x88</span>     <span class="n">NEWTRUE</span>
+<span class="mi">425736</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'18.208.167.36'</span>
+<span class="mi">425751</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">19998</span><span class="p">)</span>
+<span class="mi">425752</span><span class="p">:</span> \<span class="n">x88</span>     <span class="n">NEWTRUE</span>
+<span class="mi">425753</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'18.208.170.115'</span>
+<span class="mi">425769</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">19999</span><span class="p">)</span>
+<span class="mi">425770</span><span class="p">:</span> \<span class="n">x88</span>     <span class="n">NEWTRUE</span>
+<span class="mi">425771</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'18.208.206.155'</span>
+<span class="mi">425787</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="mi">425788</span><span class="p">:</span> \<span class="n">x88</span>     <span class="n">NEWTRUE</span>
+<span class="mi">425789</span><span class="p">:</span> <span class="n">u</span>        <span class="n">SETITEMS</span>   <span class="p">(</span><span class="n">MARK</span> <span class="n">at</span> <span class="mi">402582</span><span class="p">)</span>
+<span class="mi">425790</span><span class="p">:</span> <span class="p">(</span>    <span class="n">MARK</span>
+<span class="mi">425791</span><span class="p">:</span> \<span class="n">x8c</span>     <span class="n">SHORT_BINUNICODE</span> <span class="s">'18.208.206.239'</span>
+<span class="mi">425807</span><span class="p">:</span> \<span class="n">x94</span>     <span class="n">MEMOIZE</span>    <span class="p">(</span><span class="k">as</span> <span class="mi">20001</span><span class="p">)</span>
+<span class="mi">425808</span><span class="p">:</span> \<span class="n">x88</span>     <span class="n">NEWTRUE</span>
+<span class="mi">425809</span><span class="p">:</span> <span class="n">u</span>        <span class="n">SETITEMS</span>   <span class="p">(</span><span class="n">MARK</span> <span class="n">at</span> <span class="mi">425790</span><span class="p">)</span>
+<span class="mi">425810</span><span class="p">:</span> <span class="p">.</span>    <span class="n">STOP</span>
+<span class="n">highest</span> <span class="n">protocol</span> <span class="n">among</span> <span class="n">opcodes</span> <span class="o">=</span> <span class="mi">4</span>
+</code></pre></div></div>
+
+<p>then the <code class="language-plaintext highlighter-rouge">SETITEMS</code> opcode takes all the <code class="language-plaintext highlighter-rouge">key, val</code> pairs, beginning from the previous <code class="language-plaintext highlighter-rouge">MARK</code> object, and appends them to our <code class="language-plaintext highlighter-rouge">EMPTY_DICT</code> func. this actually exhausts the items on the stack by ‘merging’ them into the dict, so after <code class="language-plaintext highlighter-rouge">SETITEMS</code> the unicode strings and bool values disappear from the stack</p>
+
+<p>afterwards when we end execution, the thing on the top of the stack is our built item - in this case, the finished dict:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mf">18.205</span><span class="p">.</span><span class="mf">152.115</span> <span class="bp">True</span>
+<span class="mf">18.205</span><span class="p">.</span><span class="mf">210.75</span> <span class="bp">True</span>
+<span class="mf">18.205</span><span class="p">.</span><span class="mf">31.84</span> <span class="bp">True</span>
+<span class="mf">18.205</span><span class="p">.</span><span class="mf">65.34</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">157.40</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">179.68</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">22.189</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">236.14</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">64.201</span> <span class="bp">True</span>
+<span class="mf">18.206</span><span class="p">.</span><span class="mf">87.76</span> <span class="bp">True</span>
+<span class="mf">18.207</span><span class="p">.</span><span class="mf">103.195</span> <span class="bp">True</span>
+<span class="mf">18.207</span><span class="p">.</span><span class="mf">110.64</span> <span class="bp">True</span>
+<span class="mf">18.207</span><span class="p">.</span><span class="mf">179.6</span> <span class="bp">True</span>
+<span class="mf">18.207</span><span class="p">.</span><span class="mf">211.246</span> <span class="bp">True</span>
+<span class="mf">18.207</span><span class="p">.</span><span class="mf">9.112</span> <span class="bp">True</span>
+<span class="mf">18.208</span><span class="p">.</span><span class="mf">133.97</span> <span class="bp">True</span>
+<span class="mf">18.208</span><span class="p">.</span><span class="mf">167.36</span> <span class="bp">True</span>
+<span class="mf">18.208</span><span class="p">.</span><span class="mf">170.115</span> <span class="bp">True</span>
+<span class="mf">18.208</span><span class="p">.</span><span class="mf">206.155</span> <span class="bp">True</span>
+<span class="mf">18.208</span><span class="p">.</span><span class="mf">206.239</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<p>we can see that our dict gets built as per normal</p>
+
+<p>mad freaky</p>
+
+<p>as an aside, ofc, given that these r just stack machines, u can just write ur own pickles by handcrafting the bytecode - in fact, you can handcraft <em>python</em> bytecode too. this is something i have learned how to do because i am insane but i will save it for a later blogpost. but just to prove it here’s a minimal shell w/ pickle bytecode, for POCs people typically create an actual pickle and just override the <code class="language-plaintext highlighter-rouge">reduce</code> attr but it’s rare to see shit like, for example, this:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="sa">b</span><span class="s">''</span>
+<span class="n">p</span> <span class="o">+=</span> <span class="n">GLOBAL</span> <span class="o">+</span> <span class="sa">b</span><span class="s">'os</span><span class="se">\n</span><span class="s">system</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">p</span> <span class="o">+=</span> <span class="n">UNICODE</span> <span class="o">+</span> <span class="sa">b</span><span class="s">'/bin/sh</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">p</span> <span class="o">+=</span> <span class="n">TUPLE1</span> <span class="o">+</span> <span class="n">REDUCE</span>
+<span class="n">p</span> <span class="o">+=</span> <span class="n">STOP</span>
+
+<span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="segfaultonomics">segfaultonomics</h3>
+
+<p>so somehow this shit would segfault. how? i have no fucking idea lmfao</p>
+
+<p>to do: finish this post…</p>]]></content><author><name></name></author><summary type="html"><![CDATA[i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.]]></summary></entry></feed>

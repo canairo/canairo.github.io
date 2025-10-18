@@ -13,6 +13,13 @@
   color: #928374;
   font-style: italic;
 }
+
+.highlight .nf {
+  font-weight: bold;
+  font-style: italic;
+  color: #b8bb26;
+
+}
 .highlight .cp {
   color: #8ec07c;
 }
@@ -33,6 +40,11 @@
   color: #fb4934;
   background-color: #282828;
 }
+
+.highlight .o {
+  color: #fe8019;
+}
+
 .highlight .gh {
   color: #b8bb26;
   font-weight: bold;
@@ -73,6 +85,9 @@
 }
 .highlight .sa, .highlight .bp {
   color: #fb4934;
+}
+.highlight .n {
+  font-style: italic;
 }
 .highlight .se {
   color: #fe8019;
