@@ -5,9 +5,8 @@ date: 2025-10-19 01:40:00 +0800
 ---
 
 recommended listening for this blog post is [blew by nirvana at live and loud, seattle 1993](https://www.youtube.com/watch?v=QVlo81A5mHc)
-i just spent like 30 hours straight looking through python internals here is a blog post about it. 
 
-the impetus behind this is bc while i was doing my uni proj, i wanted to make use of some neat tricks i learned to improve performance. one of these tricks was a python library that implements a LRU cache, `functools`: it gives you a decorator that you can just chuck onto any given function and it will automatically implement a LRU cache for you.
+i just spent like 30 hours straight looking through python internals here is a blog post about it. the impetus behind this is bc while i was doing my uni proj, i wanted to make use of some neat tricks i learned to improve performance. one of these tricks was a python library that implements a LRU cache, `functools`: it gives you a decorator that you can just chuck onto any given function and it will automatically implement a LRU cache for you.
 
 ### preamble on hashes
 

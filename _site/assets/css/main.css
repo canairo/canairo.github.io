@@ -32,7 +32,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: #83a598;
+  color: #a8d1f7;
+  transition: 0.1s;
+}
+
+a:hover {
+  color: #cc241d;
 }
 
 .language-plaintext {
