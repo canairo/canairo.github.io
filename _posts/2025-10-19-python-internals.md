@@ -11,7 +11,7 @@ the impetus behind this is bc while i was doing my uni proj, i wanted to make us
 
 ### preamble on hashes
 
-the curious thing is that if you put in an unhashable type as on of your args, it silently fails:
+the curious thing is that if you put in an unhashable type as one of your args, it silently fails:
 
 ```py
 >>> import functools
@@ -220,7 +220,7 @@ PyObject_Hash(PyObject *v)
 }
 ```
 
-# hash functions get called a lot actually oops
+### hash functions get called a lot actually oops
 
 ok now this is about the time where i underwent a further diversion from my initial task by compiling python 3.12 from source w/ debug symbols because i just wanted to tinker more, this started w/ me putting a breakpoint on `long_hash` and seeing that this function actually gets called multiple times on initialization:
 

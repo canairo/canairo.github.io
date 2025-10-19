@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-20T06:22:44+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">cpython deep dive</title><link href="http://localhost:4000/2025/10/19/python-internals.html" rel="alternate" type="text/html" title="cpython deep dive" /><published>2025-10-19T01:40:00+08:00</published><updated>2025-10-19T01:40:00+08:00</updated><id>http://localhost:4000/2025/10/19/python-internals</id><content type="html" xml:base="http://localhost:4000/2025/10/19/python-internals.html"><![CDATA[<p>recommended listening for this blog post is <a href="https://www.youtube.com/watch?v=QVlo81A5mHc">blew by nirvana at live and loud, seattle 1993</a>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-20T06:24:57+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">cpython deep dive</title><link href="http://localhost:4000/2025/10/19/python-internals.html" rel="alternate" type="text/html" title="cpython deep dive" /><published>2025-10-19T01:40:00+08:00</published><updated>2025-10-19T01:40:00+08:00</updated><id>http://localhost:4000/2025/10/19/python-internals</id><content type="html" xml:base="http://localhost:4000/2025/10/19/python-internals.html"><![CDATA[<p>recommended listening for this blog post is <a href="https://www.youtube.com/watch?v=QVlo81A5mHc">blew by nirvana at live and loud, seattle 1993</a>
 i just spent like 30 hours straight looking through python internals here is a blog post about it.</p>
 
 <p>the impetus behind this is bc while i was doing my uni proj, i wanted to make use of some neat tricks i learned to improve performance. one of these tricks was a python library that implements a LRU cache, <code class="language-plaintext highlighter-rouge">functools</code>: it gives you a decorator that you can just chuck onto any given function and it will automatically implement a LRU cache for you.</p>
 
 <h3 id="preamble-on-hashes">preamble on hashes</h3>
 
-<p>the curious thing is that if you put in an unhashable type as on of your args, it silently fails:</p>
+<p>the curious thing is that if you put in an unhashable type as one of your args, it silently fails:</p>
 
 <div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">functools</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">@</span><span class="n">functools</span><span class="p">.</span><span class="n">lru_cache</span>
@@ -203,7 +203,7 @@ i just spent like 30 hours straight looking through python internals here is a b
 <span class="p">}</span>
 </code></pre></div></div>
 
-<h1 id="hash-functions-get-called-a-lot-actually-oops">hash functions get called a lot actually oops</h1>
+<h3 id="hash-functions-get-called-a-lot-actually-oops">hash functions get called a lot actually oops</h3>
 
 <p>ok now this is about the time where i underwent a further diversion from my initial task by compiling python 3.12 from source w/ debug symbols because i just wanted to tinker more, this started w/ me putting a breakpoint on <code class="language-plaintext highlighter-rouge">long_hash</code> and seeing that this function actually gets called multiple times on initialization:</p>
 

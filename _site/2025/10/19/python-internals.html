@@ -42,7 +42,7 @@ i just spent like 30 hours straight looking through python internals here is a b
 
 <h3 id="preamble-on-hashes">preamble on hashes</h3>
 
-<p>the curious thing is that if you put in an unhashable type as on of your args, it silently fails:</p>
+<p>the curious thing is that if you put in an unhashable type as one of your args, it silently fails:</p>
 
 <div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">functools</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">@</span><span class="n">functools</span><span class="p">.</span><span class="n">lru_cache</span>
@@ -240,7 +240,7 @@ i just spent like 30 hours straight looking through python internals here is a b
 <span class="p">}</span>
 </code></pre></div></div>
 
-<h1 id="hash-functions-get-called-a-lot-actually-oops">hash functions get called a lot actually oops</h1>
+<h3 id="hash-functions-get-called-a-lot-actually-oops">hash functions get called a lot actually oops</h3>
 
 <p>ok now this is about the time where i underwent a further diversion from my initial task by compiling python 3.12 from source w/ debug symbols because i just wanted to tinker more, this started w/ me putting a breakpoint on <code class="language-plaintext highlighter-rouge">long_hash</code> and seeing that this function actually gets called multiple times on initialization:</p>
 
