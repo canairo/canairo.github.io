@@ -6,7 +6,7 @@ permalink: /about/
 
 wrenches dot online, owned and operated by prof cane llc pte ltd shell corp inc org dot com. 
 
-dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, men, racists, racist femboys, rust shills who can't explain what a UAF is
+dni: software engineers, proshippers, vibe coders, nazis, men
 
 ### links
 
@@ -32,5 +32,5 @@ dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, men, 
 
 ### friend blogs
 - [scuffed](https://scuffed.online)
-- [azazo](http://azazo.me)
+- [azazo](https://blog.azazo.me)
 - [nikola](https://ndgsghdj.github.io)
