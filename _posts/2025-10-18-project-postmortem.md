@@ -4,6 +4,8 @@ title: project postmortem
 date: 2025-10-18 05:40:00 +0800
 ---
 
+recommended listening for this post is [susumu hirasawa's gats](https://www.youtube.com/watch?v=2M_wd45kpKQ)
+
 i had to do a uni python proj that involved writing a 'phishing email detector'. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.
 
 ### project specifications
@@ -315,4 +317,10 @@ loads(p)
 
 so somehow this shit would segfault. how? i have no fucking idea lmfao
 
-to do: finish this post...
+i was going to debug the segfault and figure out what was causing it, i had a bunch of cool stuff planned like diving into python internals w/ `gdb`, checking `valgrind` outputs, examining how python actually handles its memory (which is all really cool, conceptually) but i just like. i just. i just couldn't fucking replicate the segfault. i tried q a bunch of stuff and it seems i was just completely unable to replicate them
+
+ftr i was on arch when it segfaulted and i have since switched to debian, which may be an underlying cause? who knows. these memory issues are always very finicky and vary os-to-os
+
+i'm quite bummed because i find python internals rlly very interesting actually, and i was hoping to use this as an excuse to learn more. but unfortunately i just can't fucking test it out
+
+todo...

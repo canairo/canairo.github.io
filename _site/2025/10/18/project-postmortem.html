@@ -8,8 +8,8 @@
 <meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="project postmortem" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about." />
-<meta property="og:description" content="i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about." />
+<meta name="description" content="recommended listening for this post is susumu hirasawa’s gats" />
+<meta property="og:description" content="recommended listening for this post is susumu hirasawa’s gats" />
 <link rel="canonical" href="http://localhost:4000/2025/10/18/project-postmortem.html" />
 <meta property="og:url" content="http://localhost:4000/2025/10/18/project-postmortem.html" />
 <meta property="og:site_name" content="wrenches" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="project postmortem" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-10-18T05:40:00+08:00","datePublished":"2025-10-18T05:40:00+08:00","description":"i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.","headline":"project postmortem","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/18/project-postmortem.html"},"url":"http://localhost:4000/2025/10/18/project-postmortem.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-10-18T05:40:00+08:00","datePublished":"2025-10-18T05:40:00+08:00","description":"recommended listening for this post is susumu hirasawa’s gats","headline":"project postmortem","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/18/project-postmortem.html"},"url":"http://localhost:4000/2025/10/18/project-postmortem.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
   <link rel="stylesheet" href="/assets/css/main.css" />
@@ -35,7 +35,9 @@
   
   <h1>project postmortem</h1>
 
-  <p>i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.</p>
+  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=2M_wd45kpKQ">susumu hirasawa’s gats</a></p>
+
+<p>i had to do a uni python proj that involved writing a ‘phishing email detector’. it was fun and i liked doing it. here is some overly technical, recherche nonsense about the implementation details of things that i want to talk about.</p>
 
 <h3 id="project-specifications">project specifications</h3>
 
@@ -332,7 +334,13 @@
 
 <p>so somehow this shit would segfault. how? i have no fucking idea lmfao</p>
 
-<p>to do: finish this post…</p>
+<p>i was going to debug the segfault and figure out what was causing it, i had a bunch of cool stuff planned like diving into python internals w/ <code class="language-plaintext highlighter-rouge">gdb</code>, checking <code class="language-plaintext highlighter-rouge">valgrind</code> outputs, examining how python actually handles its memory (which is all really cool, conceptually) but i just like. i just. i just couldn’t fucking replicate the segfault. i tried q a bunch of stuff and it seems i was just completely unable to replicate them</p>
+
+<p>ftr i was on arch when it segfaulted and i have since switched to debian, which may be an underlying cause? who knows. these memory issues are always very finicky and vary os-to-os</p>
+
+<p>i’m quite bummed because i find python internals rlly very interesting actually, and i was hoping to use this as an excuse to learn more. but unfortunately i just can’t fucking test it out</p>
+
+<p>todo…</p>
 
 </article>
       </div>

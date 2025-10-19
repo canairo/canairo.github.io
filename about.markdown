@@ -6,7 +6,7 @@ permalink: /about/
 
 wrenches dot online, owned and operated by prof cane llc pte ltd shell corp inc org dot com. 
 
-dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, femboys, racists, racist femboys, rust shills
+dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, men, racists, racist femboys, rust shills who can't explain what a UAF is
 
 ### links
 
@@ -26,7 +26,7 @@ dni: software engineers, vibe coders, ppl w/ tiktok >2hr screen time / wk, fembo
 - my friends who i love
 
 ### beliefs
-- death penalty for vibe coders
+- death penalty for nazis, racists, homophobes and vibe coders
 - trans rights are human rights
 - be good at what you do, take pride in it
 
