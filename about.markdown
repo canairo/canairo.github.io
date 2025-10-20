@@ -4,9 +4,9 @@ title: about
 permalink: /about/
 ---
 
-wrenches dot online, owned and operated by prof cane llc pte ltd shell corp inc org dot com. 
+![alt text](/assets/images/796940.png)
 
-dni: software engineers, proshippers, vibe coders, nazis, men
+dni: software engineers, zionists, men in general
 
 ### links
 
@@ -25,12 +25,10 @@ dni: software engineers, proshippers, vibe coders, nazis, men
 - joan didion, guyliner, taobao
 - my friends who i love
 
-### beliefs
-- death penalty for nazis, racists, homophobes and vibe coders
-- trans rights are human rights
-- be good at what you do, take pride in it
-
 ### friend blogs
-- [scuffed](https://scuffed.online)
-- [azazo](https://blog.azazo.me)
-- [nikola](https://ndgsghdj.github.io)
+- [scuffed](https://scuffed.online) is my good buddy who writes about `rev` and the sacred art of vibes and eyepower
+- [azazo](https://blog.azazo.me) is my good buddy who writes about `math` and `crypto` i will always want to understand but never will
+- [nikola](https://ndgsghdj.github.io) is my good buddy who writes about `pwn` and has taught me basically everything i know about it
+- [fern](https://fern89.github.io/) is my good buddy who writes about `pwn`, and `AI`, but like the good actually interesting mathematically involved kind of AI
+- [wf](https://waheyy.github.io/) is my good buddy who writes about `pwn` and will become an unstoppable pwn force of nature soon 
+- [nicky](https://pachycephalosaurus.github.io/lolsquid/) isnt a ctfer but they're my good buddy anyway `puzzles` and cool stuff

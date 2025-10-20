@@ -1,5 +1,6 @@
 html, body {
-  background: #282828;
+  background: #1c1c1c;
+  background-image:url('output.png');
 }
 
 html {
