@@ -4,6 +4,21 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
   <title>project postmortem</title><!-- Begin Jekyll SEO tag v2.8.0 -->
 <meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="project postmortem" />
@@ -330,7 +345,7 @@
 <span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </code></pre></div></div>
 
-<h3 id="segfaultonomics">segfaultonomics</h3>
+<h3 id="diversion-into-segfaults">diversion into segfaults</h3>
 
 <p>so somehow this shit would segfault. how? i have no fucking idea lmfao</p>
 
@@ -338,9 +353,15 @@
 
 <p>ftr i was on arch when it segfaulted and i have since switched to debian, which may be an underlying cause? who knows. these memory issues are always very finicky and vary os-to-os</p>
 
-<p>i’m quite bummed because i find python internals rlly very interesting actually, and i was hoping to use this as an excuse to learn more. but unfortunately i just can’t fucking test it out</p>
+<p><strong>[update]</strong> yeah i ended up writing this and it was really fun, it’s the blogpost following this one about <a href="/2025/10/19/python-internals.html">cpython internals</a>.</p>
 
-<p>todo…</p>
+<h3 id="uhhh">uhhh</h3>
+
+<p>ok honestly i was gonna have more to write but the rest of it is kind of banal and i dont have anything else to say. i guess i could talk about rapidfuzz and bktrees but thats. i dont really care nor do i know enough about either thing to make a compelling writeup</p>
+
+<p>so uhh</p>
+
+<p>yay! :)</p>
 
 </article>
       </div>

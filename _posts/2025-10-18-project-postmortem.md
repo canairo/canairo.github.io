@@ -313,7 +313,7 @@ p += STOP
 loads(p)
 ```
 
-### segfaultonomics
+### diversion into segfaults
 
 so somehow this shit would segfault. how? i have no fucking idea lmfao
 
@@ -321,6 +321,12 @@ i was going to debug the segfault and figure out what was causing it, i had a bu
 
 ftr i was on arch when it segfaulted and i have since switched to debian, which may be an underlying cause? who knows. these memory issues are always very finicky and vary os-to-os
 
-i'm quite bummed because i find python internals rlly very interesting actually, and i was hoping to use this as an excuse to learn more. but unfortunately i just can't fucking test it out
+**[update\]** yeah i ended up writing this and it was really fun, it's the blogpost following this one about [cpython internals]({{ "/2025/10/19/python-internals.html" | relative_url }}). 
 
-todo...
+### uhhh
+
+ok honestly i was gonna have more to write but the rest of it is kind of banal and i dont have anything else to say. i guess i could talk about rapidfuzz and bktrees but thats. i dont really care nor do i know enough about either thing to make a compelling writeup
+
+so uhh
+
+yay! :)
