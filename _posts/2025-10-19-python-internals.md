@@ -647,6 +647,8 @@ uaf[23] = B()
 
 we can see that `0x17 == 23`, so it checks out. but we also want to verify that our `values` ptr corresponds to this `B()` class instance.
 
+just to be clear, the reason we specifically access the 23rd index of this bytearray is because that is the index of the MSB of the `ob_size` array. 
+
 ```c
 gef> p *((PyTypeObject *)((PyObject *)values)->ob_type)
 $11 = {
@@ -766,13 +768,15 @@ the UAF bug relies in how `PyByteArray_AS_STRING` _retains_ a ptr to a buffer af
 
 then, we create another bytearray named `memory`. this ends up _overlapping_ w our previously freed buffer `uaf`, and so, we are free to write to the struct metadata values as we please!
 
+% do you compute %
+% do you compute %
+% do you or dont you %
+
 however, we don't actually have any 'direct' writes, meaning we need to leverage this nonsense w/ the `__index__` func to perform our write for us. see here, in the `bytearray_ass_subscript` func:
 
 ```c
 buf[i] = (char)ival
 ```
-
-this is our freed buf (which now overlaps w/ our `memory` struct)!
 
 ```c
 gef> p *(PyByteArrayObject *) buf

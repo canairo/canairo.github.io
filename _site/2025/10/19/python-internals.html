@@ -664,6 +664,8 @@ window.MathJax = {
 
 <p>we can see that <code class="language-plaintext highlighter-rouge">0x17 == 23</code>, so it checks out. but we also want to verify that our <code class="language-plaintext highlighter-rouge">values</code> ptr corresponds to this <code class="language-plaintext highlighter-rouge">B()</code> class instance.</p>
 
+<p>just to be clear, the reason we specifically access the 23rd index of this bytearray is because that is the index of the MSB of the <code class="language-plaintext highlighter-rouge">ob_size</code> array.</p>
+
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">((</span><span class="n">PyTypeObject</span> <span class="o">*</span><span class="p">)((</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">values</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_type</span><span class="p">)</span>
 <span class="err">$</span><span class="mi">11</span> <span class="o">=</span> <span class="p">{</span>
   <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
@@ -774,12 +776,14 @@ overwrite_me val: 0x20
 
 <p>then, we create another bytearray named <code class="language-plaintext highlighter-rouge">memory</code>. this ends up <em>overlapping</em> w our previously freed buffer <code class="language-plaintext highlighter-rouge">uaf</code>, and so, we are free to write to the struct metadata values as we please!</p>
 
+<p>% do you compute %
+% do you compute %
+% do you or dont you %</p>
+
 <p>however, we don’t actually have any ‘direct’ writes, meaning we need to leverage this nonsense w/ the <code class="language-plaintext highlighter-rouge">__index__</code> func to perform our write for us. see here, in the <code class="language-plaintext highlighter-rouge">bytearray_ass_subscript</code> func:</p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="p">)</span><span class="n">ival</span>
 </code></pre></div></div>
-
-<p>this is our freed buf (which now overlaps w/ our <code class="language-plaintext highlighter-rouge">memory</code> struct)!</p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyByteArrayObject</span> <span class="o">*</span><span class="p">)</span> <span class="n">buf</span>
 <span class="err">$</span><span class="mi">5</span> <span class="o">=</span> <span class="p">{</span>

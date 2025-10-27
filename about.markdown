@@ -6,7 +6,7 @@ permalink: /about/
 
 ![alt text](/assets/images/796940.png)
 
-dni: software engineers, zionists, men in general
+aspiring goddaughter to kevin mitnick
 
 ### links
 
@@ -23,7 +23,7 @@ dni: software engineers, zionists, men in general
 - pipeline punch juice monster energy juice 500ml can
 - ncmpcpp, nvim
 - joan didion, guyliner, taobao
-- my friends who i love
+- my boyfriend
 
 ### friend blogs
 - [scuffed](https://scuffed.online) is my good buddy who writes about `rev` and the sacred art of vibes and eyepower
