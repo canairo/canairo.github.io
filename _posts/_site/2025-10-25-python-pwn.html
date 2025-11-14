@@ -1,56 +1,4 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-
-  <script type="text/javascript" id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-  </script>
-<script type="text/javascript">
-window.MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']]
-  },
-  chtml: {
-    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
-  }
-};
-</script>
-  <title>python pwn</title><!-- Begin Jekyll SEO tag v2.8.0 -->
-<meta name="generator" content="Jekyll v3.10.0" />
-<meta property="og:title" content="python pwn" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="recommended listening for this post is yeule’s eko" />
-<meta property="og:description" content="recommended listening for this post is yeule’s eko" />
-<link rel="canonical" href="http://localhost:4000/2025/10/25/python-pwn.html" />
-<meta property="og:url" content="http://localhost:4000/2025/10/25/python-pwn.html" />
-<meta property="og:site_name" content="wrenches" />
-<meta property="og:type" content="article" />
-<meta property="article:published_time" content="2025-10-25T03:40:00+08:00" />
-<meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="python pwn" />
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-10-25T03:40:00+08:00","datePublished":"2025-10-25T03:40:00+08:00","description":"recommended listening for this post is yeule’s eko","headline":"python pwn","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/25/python-pwn.html"},"url":"http://localhost:4000/2025/10/25/python-pwn.html"}</script>
-<!-- End Jekyll SEO tag -->
-<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
-  <link rel="stylesheet" href="/assets/css/main.css" />
-  <link rel="stylesheet" href="/assets/css/syntax.css">
-
-</head>
-<body a="dark">
-    <main class="page-content" aria-label="Content">
-      <div class="w">
-        <a href="/"></a><article>
-  <p class="post-meta">
-    <time datetime="2025-10-25 03:40:00 +0800">2025-10-25 03:40:00 +0800</time>
-  </p>
-  
-  <h1>python pwn</h1>
-
-  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=NiV5d6-GKJ4">yeule’s eko</a></p>
+<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=NiV5d6-GKJ4">yeule’s eko</a></p>
 
 <p><img src="/assets/images/560734.png" alt="alt text" />
 in the last post i went over (in excruciating, unasked-for detail) the internals behind a basic uaf vuln in python, and how it creates a buffer w/ a nullptr as its <code class="language-plaintext highlighter-rouge">ob_start</code> and a size that is Extremely Large, leading to arbread and arbwrite.</p>
@@ -209,9 +157,3 @@ in the last post i went over (in excruciating, unasked-for detail) the internals
 
 <p>now that we are able to leak the address of this object, we can just subtract the offsets as per normal to get our PIE leak. the goal now is to then find addresses to libc after getting our PIE leak, and we can do so by finding entries in the Global Offset Table (GOT). just as a quick refresher: the GOT is where addresses to functions in libc are stored, such as <code class="language-plaintext highlighter-rouge">fgets()</code>, <code class="language-plaintext highlighter-rouge">printf()</code>, and etcetera. in a dynamically linked binary, these libc functions are defined in a separate address space, and the binary does not know where those functions actually are. the addresses get resolved when the binary needs to execute them, after which they are stored in the GOT. <em>meaning</em>, the GOT will have addresses to functions in libc!</p>
 
-
-</article>
-      </div>
-    </main>
-  </body>
-</html>

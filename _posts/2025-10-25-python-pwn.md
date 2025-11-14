@@ -169,8 +169,7 @@ woohoo yup
 
 anyways the reason this works is because our `_PyRuntime` var is defined in our python binary itself. it's not in the heap, it's not in libc, it's not wherever else. so the offsets will always be constant.
 
-anyways lets just hit an `info proc mappings` and get our PIE leak!
+### back to pwning
 
-
-
+now that we are able to leak the address of this object, we can just subtract the offsets as per normal to get our PIE leak. the goal now is to then find addresses to libc after getting our PIE leak, and we can do so by finding entries in the Global Offset Table (GOT). just as a quick refresher: the GOT is where addresses to functions in libc are stored, such as `fgets()`, `printf()`, and etcetera. in a dynamically linked binary, these libc functions are defined in a separate address space, and the binary does not know where those functions actually are. the addresses get resolved when the binary needs to execute them, after which they are stored in the GOT. _meaning_, the GOT will have addresses to functions in libc!
 

