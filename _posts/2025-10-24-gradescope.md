@@ -1,7 +1,7 @@
 ---
 layout: post
 title: leaking test cases from gradescope
-date: 2025-10-24 05:40:00 +0800
+date: 2026-10-24 05:40:00 +0800
 ---
 
 recommended listening for this post is [duran duran's come undone](https://www.youtube.com/watch?v=Epj84QVw2rc)
