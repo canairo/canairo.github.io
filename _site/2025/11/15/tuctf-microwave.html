@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>tuctf25 - misc/giovanna's microwave</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="tuctf25 - misc/giovanna’s microwave" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening for this post is aoi koi no daidaiiro no hi by masudore" />
+<meta property="og:description" content="recommended listening for this post is aoi koi no daidaiiro no hi by masudore" />
+<link rel="canonical" href="http://localhost:4000/2025/11/15/tuctf-microwave.html" />
+<meta property="og:url" content="http://localhost:4000/2025/11/15/tuctf-microwave.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-15T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="tuctf25 - misc/giovanna’s microwave" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-11-15T05:40:00+08:00","datePublished":"2025-11-15T05:40:00+08:00","description":"recommended listening for this post is aoi koi no daidaiiro no hi by masudore","headline":"tuctf25 - misc/giovanna’s microwave","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/11/15/tuctf-microwave.html"},"url":"http://localhost:4000/2025/11/15/tuctf-microwave.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-11-15 05:40:00 +0800">2025-11-15 05:40:00 +0800</time>
+  </p>
+  
+  <h1>tuctf25 - misc/giovanna's microwave</h1>
+
+  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=JK_hBk2f01k">aoi koi no daidaiiro no hi</a> by masudore</p>
+
+<p><img src="/assets/functional.png" alt="func" /></p>
+
+<p>it’s an ocaml binary.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>giovannas_microwave.exe: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=42a3344430e6a4ca6ae88c5b9ccb9928a4028dbd, for GNU/Linux 3.2.0, stripped
+</code></pre></div></div>
+
+<p>handwaving away around 4 hours of painful, clueless reversing of me just fumbling around blindly we isolate the important checks here, in the <code class="language-plaintext highlighter-rouge">evaluate_2083</code> function:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-----------------------------------</span> code: x86:64 <span class="o">(</span>gdb-native<span class="o">)</span> <span class="nt">----</span>
+    0x5555557d0963 4889c7                &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x23&gt;   mov    rdi, rax
+    0x5555557d0966 48897c2410            &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x26&gt;   mov    QWORD PTR <span class="o">[</span>rsp+0x10], rdi
+    0x5555557d096b 488b5c2408            &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x2b&gt;   mov    rbx, QWORD PTR <span class="o">[</span>rsp+0x8]
+<span class="k">*</span>-&gt; 0x5555557d0970 480fb643f8            &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x30&gt;   movzx  rax, BYTE PTR <span class="o">[</span>rbx - 0x8]
+    0x5555557d0975 488d15b4f63900        &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x35&gt;   lea    rdx, <span class="o">[</span>rip + 0x39f6b4] <span class="c"># 0x555555b70030</span>
+    0x5555557d097c 48630482              &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x3c&gt;   movsxd rax, DWORD PTR <span class="o">[</span>rdx + rax <span class="k">*</span> 4]
+    0x5555557d0980 4801c2                &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x40&gt;   add    rdx, rax
+    0x5555557d0983 ffe2                  &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x43&gt;   jmp    rdx
+    0x5555557d0985 0f1f00                &lt;camlGiovannas_microwave__Recipe.evaluate_2083+0x45&gt;   nop    DWORD PTR <span class="o">[</span>rax]
+</code></pre></div></div>
+
+<p>the checker iterates 112 times, and performs an operation according to these values near rbx:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-------------------------------</span> memory access: <span class="nv">$rbx</span><span class="nt">-0x8</span> <span class="o">=</span> 0x555555c60238 <span class="nt">----</span>
+      0x555555c60238|+0x0000|+000: 0x0000000000000b02
+<span class="nv">$rbx</span>  0x555555c60240|+0x0008|+001: 0x0000000000000001
+      0x555555c60248|+0x0010|+002: 0x000000000000001f
+      0x555555c60250|+0x0018|+003: 0x0000000000000b00
+</code></pre></div></div>
+
+<p>the value at <code class="language-plaintext highlighter-rouge">$rbx-0x8</code> is an opcode mapping, and the other two values are indices. due to strange ocaml nonsense (i’m still not sure why), the indices need to be integer divided by 2 beforehand (so <code class="language-plaintext highlighter-rouge">0x01</code> actually becomes <code class="language-plaintext highlighter-rouge">0x00</code>, <code class="language-plaintext highlighter-rouge">0x1f</code> becomes <code class="language-plaintext highlighter-rouge">0xf</code>).</p>
+
+<p>there are six possible values of <code class="language-plaintext highlighter-rouge">$rbx-0x8</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- b00 : add
+- b01 : subtract
+- b02 : multiply
+- b03 : divide 
+- b04 : xor 
+- b05 : ??? (i actually never figured this one out)
+</code></pre></div></div>
+
+<p>the flag checker operates like so: we read our opcode given the mapping at <code class="language-plaintext highlighter-rouge">$rbp-0x8</code>, index into our flag at the specified indices, perform the operation, and then compare against… what exactly?</p>
+
+<p>a further 2 hours of painful annoying reversing through fucking ocaml (WHY IS IT IN OCAML) we isolate the compare check somewhere here in the <code class="language-plaintext highlighter-rouge">fun_2710</code> func:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    0x5555557d0c4f 488b1c24              &lt;camlGiovannas_microwave__Recipe.fun_2710+0x1f&gt;   mov    rbx, QWORD PTR [rsp]
+*-&gt; 0x5555557d0c53 4839d8                &lt;camlGiovannas_microwave__Recipe.fun_2710+0x23&gt;   cmp    rax, rbx
+    0x5555557d0c56 0f94c0                &lt;camlGiovannas_microwave__Recipe.fun_2710+0x26&gt;   sete   al
+    0x5555557d0c59 480fb6c0              &lt;camlGiovannas_microwave__Recipe.fun_2710+0x29&gt;   movzx  rax, al
+    0x5555557d0c5d 488d440001            &lt;camlGiovannas_microwave__Recipe.fun_2710+0x2d&gt;   lea    rax, [rax + rax * 1 + 0x1]
+    0x5555557d0c62 4883c408              &lt;camlGiovannas_microwave__Recipe.fun_2710+0x32&gt;   add    rsp, 0x8
+    0x5555557d0c66 c3                    &lt;camlGiovannas_microwave__Recipe.fun_2710+0x36&gt;   ret
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">rbx</code> is the value we compare to, and <code class="language-plaintext highlighter-rouge">rax</code> is the result of our opcode (also due to ocaml nonsense, before we get to this point we do a <code class="language-plaintext highlighter-rouge">shl</code>, an <code class="language-plaintext highlighter-rouge">inc</code>, and a <code class="language-plaintext highlighter-rouge">idiv</code> (which just takes it mod <code class="language-plaintext highlighter-rouge">0x100</code>) on our <code class="language-plaintext highlighter-rouge">rax</code> value).</p>
+
+<p>if <code class="language-plaintext highlighter-rouge">rax</code> isn’t equal to <code class="language-plaintext highlighter-rouge">rbx</code> at any point in time, the program prematurely exits out, i am assuming once again due to ocaml nonsense. anyways so we need to place two breakpoints at both of those checks, dump the values we need, and also we need to set <code class="language-plaintext highlighter-rouge">rax</code> = <code class="language-plaintext highlighter-rouge">rbx</code> at the <code class="language-plaintext highlighter-rouge">cmp</code> check to continue execution</p>
+
+<p>we do this with the following gdb script:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">gdb</span>
+
+<span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'+'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'%'</span><span class="p">,</span> <span class="s">'^'</span><span class="p">,</span> <span class="s">'???'</span>
+<span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">CaptureRbxValues</span><span class="p">(</span><span class="n">gdb</span><span class="p">.</span><span class="n">Breakpoint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="s">"*0x5555557d0c53"</span><span class="p">,</span> <span class="n">internal</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">rbx_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rbx_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gdb</span><span class="p">.</span><span class="n">parse_and_eval</span><span class="p">(</span><span class="s">"$rbx"</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">rbx_values</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">rbx_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"expected value: </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">iteration</span><span class="si">}</span><span class="s">: $rbx = 0x</span><span class="si">{</span><span class="n">rbx_value</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">rbx_value</span><span class="si">}</span><span class="s">)"</span><span class="p">)</span>
+        <span class="n">gdb</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s">"set $rax = $rbx"</span><span class="p">,</span> <span class="n">to_string</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span>  <span class="c1"># continue silently
+</span>
+<span class="k">class</span> <span class="nc">DumpNearbyRbx</span><span class="p">(</span><span class="n">gdb</span><span class="p">.</span><span class="n">Breakpoint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="s">"*0x5555557d0970"</span><span class="p">,</span> <span class="n">internal</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rbx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gdb</span><span class="p">.</span><span class="n">parse_and_eval</span><span class="p">(</span><span class="s">"$rbx"</span><span class="p">))</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">rbx</span> <span class="o">+</span> <span class="n">off</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gdb</span><span class="p">.</span><span class="n">parse_and_eval</span><span class="p">(</span><span class="sa">f</span><span class="s">"*(long*)</span><span class="si">{</span><span class="n">addr</span><span class="si">:</span><span class="c1">#x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+            <span class="n">vals</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">op1</span><span class="p">,</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">func</span><span class="o">%</span><span class="mh">0x100</span><span class="p">]</span>
+        <span class="n">op1</span><span class="p">,</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">op1</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">op2</span><span class="o">//</span><span class="mi">2</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'flag[</span><span class="si">{</span><span class="n">op1</span><span class="si">}</span><span class="s">] </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s"> flag[</span><span class="si">{</span><span class="n">op2</span><span class="si">}</span><span class="s">] % 0x100'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span> 
+
+<span class="n">bp_main</span> <span class="o">=</span> <span class="n">CaptureRbxValues</span><span class="p">()</span>
+<span class="n">bp_dump</span> <span class="o">=</span> <span class="n">DumpNearbyRbx</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>running this script gives us the following output, which we can trivially dump into z3:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>flag[0] <span class="k">*</span> flag[15] % 0x100
+expected value: 1: <span class="nv">$rbx</span> <span class="o">=</span> 0xf0 <span class="o">(</span>240<span class="o">)</span>
+flag[1] ^ flag[24] % 0x100
+expected value: 2: <span class="nv">$rbx</span> <span class="o">=</span> 0x26 <span class="o">(</span>38<span class="o">)</span>
+flag[2] + flag[31] % 0x100
+expected value: 3: <span class="nv">$rbx</span> <span class="o">=</span> 0x75 <span class="o">(</span>117<span class="o">)</span>
+flag[3] <span class="k">*</span> flag[28] % 0x100
+expected value: 4: <span class="nv">$rbx</span> <span class="o">=</span> 0x9c <span class="o">(</span>156<span class="o">)</span>
+flag[4] + flag[8] % 0x100
+expected value: 5: <span class="nv">$rbx</span> <span class="o">=</span> 0x88 <span class="o">(</span>136<span class="o">)</span>
+</code></pre></div></div>
+
+<p>and below is our z3 script</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">z3</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">()</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">BitVec</span><span class="p">(</span><span class="sa">f</span><span class="s">'flag_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">'</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">)]</span>
+<span class="n">known_prefix</span> <span class="o">=</span> <span class="s">"TUDCTF{"</span>
+<span class="n">known_suffix</span> <span class="o">=</span> <span class="s">"}"</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">known_prefix</span><span class="p">):</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">known_suffix</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">32</span><span class="p">)</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">126</span><span class="p">)</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="mh">0xf0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="mh">0x26</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">31</span><span class="p">],</span> <span class="mh">0x75</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0x9c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="mh">0x88</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">],</span> <span class="mh">0xfa</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="mh">0xc7</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span> <span class="mh">0x80</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">48</span><span class="p">],</span> <span class="mh">0x1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="mh">0x2d</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">33</span><span class="p">],</span> <span class="mh">0x9b</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0xa</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">27</span><span class="p">],</span> <span class="mh">0xa1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">30</span><span class="p">],</span> <span class="mh">0xed</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">20</span><span class="p">],</span> <span class="mh">0x4c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span> <span class="mh">0x13</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">],</span> <span class="mh">0xb4</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="mh">0xb5</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="mh">0x92</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">45</span><span class="p">],</span> <span class="mh">0x1c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="mh">0x0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="mh">0x2c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="mh">0x24</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">31</span><span class="p">],</span> <span class="mh">0x3</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">37</span><span class="p">],</span> <span class="mh">0x10</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mh">0x7a</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="mh">0x34</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">46</span><span class="p">],</span> <span class="mh">0xcd</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">41</span><span class="p">],</span> <span class="mh">0x6b</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">40</span><span class="p">],</span> <span class="mh">0x3</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">31</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="mh">0xd2</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">34</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">37</span><span class="p">],</span> <span class="mh">0x3c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">35</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span> <span class="mh">0xf3</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">36</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mh">0x85</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">37</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">53</span><span class="p">],</span> <span class="mh">0x50</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">38</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="mh">0xa3</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0xc</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="mh">0x28</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">41</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0x0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mh">0xfa</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">45</span><span class="p">],</span> <span class="mh">0xd2</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">45</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="mh">0x28</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="mh">0xad</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">47</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mh">0xff</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">48</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="mh">0x54</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">49</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">],</span> <span class="mh">0xbd</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">50</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">41</span><span class="p">],</span> <span class="mh">0x0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">51</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">48</span><span class="p">],</span> <span class="mh">0x7</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">52</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="mh">0x6</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">53</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">44</span><span class="p">],</span> <span class="mh">0xea</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">54</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">],</span> <span class="mh">0xe9</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">32</span><span class="p">],</span> <span class="mh">0x9</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">33</span><span class="p">],</span> <span class="mh">0x54</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mh">0x98</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">31</span><span class="p">],</span> <span class="mh">0x75</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">49</span><span class="p">],</span> <span class="mh">0xe9</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">46</span><span class="p">],</span> <span class="mh">0x2c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="mh">0x79</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">35</span><span class="p">],</span> <span class="mh">0x66</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="mh">0x13</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">52</span><span class="p">],</span> <span class="mh">0xc7</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span> <span class="mh">0xe7</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="mh">0x2</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="mh">0x9e</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="mh">0xb0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mh">0x3c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">40</span><span class="p">],</span> <span class="mh">0x1f</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">41</span><span class="p">],</span> <span class="mh">0xff</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">38</span><span class="p">],</span> <span class="mh">0x8f</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">27</span><span class="p">],</span> <span class="mh">0x34</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">51</span><span class="p">],</span> <span class="mh">0x6b</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">],</span> <span class="mh">0x13</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="mh">0x1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0x47</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">],</span> <span class="mh">0x4c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span> <span class="mh">0xc6</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="mh">0x1d</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="mh">0xbb</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">29</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="mh">0x93</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="mh">0xd6</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">31</span><span class="p">],</span> <span class="mh">0x12</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">34</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag</span><span class="p">[</span><span class="mi">50</span><span class="p">],</span> <span class="mh">0x98</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">35</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="mh">0x35</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">36</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">37</span><span class="p">],</span> <span class="mh">0xce</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">37</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">32</span><span class="p">],</span> <span class="mh">0x63</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">51</span><span class="p">],</span> <span class="mh">0x40</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="mh">0xdb</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">41</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">45</span><span class="p">],</span> <span class="mh">0xd0</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">42</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">47</span><span class="p">],</span> <span class="mh">0xa1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">43</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="mh">0x98</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">54</span><span class="p">],</span> <span class="mh">0x2</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">45</span><span class="p">]</span> <span class="o">^</span> <span class="n">flag</span><span class="p">[</span><span class="mi">54</span><span class="p">],</span> <span class="mh">0x8</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="mh">0x2c</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">47</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">35</span><span class="p">],</span> <span class="mh">0x42</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">49</span><span class="p">]</span> <span class="o">%</span> <span class="n">flag</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="mh">0x63</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">51</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">53</span><span class="p">],</span> <span class="mh">0x1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">52</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span> <span class="mh">0xa1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">53</span><span class="p">]</span> <span class="o">-</span> <span class="n">flag</span><span class="p">[</span><span class="mi">50</span><span class="p">],</span> <span class="mh">0xcb</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">54</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">],</span> <span class="mh">0xe9</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">55</span><span class="p">]</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">38</span><span class="p">],</span> <span class="mh">0xad</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">expr</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">:</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">add</span><span class="p">((</span><span class="n">expr</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">s</span><span class="p">.</span><span class="n">check</span><span class="p">()</span> <span class="o">==</span> <span class="n">sat</span><span class="p">:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">model</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">]].</span><span class="n">as_long</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Flag: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
