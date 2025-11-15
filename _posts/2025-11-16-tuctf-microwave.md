@@ -115,7 +115,7 @@ bp_main = CaptureRbxValues()
 bp_dump = DumpNearbyRbx()
 ```
 
-running this script gives us the following output, which we can trivially dump into z3:
+running this script gives us the following output, which we just dump into z3.
 
 ```bash
 flag[0] * flag[15] % 0x100
@@ -260,4 +260,6 @@ if s.check() == sat:
     print(f"Flag: {result}")
 
 ```
+anyways run it to get the flag
 
+`Flag: TUDCTF{L4y3r3d_L1k3_4_L4s4gn4_w1th_R1c0tt4_4nd_B3ch4m3l}`
