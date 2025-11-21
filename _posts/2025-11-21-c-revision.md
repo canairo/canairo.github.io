@@ -294,6 +294,8 @@ int main() {
 3. this program won't compile as you can't compare a pointer with an integer.
 4. this program won't compile because `doesnotexist.txt` does not exist.
 
+<hr>
+
 ### question 14
 
 which of the following is an invalid way to populate the `name` field of the `Student` struct?
@@ -325,6 +327,8 @@ for (int i = 0; name[i]; i++) {
 3. `student->name = "cane";`
 4. `memmove(student->name, "cane", 4);`
 
+<hr>
+
 ### question 15 (bonus)
 
 what's wrong with the following program?
@@ -345,3 +349,7 @@ int main(void) {
 2. `fgets` does not account for the null terminator, the null byte will overflow
 3. `sizeof(buf)` actually corresponds to the size of a `char*` pointer, only 8 bytes of input will be read
 4. nothing is wrong it's completely fine
+
+<hr>
+
+answer key releasing tomorrow :^)
