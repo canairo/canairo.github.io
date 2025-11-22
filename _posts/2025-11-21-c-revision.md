@@ -147,6 +147,7 @@ int main(void) {
 </div>
 <hr>
 
+<!-- q 4 --!>
 <div class="quiz-block" markdown="1">
 ### question 4
 
@@ -172,7 +173,6 @@ int main(void) {
 </ul>
 <div class="explanation" markdown=1>
 <b>explanation:</b> the syntax for `malloc()` is that it takes a single param `size_t size`, that rules out the first option. `malloc()` also returns a pointer - the third option initializes it as an _instance_ of the Bird struct, so that's out. finally, we're initialising a pointer to a contiguous array of `Bird` structs, so we need the actual size of the `Bird` structs and not the size of their pointers.
-
 </div>
 </div>
 <hr>
@@ -247,6 +247,7 @@ which of the following commands cannot be used to get input from `stdin`?
 <b>explanation:</b>
 `fgets()` reads from a FILE* ptr, and stdin is a FILE* ptr. `read()` reads from file descriptors, and stdin is also a file descriptor. `getc()` takes an argument for a FILE* ptr. the only thing here is `strstr()`, which is essentially python's `.find()` method for strings. either way, `strstr()` can't read from file pointers or file descriptors, just compare two strings.
 </div>
+</div>
 <hr>
 <!-- QUESTION 8 -->
 <div class="quiz-block" markdown="1">
@@ -275,8 +276,10 @@ int main() {
 </ul>
 <div class="explanation" markdown=1><b>explanation:</b> in C, this is perfectly valid - we're casting the value of the _pointer_ to `a` as if it were a `long`. we're on a 64-bit machine so pointers are also 64-bit, the cast works out nice. the important thing here is that you don't actually lose any information as long as you're casting back and forth between the same sizes, hence the original value of `int a` remains at 10.
 </div>
+</div>
 <hr>
 
+<!-- question 9 -->
 <div class="quiz-block" markdown="1">
 ### question 9
 
@@ -303,6 +306,7 @@ int main() {
 </ul>
 <div class="explanation" markdown=1>
 <b>explanation:</b> for loops consist of three parts: the initialization, the condition, and the update. typically we see the standard format for a for loop as `int i = 0; i<SOME_BOUND; i++` but that condition can really be anything! recall that all strings (char bufs) are nullterminated, and a nullterminator is just a 0 byte which is falsy.
+</div>
 </div>
 <hr>
 <!-- QUESTION 10 -->
@@ -367,6 +371,7 @@ int main() {
 </ul>
 <div class="explanation" markdown="1">
 <b>explanation</b>: again, strings are all null terminated. `strncmp` only checks at _MAX_ the first n bytes (in this case, 7) but if both strings are null terminated _before_ n then it just exits out. in this case, only `raw` would fail the check because `strncmp` would try to compare raw's null terminator with rawr's last 'r' character.</div>
+</div>
 </div>
 <hr>
 <!-- QUESTION 12 -->
@@ -501,7 +506,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var options = document.querySelectorAll('.option');
   options.forEach(function(option) {
     option.addEventListener('click', function() {
-      var block = this.closest('.quiz-block');
+      var block = event.currentTarget.closest('.quiz-block');
+      console.log(block);
       if (block.classList.contains('answered')) return;
       block.classList.add('answered');
     });
