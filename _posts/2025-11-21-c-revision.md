@@ -116,7 +116,7 @@ int main(void) {
 <div class="explanation" markdown=1>
 <b>explanation</b>: an integer and a pointer to an integer are two different things and cannot be implicitly cast from one to the other. we can do `int b = (int)&a`, but this results in its own problems.
 
-
+</div>
 </div>
 
 <hr>
