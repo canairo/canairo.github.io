@@ -1,5 +1,8 @@
-![aim to be](https://i.imgur.com/wfze7K5.png)
+![aim to be](https://i.imgur.com/bxUOEKY.png)
 
-### 🙟 wrenches website
+### ★ wrenches website
+---
+jekyll site for my blog
 
-ctf writeups + other miscellaneous nonsense
+- ‧₊◜·° ctf writeups (rev / pwn mostly)
+- ‧₊◜·° other nonsense i'm interested in 
