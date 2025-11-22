@@ -159,8 +159,8 @@ window.MathJax = {
 <ol>
   <li>no way of knowing, <code class="language-plaintext highlighter-rouge">char</code> is a 
 dynamic array and can be any length</li>
-  <li>8 (<code class="language-plaintext highlighter-rouge">char*</code>) + 64 (<code class="language-plaintext highlighter-rouge">float</code>) = 72</li>
-  <li>8 (<code class="language-plaintext highlighter-rouge">char*</code>) + 8 (<code class="language-plaintext highlighter-rouge">float</code>) = 16</li>
+  <li>8 (<code class="language-plaintext highlighter-rouge">char*</code>) + 4 (<code class="language-plaintext highlighter-rouge">float</code>) + struct padding = 16</li>
+  <li>8 (<code class="language-plaintext highlighter-rouge">char*</code>) + 4 (<code class="language-plaintext highlighter-rouge">float</code>) = 12</li>
   <li>no way of knowing, <code class="language-plaintext highlighter-rouge">float</code> is arbitrary precision and can be either 8, 32, or 64 depending on what value you pass to it</li>
 </ol>
 
@@ -354,6 +354,8 @@ dynamic array and can be any length</li>
   <li>this program won’t compile because <code class="language-plaintext highlighter-rouge">doesnotexist.txt</code> does not exist.</li>
 </ol>
 
+<hr />
+
 <h3 id="question-14">question 14</h3>
 
 <p>which of the following is an invalid way to populate the <code class="language-plaintext highlighter-rouge">name</code> field of the <code class="language-plaintext highlighter-rouge">Student</code> struct?</p>
@@ -385,6 +387,8 @@ dynamic array and can be any length</li>
   <li><code class="language-plaintext highlighter-rouge">memmove(student-&gt;name, "cane", 4);</code></li>
 </ol>
 
+<hr />
+
 <h3 id="question-15-bonus">question 15 (bonus)</h3>
 
 <p>what’s wrong with the following program?</p>
@@ -406,6 +410,10 @@ dynamic array and can be any length</li>
   <li><code class="language-plaintext highlighter-rouge">sizeof(buf)</code> actually corresponds to the size of a <code class="language-plaintext highlighter-rouge">char*</code> pointer, only 8 bytes of input will be read</li>
   <li>nothing is wrong it’s completely fine</li>
 </ol>
+
+<hr />
+
+<p>answer key releasing tomorrow :^)</p>
 
 </article>
       </div>

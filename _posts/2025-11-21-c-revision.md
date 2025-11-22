@@ -109,8 +109,8 @@ typedef struct {
 
 1. no way of knowing, `char` is a 
 dynamic array and can be any length
-2. 8 (`char*`) + 64 (`float`) = 72
-3. 8 (`char*`) + 8 (`float`) = 16
+2. 8 (`char*`) + 4 (`float`) + struct padding = 16
+3. 8 (`char*`) + 4 (`float`) = 12
 4. no way of knowing, `float` is arbitrary precision and can be either 8, 32, or 64 depending on what value you pass to it
 
 <hr>

