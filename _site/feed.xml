@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-11-22T13:41:56+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>pick a side, pick a spot, here come, here come. rome plows! the rome plows! the rome plows! the rome plows!</subtitle><entry><title type="html">c revision</title><link href="http://localhost:4000/2025/11/20/c-revision.html" rel="alternate" type="text/html" title="c revision" /><published>2025-11-20T05:40:00+08:00</published><updated>2025-11-20T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/20/c-revision</id><content type="html" xml:base="http://localhost:4000/2025/11/20/c-revision.html"><![CDATA[<style>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-11-22T13:44:15+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>pick a side, pick a spot, here come, here come. rome plows! the rome plows! the rome plows! the rome plows!</subtitle><entry><title type="html">c revision</title><link href="http://localhost:4000/2025/11/20/c-revision.html" rel="alternate" type="text/html" title="c revision" /><published>2025-11-20T05:40:00+08:00</published><updated>2025-11-20T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/20/c-revision</id><content type="html" xml:base="http://localhost:4000/2025/11/20/c-revision.html"><![CDATA[<style>
   
   .quiz-options {
     list-style: none;
@@ -110,15 +110,16 @@
     <p><b>explanation</b>: an integer and a pointer to an integer are two different things and cannot be implicitly cast from one to the other. we can do <code class="language-plaintext highlighter-rouge">int b = (int)&amp;a</code>, but this results in its own problems.</p>
 
   </div>
+</div>
 
-  <hr />
+<hr />
 
-  <div class="quiz-block">
-    <h3 id="question-3">question 3</h3>
+<div class="quiz-block">
+  <h3 id="question-3">question 3</h3>
 
-    <p>what will the following code output?</p>
+  <p>what will the following code output?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
@@ -126,26 +127,26 @@
   <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="n">a</span><span class="p">;</span>
   <span class="n">printf</span><span class="p">(</span><span class="s">"%lf"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">0.1337</li>
   <li class="option">0</li>
   <li class="option correct">0.0000</li>
   <li class="option">compiler error, can't cast int to float.</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> this one’s about truncation, the initial bug is in the first line <code class="language-plaintext highlighter-rouge">int a = 0.1337;</code>, an <code class="language-plaintext highlighter-rouge">int</code> cannot have a decimal value so it gets rounded down to 0. note that option 2 is wrong because we’re still printing it as a float w/ the <code class="language-plaintext highlighter-rouge">%lf</code> specifier.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> this one’s about truncation, the initial bug is in the first line <code class="language-plaintext highlighter-rouge">int a = 0.1337;</code>, an <code class="language-plaintext highlighter-rouge">int</code> cannot have a decimal value so it gets rounded down to 0. note that option 2 is wrong because we’re still printing it as a float w/ the <code class="language-plaintext highlighter-rouge">%lf</code> specifier.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <div class="quiz-block">
-    <h3 id="question-4">question 4</h3>
+<div class="quiz-block">
+  <h3 id="question-4">question 4</h3>
 
-    <p>select the correct way to <code class="language-plaintext highlighter-rouge">malloc()</code> for 10 Birds in the following code:</p>
+  <p>select the correct way to <code class="language-plaintext highlighter-rouge">malloc()</code> for 10 Birds in the following code:</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
   <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
   <span class="kt">float</span> <span class="n">wingspan</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">Bird</span><span class="p">;</span>
@@ -154,52 +155,52 @@
   <span class="p">...</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">Bird *bird_catalog = malloc(sizeof(Bird), 10)</li>
   <li class="option">Bird *bird_catalog = malloc(sizeof(*Bird) * 10)</li>
   <li class="option">Bird bird_catalog = malloc(sizeof(*Bird) * 10)</li>
   <li class="option correct">Bird *bird_catalog = malloc(sizeof(Bird) * 10)</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> the syntax for <code class="language-plaintext highlighter-rouge">malloc()</code> is that it takes a single param <code class="language-plaintext highlighter-rouge">size_t size</code>, that rules out the first option. <code class="language-plaintext highlighter-rouge">malloc()</code> also returns a pointer - the third option initializes it as an <em>instance</em> of the Bird struct, so that’s out. finally, we’re initialising a pointer to a contiguous array of <code class="language-plaintext highlighter-rouge">Bird</code> structs, so we need the actual size of the <code class="language-plaintext highlighter-rouge">Bird</code> structs and not the size of their pointers.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> the syntax for <code class="language-plaintext highlighter-rouge">malloc()</code> is that it takes a single param <code class="language-plaintext highlighter-rouge">size_t size</code>, that rules out the first option. <code class="language-plaintext highlighter-rouge">malloc()</code> also returns a pointer - the third option initializes it as an <em>instance</em> of the Bird struct, so that’s out. finally, we’re initialising a pointer to a contiguous array of <code class="language-plaintext highlighter-rouge">Bird</code> structs, so we need the actual size of the <code class="language-plaintext highlighter-rouge">Bird</code> structs and not the size of their pointers.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 5 -->
-  <div class="quiz-block">
-    <h3 id="question-5">question 5</h3>
+<!-- QUESTION 5 -->
+<div class="quiz-block">
+  <h3 id="question-5">question 5</h3>
 
-    <p>what’s the size of the Bird struct?</p>
+  <p>what’s the size of the Bird struct?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
   <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
   <span class="kt">float</span> <span class="n">wingspan</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">Bird</span><span class="p">;</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">no way of knowing, char is a 
 dynamic array and can be any length</li>
   <li class="option correct">8 (char*) + 4 (float) + struct padding = 16</li>
   <li class="option">8 (char*) + 4 (float) = 12</li>
   <li class="option">no way of knowing, float is arbitrary precision and can be either 8, 32, or 64 depending on what value you pass to it</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> ok this question is kind of tricky if you don’t know about struct padding, but most structs have to be 8-byte aligned due to compiler optimisations. however you can automatically rule out the first and last options because <code class="language-plaintext highlighter-rouge">char*</code> is a pointer <em>to</em> some array (which can be dynamically sized ofc), and pointers are always the same size. the last option is also wrong because a <code class="language-plaintext highlighter-rouge">float</code> is always the same size (given you’re using the same compiler for everything).</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> ok this question is kind of tricky if you don’t know about struct padding, but most structs have to be 8-byte aligned due to compiler optimisations. however you can automatically rule out the first and last options because <code class="language-plaintext highlighter-rouge">char*</code> is a pointer <em>to</em> some array (which can be dynamically sized ofc), and pointers are always the same size. the last option is also wrong because a <code class="language-plaintext highlighter-rouge">float</code> is always the same size (given you’re using the same compiler for everything).</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 6 -->
-  <div class="quiz-block">
-    <h3 id="question-6">question 6</h3>
+<!-- QUESTION 6 -->
+<div class="quiz-block">
+  <h3 id="question-6">question 6</h3>
 
-    <p>after this finishes execution, what will the contents of <code class="language-plaintext highlighter-rouge">rawr.txt</code> be (assuming it starts off blank)?</p>
+  <p>after this finishes execution, what will the contents of <code class="language-plaintext highlighter-rouge">rawr.txt</code> be (assuming it starts off blank)?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -207,48 +208,48 @@ dynamic array and can be any length</li>
   <span class="n">fprintf</span><span class="p">(</span><span class="n">fptr</span><span class="p">,</span> <span class="s">"meow meow</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">the compiler will error, as you're writing to a read-only file</li>
   <li class="option">the program will segfault, as you're writing to a read-only file</li>
   <li class="option correct">the file will remain empty</li>
   <li class="option">the file will contain `meow meow`</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> it’ll just fail silently. ofc, the compiler doesn’t actually do a check to see if the file exists at compiletime, that’s crazy.</p>
+  <div class="explanation">
+    <p><b>explanation:</b> it’ll just fail silently. ofc, the compiler doesn’t actually do a check to see if the file exists at compiletime, that’s crazy.</p>
 
-      <p><em>optional info</em> so programs will actually segfault if they try to write to read only pages of memory, such as a binary’s Global Offset Table when the program is compiled w/ full Relocation Read-Only. this is relevant in the beautiful field of binary exploitation, which i dearly love, but is absolutely beyond the scope of a first year C class. please message me if you’d love to learn more</p>
-    </div>
+    <p><em>optional info</em> so programs will actually segfault if they try to write to read only pages of memory, such as a binary’s Global Offset Table when the program is compiled w/ full Relocation Read-Only. this is relevant in the beautiful field of binary exploitation, which i dearly love, but is absolutely beyond the scope of a first year C class. please message me if you’d love to learn more</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 7 -->
-  <div class="quiz-block">
-    <h3 id="question-7">question 7</h3>
+<!-- QUESTION 7 -->
+<div class="quiz-block">
+  <h3 id="question-7">question 7</h3>
 
-    <p>which of the following commands cannot be used to get input from <code class="language-plaintext highlighter-rouge">stdin</code>?</p>
+  <p>which of the following commands cannot be used to get input from <code class="language-plaintext highlighter-rouge">stdin</code>?</p>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">fgets()</li>
   <li class="option">read()</li>
   <li class="option">getc()</li>
   <li class="option correct">strstr()</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b>
+  <div class="explanation">
+    <p><b>explanation:</b>
 <code class="language-plaintext highlighter-rouge">fgets()</code> reads from a FILE* ptr, and stdin is a FILE* ptr. <code class="language-plaintext highlighter-rouge">read()</code> reads from file descriptors, and stdin is also a file descriptor. <code class="language-plaintext highlighter-rouge">getc()</code> takes an argument for a FILE* ptr. the only thing here is <code class="language-plaintext highlighter-rouge">strstr()</code>, which is essentially python’s <code class="language-plaintext highlighter-rouge">.find()</code> method for strings. either way, <code class="language-plaintext highlighter-rouge">strstr()</code> can’t read from file pointers or file descriptors, just compare two strings.</p>
-    </div>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 8 -->
-  <div class="quiz-block">
-    <h3 id="question-8">question 8</h3>
+<!-- QUESTION 8 -->
+<div class="quiz-block">
+  <h3 id="question-8">question 8</h3>
 
-    <p>what is the output of the following program? (assume <code class="language-plaintext highlighter-rouge">long</code> is 64-bit, and assume we’re on a 64-bit machine too)</p>
+  <p>what is the output of the following program? (assume <code class="language-plaintext highlighter-rouge">long</code> is 64-bit, and assume we’re on a 64-bit machine too)</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -258,27 +259,27 @@ dynamic array and can be any length</li>
   <span class="n">printf</span><span class="p">(</span><span class="s">"%ld %ld %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">[3 large, unknown numbers]</li>
   <li class="option correct">10 [some large unknown number] 10</li>
   <li class="option">10 10 10</li>
   <li class="option">0 0 0</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> in C, this is perfectly valid - we’re casting the value of the <em>pointer</em> to <code class="language-plaintext highlighter-rouge">a</code> as if it were a <code class="language-plaintext highlighter-rouge">long</code>. we’re on a 64-bit machine so pointers are also 64-bit, the cast works out nice. the important thing here is that you don’t actually lose any information as long as you’re casting back and forth between the same sizes, hence the original value of <code class="language-plaintext highlighter-rouge">int a</code> remains at 10.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> in C, this is perfectly valid - we’re casting the value of the <em>pointer</em> to <code class="language-plaintext highlighter-rouge">a</code> as if it were a <code class="language-plaintext highlighter-rouge">long</code>. we’re on a 64-bit machine so pointers are also 64-bit, the cast works out nice. the important thing here is that you don’t actually lose any information as long as you’re casting back and forth between the same sizes, hence the original value of <code class="language-plaintext highlighter-rouge">int a</code> remains at 10.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- question 9 -->
-  <div class="quiz-block">
-    <h3 id="question-9">question 9</h3>
+<!-- question 9 -->
+<div class="quiz-block">
+  <h3 id="question-9">question 9</h3>
 
-    <p>what is the output of the following program?</p>
+  <p>what is the output of the following program?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -288,27 +289,27 @@ dynamic array and can be any length</li>
   <span class="p">}</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option correct">what's so good about picking up the pieces?</li>
   <li class="option">what's so good about picking up the pieces?\00</li>
   <li class="option">each character will be on a different newline</li>
   <li class="option">the loop won't terminate</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> for loops consist of three parts: the initialization, the condition, and the update. typically we see the standard format for a for loop as <code class="language-plaintext highlighter-rouge">int i = 0; i&lt;SOME_BOUND; i++</code> but that condition can really be anything! recall that all strings (char bufs) are nullterminated, and a nullterminator is just a 0 byte which is falsy.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> for loops consist of three parts: the initialization, the condition, and the update. typically we see the standard format for a for loop as <code class="language-plaintext highlighter-rouge">int i = 0; i&lt;SOME_BOUND; i++</code> but that condition can really be anything! recall that all strings (char bufs) are nullterminated, and a nullterminator is just a 0 byte which is falsy.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 10 -->
-  <div class="quiz-block">
-    <h3 id="question-10">question 10</h3>
+<!-- QUESTION 10 -->
+<div class="quiz-block">
+  <h3 id="question-10">question 10</h3>
 
-    <p>what is the output of the following program?</p>
+  <p>what is the output of the following program?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -319,26 +320,26 @@ dynamic array and can be any length</li>
   <span class="p">}</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">BcDeFg</li>
   <li class="option correct">BcDeFgHi</li>
   <li class="option">BcDeF</li>
   <li class="option">aBcDeFgHi</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> ok yeah soz this is <em>really</em> tricky. we know that chars are just ints, but lowercase chars are also greater than uppercase chars, so when the xor 0x20 flips the case, the loop doesn’t terminate. we also have to keep in mind that the loop modifies the char <em>BEFORE</em> printing the string, which is why the initial ‘a’ value doesn’t get printed. finally, the conditional is <code class="language-plaintext highlighter-rouge">c &lt;= 'g'</code>, NOT <code class="language-plaintext highlighter-rouge">c &lt; g</code>; so if <code class="language-plaintext highlighter-rouge">c == 'g'</code> then the while loop still continues.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> ok yeah soz this is <em>really</em> tricky. we know that chars are just ints, but lowercase chars are also greater than uppercase chars, so when the xor 0x20 flips the case, the loop doesn’t terminate. we also have to keep in mind that the loop modifies the char <em>BEFORE</em> printing the string, which is why the initial ‘a’ value doesn’t get printed. finally, the conditional is <code class="language-plaintext highlighter-rouge">c &lt;= 'g'</code>, NOT <code class="language-plaintext highlighter-rouge">c &lt; g</code>; so if <code class="language-plaintext highlighter-rouge">c == 'g'</code> then the while loop still continues.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <div class="quiz-block">
-    <h3 id="question-11">question 11</h3>
+<div class="quiz-block">
+  <h3 id="question-11">question 11</h3>
 
-    <p>which of the following choices for <code class="language-plaintext highlighter-rouge">b[]</code> would not result in the program outputting <code class="language-plaintext highlighter-rouge">1</code>?</p>
+  <p>which of the following choices for <code class="language-plaintext highlighter-rouge">b[]</code> would not result in the program outputting <code class="language-plaintext highlighter-rouge">1</code>?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
 </span>
@@ -352,27 +353,27 @@ dynamic array and can be any length</li>
   <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">are_the_same</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">7</span><span class="p">));</span>
   <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option correct">raw</li>
   <li class="option">rawr\00\00\00\00\00</li>
   <li class="option">rawr\00sdlfkjsdlkfjsdkfl</li>
   <li class="option">rawr</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation</b>: again, strings are all null terminated. <code class="language-plaintext highlighter-rouge">strncmp</code> only checks at <em>MAX</em> the first n bytes (in this case, 7) but if both strings are null terminated <em>before</em> n then it just exits out. in this case, only <code class="language-plaintext highlighter-rouge">raw</code> would fail the check because <code class="language-plaintext highlighter-rouge">strncmp</code> would try to compare raw’s null terminator with rawr’s last ‘r’ character.&lt;/div&gt;</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation</b>: again, strings are all null terminated. <code class="language-plaintext highlighter-rouge">strncmp</code> only checks at <em>MAX</em> the first n bytes (in this case, 7) but if both strings are null terminated <em>before</em> n then it just exits out. in this case, only <code class="language-plaintext highlighter-rouge">raw</code> would fail the check because <code class="language-plaintext highlighter-rouge">strncmp</code> would try to compare raw’s null terminator with rawr’s last ‘r’ character.&lt;/div&gt;</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 12 -->
-  <div class="quiz-block">
-    <h3 id="question-12">question 12</h3>
+<!-- QUESTION 12 -->
+<div class="quiz-block">
+  <h3 id="question-12">question 12</h3>
 
-    <p>which of the following correctly explains why this code won’t compile?</p>
+  <p>which of the following correctly explains why this code won’t compile?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
 </span>
@@ -380,27 +381,27 @@ dynamic array and can be any length</li>
   <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">atoi</span><span class="p">(</span><span class="n">getc</span><span class="p">(</span><span class="n">stdin</span><span class="p">)));</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">getc() doesn't take an argument</li>
   <li class="option">atoi() returns a char, breaking the format string</li>
   <li class="option correct">getc() returns a char, `atoi()` expects a char*</li>
   <li class="option">it works just fine</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation:</b> honestly the answer explains it better than i can here. we just have to remember that a char and char* are distinct. also, <code class="language-plaintext highlighter-rouge">atoi()</code> returns an integer.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation:</b> honestly the answer explains it better than i can here. we just have to remember that a char and char* are distinct. also, <code class="language-plaintext highlighter-rouge">atoi()</code> returns an integer.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 13 -->
-  <div class="quiz-block">
-    <h3 id="question-13">question 13</h3>
+<!-- QUESTION 13 -->
+<div class="quiz-block">
+  <h3 id="question-13">question 13</h3>
 
-    <p>what is the output of the following program? assume that <code class="language-plaintext highlighter-rouge">doesnotexist.txt</code> does not exist.</p>
+  <p>what is the output of the following program? assume that <code class="language-plaintext highlighter-rouge">doesnotexist.txt</code> does not exist.</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -413,27 +414,27 @@ dynamic array and can be any length</li>
   <span class="p">}</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">`awww.`, when `fopen` fails it is undefined behaviour.</li>
   <li class="option correct">`yay!`, when `fopen` fails it returns a nullptr.</li>
   <li class="option">this program won't compile as you can't compare a pointer with an integer.</li>
   <li class="option">this program won't compile because `doesnotexist.txt` does not exist.</li>
 </ul>
-    <div class="explanation">
-      <p><b>explanation</b>a null pointer is just the value 0, and you can compare the two perfectly fine. fopen will always return a null pointer when it fails.</p>
-    </div>
+  <div class="explanation">
+    <p><b>explanation</b>a null pointer is just the value 0, and you can compare the two perfectly fine. fopen will always return a null pointer when it fails.</p>
   </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 14 -->
-  <div class="quiz-block">
-    <h3 id="question-14">question 14</h3>
+<!-- QUESTION 14 -->
+<div class="quiz-block">
+  <h3 id="question-14">question 14</h3>
 
-    <p>which of the following is an invalid way to populate the <code class="language-plaintext highlighter-rouge">name</code> field of the <code class="language-plaintext highlighter-rouge">Student</code> struct?</p>
+  <p>which of the following is an invalid way to populate the <code class="language-plaintext highlighter-rouge">name</code> field of the <code class="language-plaintext highlighter-rouge">Student</code> struct?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
@@ -445,9 +446,9 @@ dynamic array and can be any length</li>
   <span class="n">Student</span><span class="o">*</span> <span class="n">student</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Student</span><span class="p">));</span>
   <span class="p">...</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option">snprintf(student-&gt;name, 16, "cane");</li>
   <li class="option" style="padding: 0px;">
 <figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">name</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"cane"</span><span class="p">;</span>
@@ -459,19 +460,19 @@ dynamic array and can be any length</li>
   <li class="option correct">student-&gt;name = "cane";</li>
   <li class="option">memmove(student-&gt;name, "cane", 4);</li>
 </ul>
-    <div class="explanation">
+  <div class="explanation">
 <b>explanation:</b> yeah no you just cant write assign arrays like this. everything else is perfectly valid (using snprintf, writing the char array byte by byte, and moving the actual memory w/ memmove) but array assignment is invalid.
 </div>
-  </div>
-  <hr />
+</div>
+<hr />
 
-  <!-- QUESTION 15 (BONUS) -->
-  <div class="quiz-block">
-    <h3 id="question-15-bonus">question 15 (bonus)</h3>
+<!-- QUESTION 15 (BONUS) -->
+<div class="quiz-block">
+  <h3 id="question-15-bonus">question 15 (bonus)</h3>
 
-    <p>what’s wrong with the following program?</p>
+  <p>what’s wrong with the following program?</p>
 
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+  <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
@@ -480,20 +481,20 @@ dynamic array and can be any length</li>
   <span class="n">printf</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div>    </div>
+</code></pre></div>  </div>
 
-    <ul class="quiz-options">
+  <ul class="quiz-options">
   <li class="option correct">a user can input `"%p"` and leak addresses on the stack</li>
   <li class="option">`fgets` does not account for the null terminator, the null byte will overflow</li>
   <li class="option">`sizeof(buf)` actually corresponds to the size of a `char*` pointer, only 8 bytes of input will be read</li>
     <li class="option">nothing is wrong it's completely fine</li>
 
 </ul>
-    <div class="explanation">
+  <div class="explanation">
 <b>explanation:</b> do this year's cyberblitz in december to find out how you can pop a shell w/ just a format string exploit :p
 </div>
-  </div>
-  <script>
+</div>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
   var options = document.querySelectorAll('.option');
   options.forEach(function(option) {
@@ -505,9 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
-</script>
-
-</div>]]></content><author><name></name></author><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">sctf/mutuple</title><link href="http://localhost:4000/2025/11/18/sctf-mutuple.html" rel="alternate" type="text/html" title="sctf/mutuple" /><published>2025-11-18T05:40:00+08:00</published><updated>2025-11-18T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/18/sctf-mutuple</id><content type="html" xml:base="http://localhost:4000/2025/11/18/sctf-mutuple.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=yuXaABIr0go&amp;list=PL8Xbf2xl0OGBgCZw4kyzpulGkXN1f0ZQM&amp;index=9"> 明日にはすべてが終わるとして</a> by kinokoteikoku.</p>
+</script>]]></content><author><name></name></author><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">sctf/mutuple</title><link href="http://localhost:4000/2025/11/18/sctf-mutuple.html" rel="alternate" type="text/html" title="sctf/mutuple" /><published>2025-11-18T05:40:00+08:00</published><updated>2025-11-18T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/18/sctf-mutuple</id><content type="html" xml:base="http://localhost:4000/2025/11/18/sctf-mutuple.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=yuXaABIr0go&amp;list=PL8Xbf2xl0OGBgCZw4kyzpulGkXN1f0ZQM&amp;index=9"> 明日にはすべてが終わるとして</a> by kinokoteikoku.</p>
 
 <p><img src="https://i.imgur.com/JIUaiNl.png" alt="image" /></p>
 
