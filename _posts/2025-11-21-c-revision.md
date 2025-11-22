@@ -145,9 +145,10 @@ int main(void) {
 <div class="explanation" markdown="1">
 <b>explanation:</b> this one's about truncation, the initial bug is in the first line `int a = 0.1337;`, an `int` cannot have a decimal value so it gets rounded down to 0. note that option 2 is wrong because we're still printing it as a float w/ the `%lf` specifier.
 </div>
+</div>
 <hr>
 
-<!-- q 4 --!>
+
 <div class="quiz-block" markdown="1">
 ### question 4
 
