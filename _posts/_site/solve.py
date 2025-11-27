@@ -8,9 +8,6 @@ CSS_BLOCK = """
   .quiz-block {
     margin-bottom: 40px;
     padding: 20px;
-    border: 1px solid #e1e4e8;
-    border-radius: 6px;
-    background-color: #fafbfc;
   }
   
   .quiz-options {
@@ -22,48 +19,34 @@ CSS_BLOCK = """
   .option {
     padding: 10px 15px;
     margin-bottom: 8px;
-    border: 1px solid #d1d5da;
-    border-radius: 4px;
     cursor: pointer;
-    background-color: white;
+    border: 1px solid gray;
     transition: all 0.2s ease;
   }
 
   .option:hover {
-    background-color: #f6f8fa;
-    border-color: #0366d6;
+    border: 1px solid white;
   }
 
-  /* Styles applied after an option is clicked */
   .quiz-block.answered .option {
     cursor: default;
     pointer-events: none;
   }
 
-  /* The Correct Answer (Green) */
   .quiz-block.answered .option.correct {
-    background-color: #bef5cb;
-    border-color: #28a745;
     color: #155724;
     font-weight: bold;
   }
 
-  /* The Incorrect Answers (Red) */
   .quiz-block.answered .option:not(.correct) {
-    background-color: #ffdce0;
-    border-color: #d73a49;
     color: #86181d;
     opacity: 0.7;
   }
 
-  /* Explanation Box */
   .explanation {
     display: none;
     margin-top: 15px;
     padding: 15px;
-    background-color: #e1e4e8;
-    border-radius: 4px;
-    border-left: 4px solid #0366d6;
   }
 
   .quiz-block.answered .explanation {
@@ -169,11 +152,11 @@ def convert_jekyll_quiz(md_content):
 
     final_output.append(JS_BLOCK)
     
-    return "\n\n".join(final_output)
+    return "\n<hr>".join(final_output)
 
 if __name__ == "__main__":
     input_filename = sys.argv[1]
-    output_filename = 'rawr_' + input_filename
+    output_filename = input_filename.split('.md')[0] + '_out.md'
 
     try:
         with open(input_filename, 'r', encoding='utf-8') as f:
