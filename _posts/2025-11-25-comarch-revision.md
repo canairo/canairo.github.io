@@ -154,7 +154,7 @@ select the correct option about memory access on a hard-drive.
     <li class='option'>seek time is the amount of time it takes for the disk to rotate until the head reaches the correct track.</li>
     <li class='option'>rotational delay is the amount of time it takes for the head to move until the head reaches the start of the correct sector.</li>
     <li class='option'>access time is the amount of time taken from the start of the request, to all the data being transferred.</li>
-    <li class='option'>rotational delay can be calculated as 60/2N, where N is rotations per minute.</li>
+    <li class='option correct'>rotational delay can be calculated as 60/2N, where N is rotations per minute.</li>
   </ul>
 
   <div class='explanation' markdown=1>
@@ -171,7 +171,7 @@ select the correct option about memory access on a hard-drive.
 a disk capable of storing 6 144 000 000 bytes can rotate 250 times in one second, has 6000 cylinders with 2 surfaces on each of its 4 platters, and a sector density of 128 bytes per sector. we can therefore assume: 
   <ul class='quiz-options'>
     <li class='option'>a track contains 1024 sectors.</li>
-    <li class='option'>a track contains 1000 sectors.</li>
+    <li class='option correct'>a track contains 1000 sectors.</li>
     <li class='option'>a track contains 512 sectors.</li>
     <li class='option'>nothing, as there's not enough information to determine anything about the tracks.</li>
   </ul>
@@ -194,7 +194,7 @@ a computer has 128 frames numbered {0... 127} and 256 pages numbered {0... 255}.
     <li class='option'>an injective function. at a fixed point in time, all pages map to distinct frames.</li>
     <li class='option'>surjective. at a fixed point in time, all frames are mapped onto by a corresponding page.</li>
     <li class='option'>bijective. it is both injective and surjective.</li>
-      <li class='option'>not a function at all, as some pages do not map to frame numbers.</li>
+      <li class='option correct'>not a function at all, as some pages do not map to frame numbers.</li>
   </ul>
 
   <div class='explanation' markdown=1>
@@ -255,7 +255,7 @@ the Gameowboy is a simple TinyScreen based console able to connect to a server. 
     <li class='option'>both the server and the controls are being polled by the Gameowboy.</li>
     <li class='option'>the Gameowboy processes the server game state based on interrupts, and polls the control system.</li>
     <li class='option'>both the server and the controls are interrupt-based.</li>
-    <li class='option'>the Gameowboy polls the server, and handles controls based on interrupts.</li>
+    <li class='option correct'>the Gameowboy polls the server, and handles controls based on interrupts.</li>
   </ul>
 
   <div class='explanation' markdown=1>
@@ -300,7 +300,7 @@ regarding calling conventions on the msp430, which one is true?
   <b>explanation:</b><br>
   <b>opt 1</b> still can pass by value just as long as the value can fit in the register<br>
   <b>opt 2</b> cant use the reserved registers (r0 - r3)<br>
-  <b>opt 3</b> tembalik (subroutine pop, caller push)
+  <b>opt 3</b> tembalik (subroutine pop, caller push)<br>
   <b>opt 4</b> correct for the reasons listed in the answer
   </div>
 </div>
@@ -314,7 +314,7 @@ regarding calling conventions on the msp430, which one is true?
 my brand new operating system based entirely on cat meows, RawrOS, allocates memory as follows: given a request for memory, it finds a contiguous region of physical memory of the correct size that can fit the request, and then marks off that chunk of contiguous memory accordingly. which of the following is true about RawrOS?
   <ul class='quiz-options'>
     <li class='option'>RawrOS would need to manage a page table.</li>
-    <li class='option'>every once in a while, RawrOS should compact allocated chunks of physical memory to prevent fragmentation.</li>
+    <li class='option correct'>every once in a while, RawrOS should compact allocated chunks of physical memory to prevent fragmentation.</li>
     <li class='option'>RawrOS employs fixed partitioning.</li>
     <li class='option'>to manage memory, RawrOS has to translate logical addresses into physical addresses.</li>
   </ul>
@@ -384,7 +384,7 @@ on the MSP430, `P1IN` is initially `10110100`. afterwards, `P1DIR` is set to `00
     <li class='option correct'>10101000</li>
     <li class='option'>10101010</li>
     <li class='option'>10111110</li>
-    <li class='option'>1111111</li>
+    <li class='option'>11111111</li>
   </ul>
 
   <div class='explanation' markdown=1>
