@@ -1,6 +1,6 @@
 ---
 layout: post
-title: c revision
+title: profcane's c revision
 date: 2025-11-20 05:40:00 +0800
 ---
 <style>

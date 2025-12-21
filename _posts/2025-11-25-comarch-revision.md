@@ -1,6 +1,6 @@
 ---
 layout: post
-title: comarch
+title: profcane's comarch revision
 date: 2025-11-20 05:40:00 +0800
 ---
 <style>

