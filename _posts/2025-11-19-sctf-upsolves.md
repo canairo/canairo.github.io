@@ -618,7 +618,7 @@ Hello world!
 
 cool, so our goal should clearly be to pass this check.
 
-we can just verify which two arrays are even being compared by inspecting the values of $rsi and $rdi.
+we can just verify which two arrays are even being compared by inspecting the values of `$rsi` and `$rdi`.
 
 ```c
 gef> x/16g $rsi
@@ -641,7 +641,7 @@ gef> x/16x $rdi
 0x7fffffffe06f:	0x5245545f5353454c	0x3d65755f5041434d
 ```
 
-interestingly, note that $rdi is just the address of our xored-in-place stdin input, and $rsi is this array in the binary. recalling our initial xor-loop in the first place, we remember that the xor-key was stored in r9 during that weird code block, so we can just yoink the bytes from there by breakpointing again at that block again.
+interestingly, note that `rdi` is just the address of our xored-in-place stdin input, and `rsi` is this array in the binary. recalling our initial xor-loop in the first place, we remember that the xor-key was stored in `r9` during that weird code block, so we can just yoink the bytes from there by breakpointing again at that block again.
 
 ```c
 gef> x/16g $r9
