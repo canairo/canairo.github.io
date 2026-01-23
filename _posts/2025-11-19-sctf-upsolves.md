@@ -1,4 +1,4 @@
----
+--
 layout: post
 title: sctf/upsolves
 date: 2025-11-18 05:40:00 +0800
