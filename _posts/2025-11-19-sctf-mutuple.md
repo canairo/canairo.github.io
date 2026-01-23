@@ -1,6 +1,6 @@
 ---
 layout: post
-title: sctf/mutuple
+title: sctf/upsolves
 date: 2025-11-18 05:40:00 +0800
 ---
 
@@ -9,6 +9,8 @@ recommended listening for this post is [ 明日にはすべてが終わるとし
 ![image](https://i.imgur.com/JIUaiNl.png)
 
 [azazo](https://blog.azazo.me) and i did this ctf alongside one other friend. the event is long gone now but i decided to upsolve this python pwn challenge by [samuzora](https://samuzora.com) that i thought was really fun. it took me about 8 hours.
+
+**edit 24th jan** i also upsolved one of the unsolved revs, attached below
 
 ### pwn/mutuple
 
@@ -401,3 +403,279 @@ funny story is that this challenge took me _really_ long to solve (around 8 hour
 i wanted to make my solve libc-agnostic because i couldn't be bothered to properly figure out how the docker container treats its libcs, so i went with the pyjail-style `builtins` retrieval.
 
 thanks to lucas for the fun pwn!
+
+### rev/helloworld
+
+> name: Hello, World!
+>
+> author: Elma
+>
+> description: 'I wrote my first program ever. Of course it just prints Hello World!
+>
+> solves: 0
+
+very weird challenge involving some obfuscation that i did not really fully understand very well, but even without understanding everything you can get a good idea of what is going on. i kind of loosely already knew that there would be some anti-decompilation techniques so i didn't bother decompiling anything at all and just rawdogged the asm instead.
+
+first things first is if we strace the binary we can see some rather suspicious calls to `mprotect()`
+
+```c
+mprotect(0x55f07ccc0000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC) = 0
+mprotect(0x55f07ccc0000, 4096, PROT_READ|PROT_EXEC) = 0
+...
+write(1, "Hello world!\n", 13Hello world!
+)          = 13
+exit_group(0)                           = ?
++++ exited with 0 +++
+```
+
+this maps a RWX page into memory, which is assuredly not standard behaviour. we can catch any `mprotect` syscalls in gdb with `catch syscall mprotect`.
+
+```c
+ -> 0x555555555178 0f05                  <__do_global_dtors_aux+0x88>   syscall
+    0x55555555517a 4c8d0566000000        <__do_global_dtors_aux+0x8a>   lea    r8, [rip + 0x66] # 0x5555555551e7 <__do_global_dtors_aux+0xf7>
+    0x555555555181 4c8d0db0010000        <__do_global_dtors_aux+0x91>   lea    r9, [rip + 0x1b0] # 0x555555555338 <frame_dummy>
+    0x555555555188 4c87f4                <__do_global_dtors_aux+0x98>   xchg   rsp, r14
+    0x55555555518b 4883ec08              <__do_global_dtors_aux+0x9b>   sub    rsp, 0x8
+    0x55555555518f 58                    <__do_global_dtors_aux+0x9f>   pop    rax
+
+[+] Detected syscall (arch:X86, mode:64)
+    mprotect(unsigned long start, size_t len, unsigned long prot)
+[+] Parameter            Register             Value
+    RET                  $rax                 -                   
+    NR                   $rax                 0xa
+    start                $rdi                 0x0000555555555000  ->  0x08ec8348fa1e0ff3
+    len                  $rsi                 0x0000000000001000
+    prot                 $rdx                 0x0000000000000007
+```
+
+we are in some function `__do_global_dtors_aux`, which is a function introduced by gcc to handle... something. it's not important nor relevant, all we know is that it is assuredly not supposed to be `mprotect`ing a region of memory. what region of memory even is that anyway? inspecting in `vmmap` reveals it's just some address to a page in the binary itself. the most important thing here is that this page includes the `.text` section of our binary, so it is RWX-mapping an area including executable code. typically this means the code is self-modifying.
+
+```c
+Start              End                Size               Offset             Perm Path
+0x0000555555555000 0x0000555555556000 0x0000000000001000 0x0000000000001000 r-x /home/navi/upsolves/Sieberrsec-CTF-2025-Public/finals/re/hello_world/dist/helloworld.elf +0x0  <-  $rbx, $rdi, $rip, $r13
+```
+
+ideally we would trace the instructions executed by the binary but there seems to be some weird control-flow-flattening kind effect, where sections of these `__do_global_dtors_aux` blocks are chained together with some trampoline in `__libc_start_main`.
+
+```c
+ -> 0x55555555519a c3                    <__do_global_dtors_aux+0xaa>   ret   
+
+   -> 0x7ffff7c29ebb 4c89f1                <__libc_start_main+0xfb>   mov    rcx, r14
+      0x7ffff7c29ebe 4c39742408            <__libc_start_main+0xfe>   cmp    QWORD PTR [rsp + 0x8], r14
+      0x7ffff7c29ec3 75e3                  <__libc_start_main+0x103>   jne    0x7ffff7c29ea8 <__libc_start_main+0xe8>
+      0x7ffff7c29ec5 e959ffffff            <__libc_start_main+0x105>   jmp    0x7ffff7c29e23 <__libc_start_main+0x63>
+      0x7ffff7c29eca 488b1df7ff1e00        <__libc_start_main+0x10a>   mov    rbx, QWORD PTR [rip + 0x1efff7] # 0x7ffff7e19ec8
+      0x7ffff7c29ed1 498b3424              <__libc_start_main+0x111>   mov    rsi, QWORD PTR [r12]
+```
+
+indeed, after our `mprotect` is performed, it does _something_ w/ the registers, rets back to `__libc_start_main`, and eventually `__libc_start_main` jumps back into another section of code in `__do_global_dtors_aux`.
+
+```c
+ -> 0x7ffff7c29eb9 ff11                  <__libc_start_main+0xf9>   call   QWORD PTR [rcx] <__do_global_dtors_aux+0xc0>
+
+   -> 0x5555555551b0 8a03                  <__do_global_dtors_aux+0xc0>   mov    al, BYTE PTR [rbx]
+      0x5555555551b2 413000                <__do_global_dtors_aux+0xc2>   xor    BYTE PTR [r8], al
+      0x5555555551b5 48ffc3                <__do_global_dtors_aux+0xc5>   inc    rbx
+      0x5555555551b8 49ffc0                <__do_global_dtors_aux+0xc8>   inc    r8
+      0x5555555551bb 4c87f4                <__do_global_dtors_aux+0xcb>   xchg   rsp, r14
+      0x5555555551be 4883ec08              <__do_global_dtors_aux+0xce>   sub    rsp, 0x8
+```
+
+oh well. the exact mechanics of this dont really matter to us. we can just manually step through by spamming `stepi`s until we get back to our relevant code blocks.
+
+and .. here we see a very interesting codeblock, actually.
+
+```c
+    0x5555555551ab 8d5050                <__do_global_dtors_aux+0xbb>   lea    edx, [rax+0x50]
+    0x5555555551ae 8a00                  <__do_global_dtors_aux+0xbe>   mov    al, BYTE PTR [rax]
+ -> 0x5555555551b0 8a03                  <__do_global_dtors_aux+0xc0>   mov    al, BYTE PTR [rbx]
+    0x5555555551b2 413000                <__do_global_dtors_aux+0xc2>   xor    BYTE PTR [r8], al
+    0x5555555551b5 48ffc3                <__do_global_dtors_aux+0xc5>   inc    rbx
+    0x5555555551b8 49ffc0                <__do_global_dtors_aux+0xc8>   inc    r8
+    0x5555555551bb 4c87f4                <__do_global_dtors_aux+0xcb>   xchg   rsp, r14
+    0x5555555551be 4883ec08              <__do_global_dtors_aux+0xce>   sub    rsp, 0x8
+----------------------------------- memory access: $rbx = 0x555555555338 ----
+$rbx+ 0x555555555338|+0x0000|+000: 0x48f4874cfa1e0ff3
+      0x555555555340|+0x0008|+001: 0xfe1605485808ec83
+      0x555555555348|+0x0010|+002: 0x5de9f4874c50ffff
+      0x555555555350|+0x0018|+003: 0x48e5894855fffffd
+```
+
+note the memory access and the `xor BYTE PTR [r8], al` instruction - these addresses are in the page marked RWX, and here we are, xoring the bytes with some key somewhere. we can inspect more of the asm, seeing that it increments the ptr in r8 and xors the bytes in a loop until r8 == r9.
+
+```c
+gef> x/16i $rip
+=> 0x5555555551b0 <__do_global_dtors_aux+192>:	mov    al,BYTE PTR [rbx]
+   0x5555555551b2 <__do_global_dtors_aux+194>:	xor    BYTE PTR [r8],al
+   0x5555555551b5 <__do_global_dtors_aux+197>:	inc    rbx
+   0x5555555551b8 <__do_global_dtors_aux+200>:	inc    r8
+   0x5555555551bb <__do_global_dtors_aux+203>:	xchg   rsp,r14
+   0x5555555551be <__do_global_dtors_aux+206>:	sub    rsp,0x8
+   0x5555555551c2 <__do_global_dtors_aux+210>:	pop    rax
+   0x5555555551c3 <__do_global_dtors_aux+211>:	cmp    r8,r9
+   0x5555555551c6 <__do_global_dtors_aux+214>:	jne    0x5555555551ce <__do_global_dtors_aux+222>
+   0x5555555551c8 <__do_global_dtors_aux+216>:	add    rax,0x37
+   0x5555555551ce <__do_global_dtors_aux+222>:	push   rax
+   0x5555555551cf <__do_global_dtors_aux+223>:	xchg   rsp,r14
+   0x5555555551d2 <__do_global_dtors_aux+226>:	ret
+```
+
+note that when the loop completes, it adds `0x37` to `rax` and just hits the same `ret` instruction that an incomplete loop would hit, so it goes back to that same `libc_start_main` trampoline thingy with the exact same state aside from `rax` - this means that `rax` is somehow used in that trampoline to dictate which block we then go to next.
+
+however it just doesn't really matter to reverse more of it because we can just.. keep stepping through and seeing which block we hit. :) doing so reveals that our next endpoint just turns out to be the bytes we XOR'd earlier. (r8 is initialized to `0x5555555551e7`, and we end up jumping to `0x5555555551e7`).
+
+```c
+ -> 0x7ffff7c29eb9 ff11                  <__libc_start_main+0xf9>   call   QWORD PTR [rcx] <__do_global_dtors_aux+0xf7>
+
+   -> 0x5555555551e7 4883fd02              <__do_global_dtors_aux+0xf7>   cmp    rbp, 0x2
+      0x5555555551eb 750f                  <__do_global_dtors_aux+0xfb>   jne    0x5555555551fc <__do_global_dtors_aux+0x10c>
+      0x5555555551ed 4d8b442408            <__do_global_dtors_aux+0xfd>   mov    r8, QWORD PTR [r12 + 0x8]
+      0x5555555551f2 4c8d0d3f010000        <__do_global_dtors_aux+0x102>   lea    r9, [rip + 0x13f] # 0x555555555338 <frame_dummy>
+      0x5555555551f9 4831db                <__do_global_dtors_aux+0x109>   xor    rbx, rbx
+      0x5555555551fc 4c87f4                <__do_global_dtors_aux+0x10c>   xchg   rsp, r14
+```
+
+our very first `cmp` then dictates where we branch off to, here it's a compare to `rbp = 0x2`. right now our `rbp` is `0x1`.
+
+```c
+gef> i r
+rax            0x5555555551e7      0x5555555551e7
+rbx            0x555555555489      0x555555555489
+rcx            0x5555555570a8      0x5555555570a8
+rdx            0x7fffffffdca8      0x7fffffffdca8
+rsi            0x7fffffffdc98      0x7fffffffdc98
+rdi            0x1                 0x1
+rbp            0x1                 0x1
+```
+
+this means we take the `jne` branch, which .. does something, again, with the weird `libc_start_main` trampoline, but what is important is we immediately hit a branch that just de-`mprotect`s the page and exits out, so that's no good.
+
+it may be unclear as to how we get `rbp` to pass our `0x2` check, this just comes down to a knowledge gap: given that we are so early on in the binary (we are in the middle of libc constructor functions that i really have no earthly idea about), `rbp` typically holds the number of arguments passed in to stdin.
+
+(this is the one thing i am unclear about as to how you would 'figure it out', i knew enough about the challenge that stdin arguments would be involved, so i just guessed. setting $rbp=2 artificially in gdb and stepping through does end in a segfault where you try to access _some_ nullptr that's near environment variables on the stack, so i suppose that would be a safe guess then. either way...)
+
+armed w/ that knowledge we can just run the binary with a stdin argument and keep on going, we'll see another strange xor loop in the following block.
+
+```c
+=> 0x55555555521d <__do_global_dtors_aux+301>:	mov    dl,BYTE PTR [r8]
+   0x555555555220 <__do_global_dtors_aux+304>:	test   dl,dl
+   0x555555555222 <__do_global_dtors_aux+306>:	je     0x555555555238 <__do_global_dtors_aux+328>
+   0x555555555224 <__do_global_dtors_aux+308>:	xor    dl,BYTE PTR [r9]
+   0x555555555227 <__do_global_dtors_aux+311>:	mov    BYTE PTR [r8],dl
+   0x55555555522a <__do_global_dtors_aux+314>:	inc    rbx
+   0x55555555522d <__do_global_dtors_aux+317>:	inc    r8
+   0x555555555230 <__do_global_dtors_aux+320>:	inc    r9
+   0x555555555233 <__do_global_dtors_aux+323>:	sub    r14,0x8
+   0x555555555237 <__do_global_dtors_aux+327>:	ret
+```
+
+a few cool things to note here, we load from `r8` (a pointer to the argument we pass in via stdin), and we end when the byte we load is null (i.e. the nullterm for whatever string we use as our argument).
+
+we can verify that `r8` points to an address on the stack with `vmmap`, however we are xoring it with some address in `r9`, which is an address in the binary. note that the final destination here is just `r8`, meaning that we are xoring the _stdin_ argument in place as it sits on the stack.
+
+also, `$rbx` functions as a loop counter. we don't need a loop counter since we're using the nullterm of our string as the loop end condition. i am helpfully noting this for later, when this comes up.
+
+```c
+gef> vmmap $r8
+[ Legend: Code | Heap | Stack | Writable | ReadOnly | None | RWX ]
+Start              End                Size               Offset             Perm Path
+0x00007ffffffdd000 0x00007ffffffff000 0x0000000000022000 0x0000000000000000 rw- [stack] +0x2102d  <-  $rdx, $rsp, $rsi, $r8, $r12
+gef> vmmap $r9
+[ Legend: Code | Heap | Stack | Writable | ReadOnly | None | RWX ]
+Start              End                Size               Offset             Perm Path
+0x0000555555555000 0x0000555555556000 0x0000000000001000 0x0000000000001000 rwx /home/navi/upsolves/Sieberrsec-CTF-2025-Public/finals/re/hello_world/dist/helloworld.elf +0x338  <-  $rax, $rip, $r9, $r13
+```
+
+anyways spamming `stepi`s gets us to this code block:
+
+```c
+    0x55555555528c 4883ec08              <__do_global_dtors_aux+0x19c>   sub    rsp, 0x8
+    0x555555555290 58                    <__do_global_dtors_aux+0x1a0>   pop    rax
+ -> 0x555555555291 4883fb30              <__do_global_dtors_aux+0x1a1>   cmp    rbx, 0x30
+```
+
+waow. a `cmp rbx, 0x30`. as we recall, rbx is just a loop counter, which means that it's _also_ the number of characters in our input. this means that our input should _probably_ be `0x30` bytes long. re-running with `0x30` As in the input and once again spamming `stepi`s gets us to this block of code:
+
+```c
+ -> 0x5555555552b2 488d3598ffffff        <__do_global_dtors_aux+0x1c2>   lea    rsi, [rip + 0xffffffffffffff98] # 0x555555555251 <__do_global_dtors_aux+0x161>
+    0x5555555552b9 4c87f4                <__do_global_dtors_aux+0x1c9>   xchg   rsp, r14
+    0x5555555552bc 4883ec08              <__do_global_dtors_aux+0x1cc>   sub    rsp, 0x8
+    0x5555555552c0 58                    <__do_global_dtors_aux+0x1d0>   pop    rax
+    0x5555555552c1 f3a6                  <__do_global_dtors_aux+0x1d1>   repz   cmps BYTE PTR [rsi], BYTE PTR [rdi]
+    0x5555555552c3 7408                  <__do_global_dtors_aux+0x1d3>   je     0x5555555552cd <__do_global_dtors_aux+0x1dd>
+```
+
+a `repz cmps` of bytes from `[rsi]` to `[rdi]`. before we do anything let's just trivially bypass whatever check this is by setting rsi == rdi. doing so reveals that it prints a hidden message here.
+
+```c
+gef> set $rsi=$rdi
+gef> c
+Continuing.
+nice!
+Hello world!
+[Inferior 1 (process 247098) exited normally]
+```
+
+cool, so our goal should clearly be to pass this check.
+
+we can just verify which two arrays are even being compared by inspecting the values of $rsi and $rdi.
+
+```c
+gef> x/16g $rsi
+0x555555555251 <__do_global_dtors_aux+353>:	0x219be0379c6a6c80	0x90797c2d3a578bed
+0x555555555261 <__do_global_dtors_aux+369>:	0x028698eb2938a09b	0x32d4d62c398d908a
+0x555555555271 <__do_global_dtors_aux+385>:	0xf12b353678c36ebf	0x7dda959984ae9bf4
+0x555555555281 <__do_global_dtors_aux+401>:	0x000a216563696e00	0x5808ec8348f4874c
+0x555555555291 <__do_global_dtors_aux+417>:	0x2d48087430fb8348	0x054806ebffffff85
+0x5555555552a1 <__do_global_dtors_aux+433>:	0xf4874c5000000021	0x7e8b48d98948fcc3
+0x5555555552b1 <__do_global_dtors_aux+449>:	0xffffff98358d4808	0x5808ec8348f4874c
+0x5555555552c1 <__do_global_dtors_aux+465>:	0xffa62d480874a6f3	0x002e054806ebffff
+gef> x/16x $rdi
+0x7fffffffdfff:	0x09b5c60dbb5f4eb2	0xbf5744091949adc2
+0x7fffffffe00f:	0x1ca8b5c60d11bebe	0x09a4c80914bebebc
+0x7fffffffe01f:	0xc80941414de744cc	0x41f9bebebd8ba986
+0x7fffffffe02f:	0x45545f5353454c00	0x65735f5041434d52
+0x7fffffffe03f:	0x414d006d305b1b3d	0x2f7261762f3d4c49
+0x7fffffffe04f:	0x76616e2f6c69616d	0x6e3d524553550069
+0x7fffffffe05f:	0x474e414c00697661	0x006e653d45474155
+0x7fffffffe06f:	0x5245545f5353454c	0x3d65755f5041434d
+```
+
+interestingly, note that $rdi is just the address of our xored-in-place stdin input, and $rsi is this array in the binary. recalling our initial xor-loop in the first place, we remember that the xor-key was stored in r9 during that weird code block, so we can just yoink the bytes from there by breakpointing again at that block again.
+
+```c
+gef> x/16g $r9
+0x555555555338 <frame_dummy>:	0x48f4874cfa1e0ff3	0xfe1605485808ec83
+0x555555555348 <frame_dummy+16>:	0x5de9f4874c50ffff	0x48e5894855fffffd
+0x555555555358 <main+5>:	0x894800000ca6058d	0x00b8fffffccae8c7
+0x555555555368 <main+21>:	0x000000c35d000000	0x08ec8348fa1e0ff3
+```
+
+we xor the two bytestrings starting at those addresses to get our flag ^_^
+
+```py
+from pwn import xor
+
+a = '48f4874cfa1e0ff3fe1605485808ec835de9f4874c50ffff48e5894855fffffd894800000ca6058d00b8fffffccae8c7'
+b = '219be0379c6a6c8090797c2d3a578bed028698eb2938a09b32d4d62c398d908af12b353678c36ebf7dda959984ae9bf4'
+
+z = xor(bytes.fromhex(a), bytes.fromhex(b))
+for i in range(0, len(z), 8):
+    print(z[i:i+8][::-1].decode(), end='')
+```
+
+```c
+navi@curette (inals/re/hello_world/dist) > python solve.py
+sctf{going_beyond_hello_world_1z2ket65cx3sdxfjb}                                                                                                       
+navi@curette (inals/re/hello_world/dist) > ./helloworld.elf $(python solve.py)
+nice!
+Hello world!
+```
+
+### closing
+
+the actual obfuscation method used here is very cool, and i would be remiss not to mention [elma's great writeup](https://blog.elmo.sg/posts/the-art-of-hiding-code-by-modifying-non-volatile-registers) on it, so do read that if you want to actually learn what the `libc_start_main` trampoline obfuscation nonsense at play here is. the purpose of this writeup is more so to share how a solver wld even go about dealing with this sort of obfuscation. 
+
+i think a better, more complete solve would completely unwind the obfuscation and have a nice control flow graph to look at instead of just rawdogging different blocks of asm via eyepower, i did want to learn some more tools / frameworks to get this done (if the binary was even more complicated, tracing manually and haphazardly like this would Not be feasible, you would need a more sophisticated approach. unfortunately this is not a level of sophistication i have :S)
+
+
