@@ -1,7 +1,7 @@
 ---
 layout: post
 title: sctf/upsolves
-date: 2025-11-18 05:40:00 +0800
+date: 2025-11-19 00:40:00 +0800
 ---
 
 recommended listening for this post is [ 明日にはすべてが終わるとして](https://www.youtube.com/watch?v=yuXaABIr0go&list=PL8Xbf2xl0OGBgCZw4kyzpulGkXN1f0ZQM&index=9) by kinokoteikoku.

