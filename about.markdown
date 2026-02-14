@@ -4,7 +4,7 @@ title: about
 permalink: /about/
 ---
 
-![alt text](/assets/images/796940.png)
+![alt text](https://images.steamusercontent.com/ugc/1877465480013718048/47EEAD1D3F6EDFF246C4DE1A85CC70B69E21D307/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true)
 
 aspiring goddaughter to kevin mitnick
 
@@ -23,7 +23,7 @@ aspiring goddaughter to kevin mitnick
 - pipeline punch juice monster energy juice 500ml can
 - ncmpcpp, nvim
 - joan didion, guyliner, taobao
-- my boyfriend
+- [my darling boyfriend](https://crematie.github.io)
 
 ### friend blogs
 - [scuffed](https://scuffed.online) is my good buddy who writes about `rev` and the sacred art of vibes and eyepower
