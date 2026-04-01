@@ -4,9 +4,9 @@ title: grey/overly simplified pwn challenge
 date: 2026-04-01 05:40:00 +0800
 ---
 
-[!img](https://i.imgur.com/cwdsObm.png)
+[recommended listening fill in the blank by car seat headrest](https://www.youtube.com/watch?v=s_a1hPwXiWw)
 
-[recommended listening](https://www.youtube.com/watch?v=s_a1hPwXiWw)
+![img](https://i.imgur.com/cwdsObm.png)
 
 > pwn/overly simplified pwn challenge
 > 
