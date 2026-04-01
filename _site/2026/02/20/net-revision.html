@@ -154,7 +154,7 @@ window.MathJax = {
 <div class="quiz-block">
   <h3 id="question-3">question 3</h3>
 
-  <p>LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.10</code> is currently configured to <code class="language-plaintext highlighter-rouge">192.168.1.10/28</code>. i want to configure LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.20</code> - which address + subnet mask would the router let me configure it to?</p>
+  <p>LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.10</code> is currently configured to <code class="language-plaintext highlighter-rouge">192.168.1.10/24</code>. i want to configure LAN subinterface <code class="language-plaintext highlighter-rouge">G0/0/1.20</code> - which address + subnet mask would the router let me configure it to?</p>
 
   <ul class="quiz-options">
   <li class="option">192.168.1.3 255.255.255.252</li>
@@ -163,7 +163,7 @@ window.MathJax = {
   <li class="option">192.168.1.14 255.255.255.254</li>
 </ul>
   <div class="explanation">
-    <p><b>explanation:</b> the only constraint that the router enforces is that no subinterface must overlap (when it receives a packet destined for a specific subnet, it <em>must</em> know which interface to send it to, there cannot be any ‘ambiguities’). for each IP address above starting with <code class="language-plaintext highlighter-rouge">192.168.1.x</code>, the <code class="language-plaintext highlighter-rouge">192.168.1.10/28</code> will necessarily overlap (because that subnet covers every single <code class="language-plaintext highlighter-rouge">192.168.1.x</code> addr). <code class="language-plaintext highlighter-rouge">192.168.2.0 255.255.254.0</code> covers from <code class="language-plaintext highlighter-rouge">192.168.2.0 - 192.168.3.255</code>, hence no overlap.&lt;/div&gt;</p>
+    <p><b>explanation:</b> the only constraint that the router enforces is that no subinterface must overlap (when it receives a packet destined for a specific subnet, it <em>must</em> know which interface to send it to, there cannot be any ‘ambiguities’). for each IP address above starting with <code class="language-plaintext highlighter-rouge">192.168.1.x</code>, the <code class="language-plaintext highlighter-rouge">192.168.1.10/24</code> will necessarily overlap (because that subnet covers every single <code class="language-plaintext highlighter-rouge">192.168.1.x</code> addr). <code class="language-plaintext highlighter-rouge">192.168.2.0 255.255.254.0</code> covers from <code class="language-plaintext highlighter-rouge">192.168.2.0 - 192.168.3.255</code>, hence no overlap.&lt;/div&gt;</p>
   </div>
   <hr />
 
@@ -206,307 +206,24 @@ window.MathJax = {
   </div>
   <hr />
 
-  <!-- QUESTION 6 -->
   <div class="quiz-block">
     <h3 id="question-6">question 6</h3>
 
-    <p>after this finishes execution, what will the contents of <code class="language-plaintext highlighter-rouge">rawr.txt</code> be (assuming it starts off blank)?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">FILE</span> <span class="o">*</span><span class="n">fptr</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"rawr.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
-  <span class="n">fprintf</span><span class="p">(</span><span class="n">fptr</span><span class="p">,</span> <span class="s">"meow meow</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
+    <p>i have connected ports g1/1-2 together on DSW1 and S1, and i want to configure etherchannels. which of the following is true?</p>
 
     <ul class="quiz-options">
-  <li class="option">the compiler will error, as you're writing to a read-only file</li>
-  <li class="option">the program will segfault, as you're writing to a read-only file</li>
-  <li class="option correct">the file will remain empty</li>
-  <li class="option">the file will contain `meow meow`</li>
+  <li class="option">on DSW1's side i configure it as desirable, and on SW1 i configure as auto. i wait until the port channel initiates, then i switch DSW1 to auto. the port channel remains up.</li>
+  <li class="option correct">on DSW1's side i configure it as active, and on S1's side i configure it as passive. an etherchannel successfully forms.</li>
+  <li class="option">on DSW1's side i configure it as desirable, and on S1's side i configure it as passive. an etherchannel successfully forms.</li>
+  <li class="option">on DSW1's side i configure it as desirable, and on S1's side i configure it as on. an etherchannel successfully forms.</li>
+
 </ul>
     <div class="explanation">
-      <p><b>explanation:</b> it’ll just fail silently. ofc, the compiler doesn’t actually do a check to see if the file exists at compiletime, that’s crazy.</p>
-
-      <p><em>optional info</em> so programs will actually segfault if they try to write to read only pages of memory, such as a binary’s Global Offset Table when the program is compiled w/ full Relocation Read-Only. this is relevant in the beautiful field of binary exploitation, which i dearly love, but is absolutely beyond the scope of a first year C class. please message me if you’d love to learn more</p>
+      <p><b>explanation:</b> dynamic / auto is for PAGP, active / passive is for LACP, you cannot mix the two. also, an auto/auto won’t form, and neither will a passive/passive, but a dynamic/auto and an active / passive will form. for the ‘on’ option, you need both sides configured as ‘on’ (this is a mode that does not negotiate any channel).&lt;/div&gt;</p>
     </div>
-  </div>
-  <hr />
+    <hr />
 
-  <!-- QUESTION 7 -->
-  <div class="quiz-block">
-    <h3 id="question-7">question 7</h3>
-
-    <p>which of the following commands cannot be used to get input from <code class="language-plaintext highlighter-rouge">stdin</code>?</p>
-
-    <ul class="quiz-options">
-  <li class="option">fgets()</li>
-  <li class="option">read()</li>
-  <li class="option">getc()</li>
-  <li class="option correct">strstr()</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation:</b>
-<code class="language-plaintext highlighter-rouge">fgets()</code> reads from a FILE* ptr, and stdin is a FILE* ptr. <code class="language-plaintext highlighter-rouge">read()</code> reads from file descriptors, and stdin is also a file descriptor. <code class="language-plaintext highlighter-rouge">getc()</code> takes an argument for a FILE* ptr. the only thing here is <code class="language-plaintext highlighter-rouge">strstr()</code>, which is essentially python’s <code class="language-plaintext highlighter-rouge">.find()</code> method for strings. either way, <code class="language-plaintext highlighter-rouge">strstr()</code> can’t read from file pointers or file descriptors, just compare two strings.</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 8 -->
-  <div class="quiz-block">
-    <h3 id="question-8">question 8</h3>
-
-    <p>what is the output of the following program? (assume <code class="language-plaintext highlighter-rouge">long</code> is 64-bit, and assume we’re on a 64-bit machine too)</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-  <span class="kt">long</span> <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"%ld %ld %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option">[3 large, unknown numbers]</li>
-  <li class="option correct">10 [some large unknown number] 10</li>
-  <li class="option">10 10 10</li>
-  <li class="option">0 0 0</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation:</b> in C, this is perfectly valid - we’re casting the value of the <em>pointer</em> to <code class="language-plaintext highlighter-rouge">a</code> as if it were a <code class="language-plaintext highlighter-rouge">long</code>. we’re on a 64-bit machine so pointers are also 64-bit, the cast works out nice. the important thing here is that you don’t actually lose any information as long as you’re casting back and forth between the same sizes, hence the original value of <code class="language-plaintext highlighter-rouge">int a</code> remains at 10.</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- question 9 -->
-  <div class="quiz-block">
-    <h3 id="question-9">question 9</h3>
-
-    <p>what is the output of the following program?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"what's so good about picking up the pieces?"</span><span class="p">;</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">"%c"</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option correct">what's so good about picking up the pieces?</li>
-  <li class="option">what's so good about picking up the pieces?\00</li>
-  <li class="option">each character will be on a different newline</li>
-  <li class="option">the loop won't terminate</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation:</b> for loops consist of three parts: the initialization, the condition, and the update. typically we see the standard format for a for loop as <code class="language-plaintext highlighter-rouge">int i = 0; i&lt;SOME_BOUND; i++</code> but that condition can really be anything! recall that all strings (char bufs) are nullterminated, and a nullterminator is just a 0 byte which is falsy.</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 10 -->
-  <div class="quiz-block">
-    <h3 id="question-10">question 10</h3>
-
-    <p>what is the output of the following program?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
-  <span class="k">while</span> <span class="p">(</span><span class="n">c</span> <span class="o">&lt;=</span> <span class="sc">'g'</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">^</span><span class="mh">0x20</span><span class="p">;</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">"%c"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option">BcDeFg</li>
-  <li class="option correct">BcDeFgHi</li>
-  <li class="option">BcDeF</li>
-  <li class="option">aBcDeFgHi</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation:</b> ok yeah soz this is <em>really</em> tricky. we know that chars are just ints, but lowercase chars are also greater than uppercase chars, so when the xor 0x20 flips the case, the loop doesn’t terminate. we also have to keep in mind that the loop modifies the char <em>BEFORE</em> printing the string, which is why the initial ‘a’ value doesn’t get printed. finally, the conditional is <code class="language-plaintext highlighter-rouge">c &lt;= 'g'</code>, NOT <code class="language-plaintext highlighter-rouge">c &lt; g</code>; so if <code class="language-plaintext highlighter-rouge">c == 'g'</code> then the while loop still continues.</p>
-    </div>
-  </div>
-  <hr />
-
-  <div class="quiz-block">
-    <h3 id="question-11">question 11</h3>
-
-    <p>which of the following choices for <code class="language-plaintext highlighter-rouge">b[]</code> would not result in the program outputting <code class="language-plaintext highlighter-rouge">1</code>?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">are_the_same</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">char</span> <span class="n">a</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="s">"rawr</span><span class="se">\00</span><span class="s">xd"</span><span class="p">;</span>
-  <span class="kt">char</span> <span class="n">b</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"..."</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">are_the_same</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">7</span><span class="p">));</span>
-  <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option correct">raw</li>
-  <li class="option">rawr\00\00\00\00\00</li>
-  <li class="option">rawr\00sdlfkjsdlkfjsdkfl</li>
-  <li class="option">rawr</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation</b>: again, strings are all null terminated. <code class="language-plaintext highlighter-rouge">strncmp</code> only checks at <em>MAX</em> the first n bytes (in this case, 7) but if both strings are null terminated <em>before</em> n then it just exits out. in this case, only <code class="language-plaintext highlighter-rouge">raw</code> would fail the check because <code class="language-plaintext highlighter-rouge">strncmp</code> would try to compare raw’s null terminator with rawr’s last ‘r’ character.&lt;/div&gt;</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 12 -->
-  <div class="quiz-block">
-    <h3 id="question-12">question 12</h3>
-
-    <p>which of the following correctly explains why this code won’t compile?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">atoi</span><span class="p">(</span><span class="n">getc</span><span class="p">(</span><span class="n">stdin</span><span class="p">)));</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option">getc() doesn't take an argument</li>
-  <li class="option">atoi() returns a char, breaking the format string</li>
-  <li class="option correct">getc() returns a char, `atoi()` expects a char*</li>
-  <li class="option">it works just fine</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation:</b> honestly the answer explains it better than i can here. we just have to remember that a char and char* are distinct. also, <code class="language-plaintext highlighter-rouge">atoi()</code> returns an integer.</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 13 -->
-  <div class="quiz-block">
-    <h3 id="question-13">question 13</h3>
-
-    <p>what is the output of the following program? assume that <code class="language-plaintext highlighter-rouge">doesnotexist.txt</code> does not exist.</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">FILE</span> <span class="o">*</span><span class="n">fptr</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"doesnotexist.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
-  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">fptr</span> <span class="o">==</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">puts</span><span class="p">(</span><span class="s">"yay!"</span><span class="p">);</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">puts</span><span class="p">(</span><span class="s">"awww."</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option">`awww.`, when `fopen` fails it is undefined behaviour.</li>
-  <li class="option correct">`yay!`, when `fopen` fails it returns a nullptr.</li>
-  <li class="option">this program won't compile as you can't compare a pointer with an integer.</li>
-  <li class="option">this program won't compile because `doesnotexist.txt` does not exist.</li>
-</ul>
-    <div class="explanation">
-      <p><b>explanation</b>a null pointer is just the value 0, and you can compare the two perfectly fine. fopen will always return a null pointer when it fails.</p>
-    </div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 14 -->
-  <div class="quiz-block">
-    <h3 id="question-14">question 14</h3>
-
-    <p>which of the following is an invalid way to populate the <code class="language-plaintext highlighter-rouge">name</code> field of the <code class="language-plaintext highlighter-rouge">Student</code> struct?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
-  <span class="kt">char</span> <span class="n">name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-  <span class="kt">int</span> <span class="n">age</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">Student</span><span class="p">;</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">Student</span><span class="o">*</span> <span class="n">student</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Student</span><span class="p">));</span>
-  <span class="p">...</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option">snprintf(student-&gt;name, 16, "cane");</li>
-  <li class="option" style="padding: 0px;">
-<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">name</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"cane"</span><span class="p">;</span>
-<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">student</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<span class="p">}</span></code></pre></figure>
-
-</li>
-  <li class="option correct">student-&gt;name = "cane";</li>
-  <li class="option">memmove(student-&gt;name, "cane", 4);</li>
-</ul>
-    <div class="explanation">
-<b>explanation:</b> yeah no you just cant write assign arrays like this. everything else is perfectly valid (using snprintf, writing the char array byte by byte, and moving the actual memory w/ memmove) but array assignment is invalid.
-</div>
-  </div>
-  <hr />
-
-  <!-- QUESTION 15 (BONUS) -->
-  <div class="quiz-block">
-    <h3 id="question-15-bonus">question 15 (bonus)</h3>
-
-    <p>what’s wrong with the following program?</p>
-
-    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-  <span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="n">stdin</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-
-    <ul class="quiz-options">
-  <li class="option correct">a user can input `"%p"` and leak addresses on the stack</li>
-  <li class="option">`fgets` does not account for the null terminator, the null byte will overflow</li>
-  <li class="option">`sizeof(buf)` actually corresponds to the size of a `char*` pointer, only 8 bytes of input will be read</li>
-    <li class="option">nothing is wrong it's completely fine</li>
-
-</ul>
-    <div class="explanation">
-<b>explanation:</b> do this year's cyberblitz in december to find out how you can pop a shell w/ just a format string exploit :p
-</div>
-  </div>
-  <script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
   var options = document.querySelectorAll('.option');
   options.forEach(function(option) {
@@ -520,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+  </div>
 </div>
 
 </article>

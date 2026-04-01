@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>linalg math revision</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="linalg math revision" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="ever since i was young i always dreamed of owning my own self" />
+<meta property="og:description" content="ever since i was young i always dreamed of owning my own self" />
+<link rel="canonical" href="http://localhost:4000/2026/03/28/math-theory.html" />
+<meta property="og:url" content="http://localhost:4000/2026/03/28/math-theory.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-28T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="linalg math revision" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-28T05:40:00+08:00","datePublished":"2026-03-28T05:40:00+08:00","description":"ever since i was young i always dreamed of owning my own self","headline":"linalg math revision","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2026/03/28/math-theory.html"},"url":"http://localhost:4000/2026/03/28/math-theory.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2026-03-28 05:40:00 +0800">2026-03-28 05:40:00 +0800</time>
+  </p>
+  
+  <h1>linalg math revision</h1>
+
+  <style>
+  
+  .quiz-options {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+  }
+
+  .option {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid gray;
+    transition: all 0.2s ease;
+  }
+
+  .option:hover {
+    border: 1px solid white;
+  }
+
+  .quiz-block.answered .option {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .quiz-block.answered .option.correct {
+    background-color: #1c1c1c;
+    color: green;
+    font-weight: bold;
+  }
+
+  .quiz-block.answered .option:not(.correct) {
+    color: #86181d;
+    opacity: 0.7;
+  }
+
+  .explanation {
+    display: none;
+    margin-top: 25px;
+    padding-inline: 15px;
+    border-left: 2px solid #b8bb26;
+  }
+
+  .quiz-block.answered .explanation {
+    display: block;
+    animation: fadeIn 0.5s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+
+<p>recommended listening <a href="https://www.youtube.com/watch?v=kBbls4rJXUE">weatherday’s darling of loving vows</a></p>
+
+<p><img src="https://i.imgur.com/f0V3jSe.png" alt="img" /></p>
+
+<p>honestly i struggled a lot with linalg theory, this is more for my own sake. not all of this might be tested, some of this might be out-of-scope but it’s always good to gain an intuition</p>
+
+<div class="quiz-block">
+  <h3 id="question-1">question 1</h3>
+
+  <p>consider the matrix $ M = \begin{bmatrix} x_1 &amp; y_1 \\ x_2 &amp; y_2 \end{bmatrix} $ such that $ M^{-1} = M^T $. further, define $ m_1 = \begin{bmatrix} x_1 \\ y_1 \end{bmatrix} $ and $ m_2 = \begin{bmatrix} x_2 \\ y_2 \end{bmatrix} $. which of the following is true?</p>
+
+  <ul class="quiz-options">
+  <li class="option">$ M $ is a scaling transformation.</li>
+  <li class="option correct">the magnitude of $ m_1 $ and $ m_2 $ are the same.</li>
+  <li class="option">the determinant of $ M $ can never be 1.</li>
+  <li class="option">the cross product of $ m_1 $ and $ m_2 $ is the zero vector.</li>
+</ul>
+
+  <div class="explanation">
+    <p><b>explanation</b>: recall that $ M $ must be orthonormal (definitionally, as its transpose is its inverse). the definition of an orthonormal matrix is that its two vectors are orthogonal unit vectors, we can prove this by doing the math:</p>
+
+\[\begin{align*}
+M M^T &amp;= I \\
+\begin{bmatrix} x_1 &amp; y_1 \\\ x_2 &amp; y_2 \end{bmatrix}
+\begin{bmatrix} x_1 &amp; x_2 \\\ y_1 &amp; y_2 \end{bmatrix} &amp;= 
+\begin{bmatrix} 1 &amp; 0 \\\ 0 &amp; 1 \end{bmatrix} \\
+\begin{bmatrix} 1 &amp; 0 \\\ 0 &amp; 1 \end{bmatrix} &amp;=
+\begin{bmatrix} {x_1}^{2} &amp; x_1 \cdot x_2 \\\ x_2 \cdot x_1 &amp; {x_2}^{2} \end{bmatrix}
+\end{align*}\]
+
+    <p>we can see that the dot product of $ x_1 $ and $ x_2 $ is 0, and that the dot product of both vectors with themselves is 1. if the dot product of two vectors is 0, they are orthogonal, and the dot product of a vector with itself is the square of its magnitude - if that’s just 1, then the magnitude of those vectors must be 1,  hence they are unit vectors.</p>
+
+    <p>the rest are untrue for different reasons:</p>
+
+    <p>orthonormal matrices are <em>rotational</em> transforms (think about how mapping unit vectors onto another pair of orthogonal unit vectors would work, no scaling or shearing would be involved, just rotating).</p>
+
+    <p>you can also solve for the determinants:</p>
+
+\[\begin{align*}
+\det(MM^{-1}) &amp;= \det(I) \\
+\det(M) * \det(M^{-1}) &amp;= 1
+\end{align*}\]
+
+    <p>and since $ \det(M) = \det(M^{T}) $ you can see that the only possible solutions are either $ \det(M) = 1 $ or $ \det(M) = -1 $.</p>
+
+    <p>finally, given that we know that $ m_1 $ and $ m_2 $ are orthogonal, their dot products would be 0, not their cross products. whew.</p>
+  </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  var options = document.querySelectorAll('.option');
+  options.forEach(function(option) {
+    option.addEventListener('click', function() {
+      var block = event.currentTarget.closest('.quiz-block');
+      console.log(block);
+      if (block.classList.contains('answered')) return;
+      block.classList.add('answered');
+    });
+  });
+});
+</script>
+
+</div>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

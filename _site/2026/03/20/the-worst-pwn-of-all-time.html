@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+<script type="text/javascript">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1.10   /* Increase font size: 1.0 = default, 1.5 = 150% */
+  }
+};
+</script>
+  <title>the worst pwn challenges ever written (lnc26 author writeups)</title><!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="the worst pwn challenges ever written (lnc26 author writeups)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="!img" />
+<meta property="og:description" content="!img" />
+<link rel="canonical" href="http://localhost:4000/2026/03/20/the-worst-pwn-of-all-time.html" />
+<meta property="og:url" content="http://localhost:4000/2026/03/20/the-worst-pwn-of-all-time.html" />
+<meta property="og:site_name" content="wrenches" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-20T05:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="the worst pwn challenges ever written (lnc26 author writeups)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-20T05:40:00+08:00","datePublished":"2026-03-20T05:40:00+08:00","description":"!img","headline":"the worst pwn challenges ever written (lnc26 author writeups)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2026/03/20/the-worst-pwn-of-all-time.html"},"url":"http://localhost:4000/2026/03/20/the-worst-pwn-of-all-time.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wrenches" /><link rel="shortcut icon" type="image/x-icon" href="" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+
+</head>
+<body a="dark">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"></a><article>
+  <p class="post-meta">
+    <time datetime="2026-03-20 05:40:00 +0800">2026-03-20 05:40:00 +0800</time>
+  </p>
+  
+  <h1>the worst pwn challenges ever written (lnc26 author writeups)</h1>
+
+  <p><a href="https://i.imgur.com/cwdsObm.png">!img</a></p>
+
+<h3 id="this-is-not-completed-and-i-doubt-i-will-ever-finish-it">THIS IS NOT COMPLETED AND I DOUBT I WILL EVER FINISH IT</h3>
+
+<p>recommended listening for this post is <a href="https://www.youtube.com/watch?v=nc-Xc-CFAiY">stella was a diver and she was always down</a>.</p>
+
+<p>to inaugurate my official retirement from ctf (real) (not really i’ll be doing this stupid fucking shit again in like 2 months (my thousand-year curse as destined by sun wu kong)) i wrote 2 of the worst pwns ever written for beautiful interpoly competition lag and crash six point oh. they didnt get a lot of solves during the comp because they are the worst pwns ever written. one is a python pwn and the other is a musl pwn and they are both quite ‘minimal’. all things aside im really happy with how they turned out and i think they are Cool Challenges (that no one really bothered to solve aside from like 3 people xd)</p>
+
+<h3 id="mischyperboros">misc/hyperboros</h3>
+
+<p>this is the python pwn, the source is a simple script that runs a loop giving single-byte relative write to the python code object</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">ctypes</span>
+
+<span class="k">def</span> <span class="nf">hyperboros</span><span class="p">():</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">'offset</span><span class="se">\n</span><span class="s">&gt;&gt; '</span><span class="p">))</span>
+    <span class="n">char</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">'char</span><span class="se">\n</span><span class="s">&gt;&gt; '</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">ctypes</span><span class="p">.</span><span class="n">memmove</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">hyperboros</span><span class="p">.</span><span class="n">__code__</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">):</span>
+    <span class="n">hyperboros</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>the goal is to use the single-byte write and eventually get code execution. before we get started we should learn more about the python bytecode format ( i have a <a href="https://slight-smile.com/writeups/infobahn-ctf-25/">few</a> posts about this already, this is an ongoing interest of mine ), as well as code objects in general. on runtime, each python function (such as our <code class="language-plaintext highlighter-rouge">hyperboros</code> function) gets compiled into a code object with a few different related objects / structs, see this example, where we define some random function <code class="language-plaintext highlighter-rouge">a</code>. we can see that it has that <code class="language-plaintext highlighter-rouge">__code__</code> attribute that the <code class="language-plaintext highlighter-rouge">hyperboros</code> function references.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span>
+<span class="o">&lt;</span><span class="n">function</span> <span class="o">&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7f4132d5c4a0</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span><span class="p">.</span><span class="n">__code__</span>
+<span class="o">&lt;</span><span class="n">code</span> <span class="nb">object</span> <span class="o">&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7f4132d21620</span><span class="p">,</span> <span class="nb">file</span> <span class="s">"&lt;python-input-8&gt;"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>the <code class="language-plaintext highlighter-rouge">__code__</code> function is actually what’s important here, so we can further look at its associated objects <code class="language-plaintext highlighter-rouge">co_names</code>, <code class="language-plaintext highlighter-rouge">co_varnames</code>, etc. let’s look at what the <code class="language-plaintext highlighter-rouge">hyperboros</code> function has:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">hyperboros</span><span class="p">.</span><span class="n">__code__</span><span class="p">.</span><span class="n">co_names</span>
+<span class="p">(</span><span class="err">'</span><span class="kt">int</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">input</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">bytes</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">fromhex</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">len</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">ctypes</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">memmove</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">id</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">hyperboros</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="n">__code__</span><span class="err">'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hyperboros</span><span class="p">.</span><span class="n">__code__</span><span class="p">.</span><span class="n">co_varnames</span>
+<span class="p">(</span><span class="err">'</span><span class="n">offset</span><span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="kt">char</span><span class="err">'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hyperboros</span><span class="p">.</span><span class="n">__code__</span><span class="p">.</span><span class="n">co_consts</span>
+<span class="p">(</span><span class="n">None</span><span class="p">,</span> <span class="err">'</span><span class="n">offset</span><span class="err">\</span><span class="n">n</span><span class="o">&gt;&gt;</span> <span class="err">'</span><span class="p">,</span> <span class="err">'</span><span class="kt">char</span><span class="err">\</span><span class="n">n</span><span class="o">&gt;&gt;</span> <span class="err">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+</code></pre></div></div>
+
+<p>each func stores a tuple of strings to globals that it wants to reference in <code class="language-plaintext highlighter-rouge">co_names</code>. if the function wants to call <code class="language-plaintext highlighter-rouge">id</code>, the python interpreter will load <code class="language-plaintext highlighter-rouge">id</code> by using the string reference in <code class="language-plaintext highlighter-rouge">co_names</code>, using this to eventually find a pointer to <code class="language-plaintext highlighter-rouge">id</code>.</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
