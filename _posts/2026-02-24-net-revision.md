@@ -551,7 +551,7 @@ select the true statements about OSPF. (select all that apply)
 
 <p class="multi-label">multi-select</p>
 <ul class="quiz-options">
-  <li class="option">ping 8.8.8.8 sent from R2 will not work because R2 is not configured to translate its own IP address.</li>
+  <li class="option correct">ping 8.8.8.8 sent from R2 will not work because R2 is not configured to translate its own IP address.</li>
   <li class="option">the correct command to create the access-list is <code>access-list 1 permit 192.168.10.0 255.255.254.0</code>.</li>
   <li class="option">if PC2 is hosting a webserver which must always remain accessible from the internet, using pooled NAT is the best choice.</li>
   <li class="option">if the internal 10.1.1.0/30 path is not configured w/ its own access list and NAT pool, the PCs will not be able to access the internet.</li>
