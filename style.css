@@ -1,0 +1,93 @@
+
+html, body {
+  height: 100%;
+}
+
+header {
+  padding-top: 2rem;
+}
+
+@font-face {
+  font-family: 'adwaita';
+  src: url('/assets/adwaita.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'adwaita';
+  src: url('/assets/adwaita-bold.ttf');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'adwaita';
+  src: url('/assets/adwaita-italic.ttf');
+  font-weight: 400;
+  font-style: italic;
+}
+
+body {
+  font-family: 'adwaita';
+  background-color: #fbfbfb;
+  font-size: 1.25em;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: red;
+}
+
+h1, h2, h3, h4 {
+  color: black;
+  line-height: 1rem;
+}
+
+
+main {
+  flex: 1 0 auto;
+}
+
+hr {
+  padding-block: 1rem;
+  margin-block: 1rem;
+}
+
+footer {
+  flex-shrink: 0;
+  padding-block: 2rem;
+}
+
+p { text-align: justify;}
+
+pre {
+  font-size: 1.25em !important;
+  margin: 2em;
+  line-height: 1.25em;
+  border-top: 1px solid black;
+  max-width: 100%;
+  overflow-x: scroll;
+  border-bottom: 1px solid black;
+  padding-block: 1em;
+  position: relative;
+}
+
+.monospace {
+  border: 1px solid black;
+  padding-inline: 0.2rem;
+}
+
+pre::before {
+  content: '#';
+  position: absolute;
+  top: -1.35em;
+  right: 0;
+}
+
+li {
+  text-align: justify;
+}
