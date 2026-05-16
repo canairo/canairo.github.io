@@ -21,6 +21,7 @@ header {
   font-style: normal;
 }
 
+
 @font-face {
   font-family: 'adwaita';
   src: url('/assets/adwaita-italic.ttf');
@@ -64,6 +65,11 @@ footer {
 
 p { text-align: justify;}
 
+.blog-img {
+  width: 75%;
+  margin: auto;
+
+}
 pre {
   font-size: 1.25em !important;
   margin: 2em;
@@ -90,4 +96,12 @@ pre::before {
 
 li {
   text-align: justify;
+}
+
+
+@media (max-width: 768px) {
+  body {
+    font-size: 0.5em;
+    width: 95%;
+  }
 }
