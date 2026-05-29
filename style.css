@@ -115,5 +115,5 @@ body::before {
   font-size: 30em;
   filter: drop-shadow(5px 5px 0px blue);
   z-index: -2;
-  color: rgba(255, 0, 0, 0.01);
+  color: rgba(255, 0, 0, 0.03);
 }
