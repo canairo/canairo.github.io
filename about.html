@@ -16,7 +16,13 @@
 
         <p><i>all of the writing is done by me, a human being. <a href='/'>click here to go back</a></i></p>
         <div class='love'>⚴</div>
-        <div class='brickwall'>
+        <br><br><br>
+        <div>
+          <br><br>
+          <div class='brickwall'>
+          </div><br><br>
+          <span id='titlebar' style='color: black; text-align: right; border: 1px solid black; padding: 10px; margin-top: 1.5em;'>hover over something :)</span>
+
         </div>
 
       </div>
@@ -32,43 +38,87 @@
 
   <script>
     var ugh = document.getElementsByClassName('brickwall')[0]
+    var titles = ['underscores — The Peace  \u200e (♫)', 'BLEACH - 起爆剤 - 声 (Koe)', 'PEOPLE 1 “Ratpark feat. 菅原圭” （Official Video）', 'Horizontal Hold', 'Undressed you layn’t before', '[Official] 炉心融解 feat.鏡音リン  /  Meltdown feat.Kagamine Rin', 'Animal Collective - Reverend Green', 'moderator / conflict of interest (live at spectrum)', 'Ma Vie, Mes Rêves', 'Trooper Salute "天使ちゃんだよ" Music Video', 'House of Ideas', 'I Want to Go to the Side Where You Can Touch…', 'Reuse The Cels', 'The Flaming Lips - In The Morning Of The Magicians (Official Audio)', '【初音ミク】 ex. happyender girl - その後の少女たち (Lyric Video)', '【初音ミク】ルービックキューブ English and romaji subs', 'Slow Pulp - Bundt Cakes (Official Audio)', 'Neutral Milk Hotel - Song Against Sex', 'Penderecki: Threnody for the Victims of Hiroshima', 'Blind Girls - The Weight of Everything', 'Backwards', 'Battles - Fort Greene Park (Official Audio)', '水玉の色', 'Hitori Tori - perthed again (yambabom remix)', 'weatherday - darling of loving vows (come in bonus track)', 'Dondante', '[Atrophy:Angel]', '揺れるは幽霊 - "ポイント・ネモ" (Official Music Video)', "Congratulations... You've Hit Bottom!", 'Escape Rope', 'Stella was a diver and she was always down (2012 Remaster)', 'Cut Lips', 'Starting Over', 'Kuroitamago #2', 'Slowdive - the slab (Official Visualizer)', '【初音ミク】ex. happyender girl - ニノコルモノ (Music Video)', 'マトリョシカ / ハチ【Band arrange covered by 超学生×七海うらら】', "It's Not Like I Like You!! (♪♫)", 'Fontaines D.C. - Roman Holiday (Official Video)', 'ハチ - ドーナツホール 2024 , HACHI - DONUT HOLE 2024', '【初音ミク】ルービックキューブ English and romaji subs', 'orphan source', 'Laputa', 'PS22 Chorus "Jóga" by Björk', 'Feedbacker, Pt. 2', 'Joy Division - Ceremony', 'fitterkarma - Pag-Ibig ay Kanibalismo II (Official Mukbang Video)', 'moreru - IAMFINALSATANIST (OFFICIAL VIDEO)', '凛として時雨\u3000『JPOP Xfile』', 'Death Grips - Birds', '"Air Guitar" by Sobs (official video)', 'The Prodigy - Climbatize', 'Echo & Hibikase - LIVE (SUB ESPAÑOL) Gumi Megpoid English & Hatsune Miku (ヒビカセ x Echo) NicoNico 2015', 'Unwound - Disappoint', 'Demolition Lovers', 'Xiu Xiu – Ian Curtis Wishlist (from A Promise)', 'Horse Jumper of Love - "Ugly Brunette" (Official Audio)', 'Massive Attack - Inertia Creeps', 'TK from 凛として時雨 『first death』Music Video (TVアニメ「チェンソーマン」第8話エンディング・テーマ）', 'Silver Sugars', "yeule - 'cyber meat' (Official Audio)", 'New Measures of Failure', 'Look On Down From The Bridge', 'Saosin- Seven Years with Lyrics', 'When I Am Queen', 'At The Drive In - Pattern Against  User', 'STOMACH BOOK - Animals (OFFICIAL LYRIC VIDEO)', 'Big Money', 'Kikuo - あなぐらぐらし', 'Willing to Follow You Down', '.44 Caliber Love Letter', '6 Gram Star', "Olivia Newton-John - Hopelessly Devoted to You (Lyrics) | But now there's nowhere to hide", 'Queen Adreena - Pretty-Like Drugs (Music Video)', 'Xiu Xiu – I Luv the Valley OH! (from Fabulous Muscles)', 'All Souls Day', 'Elliott Smith - Roman Candle (from Roman Candle)', 'Your favorite sidekick (feat. 8485)', 'Entirely Different Matters', 'the flaming lips In the Morning of the Magicians', 'the goslings - croatan', 'Rid Of Me', 'Car Seat Headrest - 1937 State Park (Live on KEXP)', 'ドラマツルギー - Eve  MV', 'Between', 'Blume popo 「He drowns in the She」MusicVideo', 'VOLUNTEER', 'The Stone Roses - I Wanna Be Adored (Official Video)', 'Shinsei Kamattechan - Hana-chan wa Risu ka?! [English Sub]', 'ドラマツルギー - Eve  MV', 'Death Grips - Black Paint', '[ENG] Yobanashi Deceive (夜咄ディセイブ- Jin, IA)', "yeule - 'cyber meat' (Official Audio)", 'The Quick Brown Fox - Big Money', 'Renard - Banned Forever', 'ハチ  MV「マトリョシカ」HACHI / MATORYOSHKA', 'Tremolo+A', 'XAVIERSOBASED & CHE - BLEAU [OFFICIAL MUSIC VIDEO]', 'Vivica', "Spirit They've Vanished", 'La Dispute - "Man with Hands and Ankles Bound"', 'Death', 'String theory', 'Nico - Janitor of lunacy', 'Oklou - blade bird', 'Undressed you layn’t before', 'Blake - Bottles For The Contents', 'Earl Sweatshirt - Hat Trick', 'FALLEN ANGELS - 11', 'Car Seat Headrest - "The Catastrophe (Good Luck With That, Man)" (Official Lyric Video)', '手を振って', 'You Will Be Held Accountable for Your Actions', 'いかないで／まふまふ【歌ってみた】', 'Interpol - Roland (live)', 'Chat Pile - Dallas Beltway (Official Music Video)', 'ataque de nervios', 'Deletee (Intro)', 'Prostitute - All Hail', 'Slowdive ~ Silver Screen (demo)', 'China Steps', 'Pillars', "Les Rallizes Denudes - Romance of the Black Grief (Otherwise Fallin' In Love With)", 'Portishead - Roads (Live From The Roseland Ballroom, NYC)', 'freereina! - pity (734.3) // live at sunroom', 'vividest', 'SMILING BROADLY - LOVE SLAVE Visualizer', '【CARAMEL GiRLS】 MV CARAMEL CANDiD ', 'On The Bound', '[Official] 炉心融解 feat.鏡音リン  /  Meltdown feat.Kagamine Rin', 'kinoue64 - 01. 明日世界が終わるらしい', 'Bon Iver - Re: Stacks - Live @ Hollywood Forever Cemetary 9/27/09 in HD', 'Have a Nice Life - "Sisyphus"', 'La Dispute - "Man with Hands and Ankles Bound"', 'Envy - A Cage It Falls Into', '死にたい季節 / 神聖かまってちゃん', 'a bao a qu - dronevil mix-', 'She is inside, He is outside', 'Hideous Towns', '神聖かまってちゃん「Girl2」MusicVideo', 'Live By Yo Rep', 'Dramamine', 'Envelope', "Leonard's Lake", 'Syndic Calls (Remastered)', 'the chicken from outer space', 'Nirvana - Blew (Live And Loud, Seattle / 1993)', 'The Work of Art in the Age of Cultural Overproduction', "You're Not The Only One I Know", 'Sonic Youth - Brother James (1991)', 'Cathedral of Moths', 'LOOK AT ME', 'moreru - IAMFINALSATANIST (OFFICIAL VIDEO)', 'Born Under Punches (The Heat Goes On) (2005 Remaster)', 'Yung Lean, Bladee & White Armor - Into Dust (Live on KEXP)', 'yeule - dazies (Live on KEXP)', "Arthur Russell - Soon-to-Be Innocent Fun / Let's See", 'Merzbow : Promotion Man (2002)', 'For Reverend Green', '5PM', 'serial experiments lain', 'Unwound - Scarlette (Official Music Video)', 'Duran Duran - Come Undone (Official Music Video)', 'Low - When I Go Deaf', '国道スロープ', 'Oh Country (Skin & Bones)', "Rockn' Roll, Morning Light Falls on You", '6 Gram Star'];
     const urls = [
       "https://www.youtube.com/watch?v=PLJCcZPWiV8",
       "https://www.youtube.com/watch?v=WHyboVKvMeU",
+      "https://www.youtube.com/watch?v=j5J95XD5mvQ",
+      "https://www.youtube.com/watch?v=_Te8UCRjti4",
       "https://www.youtube.com/watch?v=fOcsxvl7gQ4",
+      "https://www.youtube.com/watch?v=dSw8CucthGc",
       "https://www.youtube.com/watch?v=Vc2Av1dY1p4",
+      "https://www.youtube.com/watch?v=v4lgppiJG-Y",
+      "https://www.youtube.com/watch?v=x3ugjzSpBh4",
       "https://www.youtube.com/watch?v=D7Z5Ah_IRmo",
+      "https://www.youtube.com/watch?v=EWHBSwRPQ6o",
+      "https://www.youtube.com/watch?v=y00MaQaiTqM",
+      "https://www.youtube.com/watch?v=gaivTbQTLSo",
+      "https://www.youtube.com/watch?v=ZI55Q8gFIkg",
+      "https://www.youtube.com/watch?v=LZICdsJgtaE",
+      "https://www.youtube.com/watch?v=dAIVoG0QdLU",
       "https://www.youtube.com/watch?v=2OiO6Nmf-qw",
+      "https://www.youtube.com/watch?v=T2SUlRRvZnI",
+      "https://www.youtube.com/watch?v=Dp3BlFZWJNA",
       "https://www.youtube.com/watch?v=NTKs9WvBBFo",
       "https://www.youtube.com/watch?v=fkMuWvaZ-Uo",
       "https://www.youtube.com/watch?v=-pG9jUydaFc",
+      "https://www.youtube.com/watch?v=OkqYbOefsB0",
+      "https://www.youtube.com/watch?v=iqvYI3CpN7g",
       "https://www.youtube.com/watch?v=kBbls4rJXUE",
+      "https://www.youtube.com/watch?v=rIB5_g4WPio",
+      "https://www.youtube.com/watch?v=iEj2rRxcypU",
+      "https://www.youtube.com/watch?v=31TAesCgK2c",
+      "https://www.youtube.com/watch?v=h3mu0kc5hAk",
+      "https://www.youtube.com/watch?v=4rK6PU3lQb8",
       "https://www.youtube.com/watch?v=nc-Xc-CFAiY",
       "https://www.youtube.com/watch?v=KNdtdDm8Eic",
+      "https://www.youtube.com/watch?v=Ikn6Z2fxMs4",
       "https://www.youtube.com/watch?v=-jGFRz5mcjU",
+      "https://www.youtube.com/watch?v=AiQUd6F6_kw",
       "https://www.youtube.com/watch?v=xPPMp7IRDQM",
       "https://www.youtube.com/watch?v=bWvgPBXkti0",
       "https://www.youtube.com/watch?v=tOzOD-82mW0",
+      "https://www.youtube.com/watch?v=yj3oDS6VM2o",
       "https://www.youtube.com/watch?v=y7fu_nNQAEQ",
       "https://www.youtube.com/watch?v=dAIVoG0QdLU",
       "https://www.youtube.com/watch?v=auye68wxuVM",
       "https://www.youtube.com/watch?v=BQRkv-MZwJ8",
+      "https://www.youtube.com/watch?v=OKPC-T3jjRg",
+      "https://www.youtube.com/watch?v=cS3IWx2hGdo",
+      "https://www.youtube.com/watch?v=2zPIod2wjYE",
       "https://www.youtube.com/watch?v=nw0tZFyExtY",
       "https://www.youtube.com/watch?v=v-P0qDd07qo",
+      "https://www.youtube.com/watch?v=iwiVuYxJFYs",
       "https://www.youtube.com/watch?v=XX5wk-6Mn5s",
+      "https://www.youtube.com/watch?v=6PAoFRUU7GQ",
+      "https://www.youtube.com/watch?v=HuZTEsvgQko",
       "https://www.youtube.com/watch?v=A8h_iAwg-vc",
       "https://www.youtube.com/watch?v=WilH0XISBUQ",
       "https://www.youtube.com/watch?v=GaLaMd_EAo4",
+      "https://www.youtube.com/watch?v=0ZLqCHKfX54",
+      "https://www.youtube.com/watch?v=m6yUO7nuUjs",
+      "https://www.youtube.com/watch?v=w3mn7EC-skg",
+      "https://www.youtube.com/watch?v=FKq_vltq-Vs",
       "https://www.youtube.com/watch?v=0d4t6Yp6qgw",
       "https://www.youtube.com/watch?v=qjBqlKiHEdU",
       "https://www.youtube.com/watch?v=z8dE59XzWso",
+      "https://www.youtube.com/watch?v=p3NZn0mA_XI",
       "https://www.youtube.com/watch?v=Un6lHFBPj0g",
       "https://www.youtube.com/watch?v=mnWTfBR8K5E",
+      "https://www.youtube.com/watch?v=TGMT7hb8hT8",
+      "https://www.youtube.com/watch?v=j97qkT9wW2s",
       "https://www.youtube.com/watch?v=Hsu6EyuTJAU",
+      "https://www.youtube.com/watch?v=I15sK7dNMOM",
+      "https://www.youtube.com/watch?v=kdsG4NWOGkg",
+      "https://www.youtube.com/watch?v=eTnr9qlCqck",
       "https://www.youtube.com/watch?v=2N8mHpg1t-M",
       "https://www.youtube.com/watch?v=_UIwmojk-ss",
       "https://www.youtube.com/watch?v=82P40PnMNmQ",
+      "https://www.youtube.com/watch?v=x80OUyGsfIQ",
+      "https://www.youtube.com/watch?v=czPTSVGemBQ",
+      "https://www.youtube.com/watch?v=7ZrcTh2-uvQ",
       "https://www.youtube.com/watch?v=79Ll_65fbFg",
+      "https://www.youtube.com/watch?v=vWTPAKPdQ10",
       "https://www.youtube.com/watch?v=0jTuKHKIT4w",
       "https://www.youtube.com/watch?v=SY49Qt9JSBw",
       "https://www.youtube.com/watch?v=8PlaNe3mXl8",
@@ -79,12 +129,16 @@
       "https://www.youtube.com/watch?v=nOnBKjG80tI",
       "https://www.youtube.com/watch?v=4D2qcbu26gs",
       "https://www.youtube.com/watch?v=_KlzWMZR0kc",
+      "https://www.youtube.com/watch?v=jJzw1h5CR-I",
       "https://www.youtube.com/watch?v=RXM65yCN7Qg",
       "https://www.youtube.com/watch?v=98YWS7WuB0o",
       "https://www.youtube.com/watch?v=qjBqlKiHEdU",
       "https://www.youtube.com/watch?v=lX1o7Irvy38",
       "https://www.youtube.com/watch?v=T7ej4VETqPg",
       "https://www.youtube.com/watch?v=HOz-9FzIDf0",
+      "https://www.youtube.com/watch?v=i0kpaLC0GQw",
+      "https://www.youtube.com/watch?v=_iqfUVIId3k",
+      "https://www.youtube.com/watch?v=pjd1gxO6NEg",
       "https://www.youtube.com/watch?v=J_pyaRPzZ3A",
       "https://www.youtube.com/watch?v=LNDlE3-s3wo",
       "https://www.youtube.com/watch?v=wWF2XUrX-Z8",
@@ -99,6 +153,7 @@
       "https://www.youtube.com/watch?v=KX9jkyVaWL4",
       "https://www.youtube.com/watch?v=iX8ikkaddls",
       "https://www.youtube.com/watch?v=I1qo9ZxoF04",
+      "https://www.youtube.com/watch?v=VGcm8M4DcQc",
       "https://www.youtube.com/watch?v=W1zvQmPGa8Q",
       "https://www.youtube.com/watch?v=vV_uij1J-lw",
       "https://www.youtube.com/watch?v=sZYB5fFCiA4",
@@ -117,6 +172,7 @@
       "https://www.youtube.com/watch?v=Uk65zg7MjbU",
       "https://www.youtube.com/watch?v=XvRqNUPYfPk",
       "https://www.youtube.com/watch?v=-LBtuhWMK9c",
+      "https://www.youtube.com/watch?v=LNDlE3-s3wo",
       "https://www.youtube.com/watch?v=kABjaRP7qgA",
       "https://www.youtube.com/watch?v=_g67UFUh6a8",
       "https://www.youtube.com/watch?v=Na9UpUQX8TM",
@@ -132,6 +188,7 @@
       "https://www.youtube.com/watch?v=QVlo81A5mHc",
       "https://www.youtube.com/watch?v=kSQ3mUlMcQI",
       "https://www.youtube.com/watch?v=J4oRPL7SRh4",
+      "https://www.youtube.com/watch?v=EgxevKwvbaQ",
       "https://www.youtube.com/watch?v=ISs-7ZH2F3c",
       "https://www.youtube.com/watch?v=U20hJD2OCKo",
       "https://www.youtube.com/watch?v=v-P0qDd07qo",
@@ -142,6 +199,8 @@
       "https://www.youtube.com/watch?v=Aoe1Wz5g9Nc",
       "https://www.youtube.com/watch?v=qw6enPsUD64",
       "https://www.youtube.com/watch?v=zUi4LK_sekw",
+      "https://www.youtube.com/watch?v=6EddRpGeLOI",
+      "https://www.youtube.com/watch?v=i26fk32ilTg",
       "https://www.youtube.com/watch?v=Epj84QVw2rc",
       "https://www.youtube.com/watch?v=oDMiDCp6y5U",
       "https://www.youtube.com/watch?v=E-UISaL2zgo",
@@ -151,9 +210,17 @@
 
     ]
 
-    for (const url of urls) {
-      var elem = document.createElement('a');
+    var titlebar = document.getElementById('titlebar')
+    for (i = 0; i < urls.length; i++) {
+      var url = urls[i];
+      var title = titles[i];
+      let elem = document.createElement('a');
       elem.setAttribute('href', url);
+      elem.setAttribute('title', title);
+      elem.addEventListener('mouseenter', () => {
+        console.log(elem)
+        titlebar.innerText = elem.getAttribute('title'); 
+      })
       elem.innerText = '▮';
       ugh.appendChild(elem);
     }
@@ -168,7 +235,7 @@
 
     .brickwall {
       margin: auto;
-      margin-top: 5rem;
+      margin-top: 0.5rem;
       width: 70%;
       border: 2px solid red;
       text-align: center;
@@ -176,14 +243,6 @@
       position: relative;
       word-wrap: break-word;
     }
-
-  .brickwall::before {
-    content: 'digital crate';
-    position: absolute;
-    top: -2rem;
-    right: 0;
-    color: red;
-  }
 
   @media (max-width: 768px) {
     .wall-art {
@@ -203,7 +262,7 @@
   }
 
   .bottle {
-    width:80%;
+    width:70%;
     height: fit-content;
     text-align: center;
     margin-inline: 4rem;
