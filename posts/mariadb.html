@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+
+    <title> ⍉ MariaDB ⍉ </title>
+  </head>
+  <body>
+    <header>
+      <h1> ⍉ Improving v12's MariaDB RCE</h1>
+      <div class='music'># recommended listening - <a href='https://www.youtube.com/watch?v=fgG3EaOCh_c'>nico - janitor of lunacy</a></div>
+
+      <i>aka: Making myself employable in the age of AI</i><br>
+    </header>
+    <main>
+      <p>One beautiful Saturday morning, my Twitter page showed me the latest wonderful nonsense from <a href='https://x.com/v12sec/status/2085732108128190532'>v12</a>, discussing a low-privilege RCE in MariaDB 13 that exploits two different vulnerabilities. After a cursory glance at the (thin!) writeups provided, I figured it would be a fun weekend project to write an in-depth analysis of the two vulnerabilities used. Eventually this ballooned into a week or so of work, but studying this bug has been quite fun and I honestly think it's really beautiful.</p>
+
+      <h2>Fun thoughts</h2>
+
+      <p>I thought this exploit would be a good fit for me, because I'd gotten pretty sick of trying to develop another kernel N-day analysis -- I'm realizing I don't understand the Linux kernel at all, to be honest -- and I sought the warm, comforting embrace of userland. My wonderful userland, with its allocator and bins that I actually understand! With normal things like vtables and call gadgets! My weeks of humiliation with kernel exploitation would be put on the backburner for a simpler (but still cool) project. How nice!</p>
+
+      <p>While I was studying it, I found a lot of strange choices by the AI that resulted in a lot of unreliability for the PoC. The PoC is just that, a PoC (it's not meant to be a robust, always-successful exploit), but the process of studying it made me identify certain places where I could improve its reliability. There are some weird choices that the AI has made due to weird, hallucinatory understandings of the heap state which I have ironed out and made more consistent; my main contribution is mainly just heap feng shui. This heap feng shui was a gigantic headache, mind you...</p>
+
+      <p>As we will see, the primitives are actually quite simple -- it's a heap OOB and a realloc-based UAF that leads to a vtable overwrite. Very nice and digestible! As a relative beginner to pwning actual, multi-thousand LoC systems instead of abstract, simplified CTF pwn challenges, I find that an exploit like this is a very natural stepping-stone to improving my exploitation skills. The complexity is not brought about through arcane ptmalloc functionality, rather, the surrounding structure of an actual application makes the task difficult, instead. Also, it's fun!</p>
+
+      <h2>Brief polemic</h2>
+
+      <p>A small, annoying voice in the ocean of voices about AI:</p>
+
+      <p>The thing about the wealth of information AI-led vulnerability research provides is that it is basically now unnecessary for anyone to actually <i>know</i> what these exploits do. The v12 Tweet on my page sits between five hundred different AI-written writeups for vulnerabilities of this nature, including (but not limited) to THREE different guest-to-host KVM escapes. Whenever these show up, I do earnestly try to read them, but if this were my livelihood and I needed to keep churning out bugs to hit Pwn2Own deadlines I wouldn't much care either about stuff like reading writeups or iterating on exploits. I would just keep /goaling.</p>
+
+      <p>So, it begs the question -- there are thousands of similar exploits and their associated writeups being produced in a week's time. Who is reading all of these? Who actually has an understanding of these systems anymore, aside from the maintainers themselves? These exploits, aside from their obvious monetary value, have little value to anyone else outside of the maintainers and the exploit developers themselves. This obviously has always been true, but now with the sheer scale and volume of these writeups, it only serves to make this question more apparent. Who on Earth has the time?</p>
+
+      <p>I believe that this ocean of information is, ultimately, what you make of it. Here is me attempting to scoop some of that out for myself. That is the primary motivation behind this work, aside from the obvious answer (it's just fun to do).</p>
+
+      <h2>Writeup</h2>
+
+      <p>Enough of that, time to pwn. Here we are dealing with two different bugs: an OOB read for our leaks, and a UAF that leads to a vtable overwrite and eventual RCE. The first bug has been disclosed and patched, the second bug has (to my knowledge) not been publically patched yet. This puts me in a bit of an ethical gray area with regards to the detail I provide in this writeup, but, ah, if it's good enough for v12 then it's good enough for me.</p>
+
+      <h2>Bug 1 -- the leak</h2>
+
+      <p>The first bug is about some insane shit in MariaDB called a `multipolygon`, which is apparently used to keep track of geographic areas. This is a niche, pretty absurd, complex subsystem in an already large program, so it makes sense that a bug has fallen through here. It is a nice, small lesson about where to look for these sort of bugs: if there's some absurd shit like `multipolygons` in a program you're auditing there's probably something worth poking at.</p>
+
+      <p>Simply put, a multipolygon is a simple data structure consisting of a binary header followed by a number of polygons. This binary header contains information about the number of polygons contained within the multipolygon itself. When we want to calculate the multipolygon's area, we iterate over that number, as stated in the multipolygon header.</p>
+
+      <p>Hopefully it should be obvious where this is going. When we trigger an area calculation, there is no check on whether or not the multipolygon actually has the number of polygons stated. We can construct a multipolygon that claims to have two polygons, but actually just has one. This causes our area calculations to try to parse adjacent heap data (pointers, etc.) as polygon information -- the resulting area value may, therefore, encode heap pointer information somehow!</p>
+
+      <p>I think this bug is actually really cool in the way that it manifests. The read isn't direct, and it is sort of type-confusiony. To get a more reliable read, we do need fine-grained control over the polygon data we send. Let's first explore how polygon data is actually stored on the heap, and what might be adjacent to our controlled polygon data. We can do this by taking a look at how v12 does it first: it does this by creating a table with three columns. The first two columns are binary data that eventually get parsed as polygon data, and then the third column is a pointer to a BLOB object on the heap (right now, this is all "A"s). The exact query is shown below.</p>
+
+      <div class='mdb-image-cont'><pre><code><span style="color:#3b4261;">      8   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;DROP TABLE IF EXISTS lk&quot;</span><span style="color:#828bb8;">)</span><span style="color:#c8d3f5;">
+  </span><span style="color:#3b4261;">    7   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;CREATE TEMPORARY TABLE lk(a VARBINARY(74), b VARBINARY(66), c BLOB)&quot;</span><span style="color:#828bb8;">)</span><span style="color:#c8d3f5;">
+  </span><span style="color:#3b4261;">    6   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;INSERT INTO lk VALUES (0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">,0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">,0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">)&quot;</span><span style="color:#c8d3f5;">
+  </span><span style="color:#3b4261;">    5   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   </span><span style="color:#3b4261;">│</span><span style="color:#c8d3f5;">           </span><span style="color:#89ddff;">%</span><span style="color:#c8d3f5;"> </span><span style="color:#828bb8;">(</span><span style="color:#c8d3f5;">_GEOM74</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()</span><span style="color:#89ddff;">,</span><span style="color:#c8d3f5;"> </span><span style="color:#65bcff;">bytes</span><span style="color:#828bb8;">(</span><span style="color:#c8d3f5;">b</span><span style="color:#828bb8;">)</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()</span><span style="color:#89ddff;">,</span><span style="color:#c8d3f5;"> payload</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()))</span><span style="color:#c8d3f5;"></span></code></pre>
+        <i>SQL query that creates the malformed multipolygon. `_GEOM74` and `b` are prewritten structs from v12 (our headers), which control (among other things) the number of points in each polygon.</i>
+      </div>
+
+      <p>v12's exploit actually gave me some helpful structs, `_GEOM74` and `b`. `_GEOM74` is the malformed multipolygon header, which tells MariaDB there are two polygons within the multipolygon.. It also contains a simple polygon with three points, all at 0 (this means that its area is also 0!). `b` is an 'incomplete' polygon whose header states it has four points, but it only contains three points worth of data. The first two points are at 0, but the last point is at (1e300, 0). Because there are four points stated but only three points speciifed, the adjacent column `c` (our heap pointer) will become that fourth point.</p>
+
+      <p>These are all contiguously laid out as adjacent fields on the heap. By viewing the heap directly, we can see the general structure of the polygon data: there is some (unhelpful for our case) header information, then the vertices of each polygon are just stored as <b>adjacent (x,y) QWORD double pairs.</b></p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mdb_heap1.png'><br>
+        </div>
+        <i>Heap layout. Note the correspondence with the above query: polygon 1 is the 'A' column, polygon 2 is the 'B' column, and our heap pointer is C. Naturally, they are all adjacent!</i>
+      </div>
+
+      <p>Let us get a clearer view of how this is actually parsed as polygon data. I had AI write me a GDB script here: I would break at the relevant area functions (`Gis_polygon::area`) and get it to parse the pointer to the polygon stored in `$rdi`. Here is the parsed data for the second malformed polygon which contains our heap pointer.</p>
+
+      <div class='mdb-image-cont'>
+      <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:green;">gef&gt; </span>source pgon3.py
+<span style="font-weight:bold;"></span><span style="font-weight:bold;color:green;">gef&gt; </span>print-polygon $rdi
+
+<span style="color:teal;">══════════════ Gis_polygon ══════════════</span>
+  <span style="color:olive;">object</span>     @ 0x7fb65c1277c0
+  <span style="color:olive;">vtable</span>     = <span style="color:blue;">0x563610b5bf18</span>
+  <span style="color:olive;">m_data</span>     = <span style="color:blue;">0x77b61800b6a1</span>
+  <span style="color:olive;">m_data_end</span> = <span style="color:blue;">0x77b71800b69c</span>
+
+<span style="color:teal;">n_linear_rings</span> = <span style="font-weight:bold;">1</span>
+
+<span style="color:blue;">──────────── ring[0] ────────────</span>
+  <span style="color:olive;">header</span>    @ 0x77b61800b6a5
+  <span style="color:olive;">n_points</span>  = <span style="font-weight:bold;">4</span>  (avail=268435455)
+  <span style="color:teal;">point[0]</span> @ 0x77b61800b6a9
+      <span style="color:olive;">x</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:teal;">point[1]</span> @ 0x77b61800b6b9
+      <span style="color:olive;">x</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:teal;">point[2]</span> @ 0x77b61800b6c9
+      <span style="color:olive;">x</span> = <span style="color:green;">1e+300</span> (raw=0x7e37e43c8800759c)
+      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:teal;">point[3]</span> @ 0x77b61800b6d9
+      <span style="color:olive;">x</span> = <span style="color:green;">1.344974619049452e-284</span> (raw=0x0500000000000000)
+      <span style="color:olive;">y</span> = <span style="color:green;">6.5030842125933e-310</span> (raw=0x000077b6133228f8)
+
+  <span style="color:olive;">terms_sum</span> = <span style="color:green;">6.503084212593292e-10</span>
+  <span style="color:purple;">ring area</span> = <span style="color:green;">3.251542106296646e-10</span>
+
+<span style="color:teal;">══════════════════════════════════════════</span>
+<span style="color:purple;">total area</span> = <span style="color:green;">3.251542106296646e-10
+</span><span style="color:teal;">══════════════════════════════════════════</span></code></pre>
+      <i>Pretty-print of the polygon data</i>  
+      </div>
+
+      <p>First of all: pretty. Second of all, what is relevant here is the correspondence between our heap view and the actual (x,y) pairs that the area calculation takes into account. Note that there are two (0, 0) points, but there is a point at ([LARGE VALUE], 0) and ([[BASICALLY 0], [HEAP POINTER]). We can draw this out.</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mdb_triangle.png' style='width: 75%'><br>
+        </div>
+      <i>Our simple polygon is actually just a triangle!</i>
+
+      </div>
+
+      <p>So, our polygon is actually just a triangle, with the base being our large value (1e300) and our height being the heap pointer parsed as a double. Note one thing about heap pointers and doubles -- an ordinary pointer parsed as a double is actually quite small (1e-280 or so). Therefore, we need this large 1e300 value to 'amplify' this value such that we can read it properly. In general, we also need this large point placed directly <i>before</i> our leaked point, because of the way that MariaDB calculates area (specifically, it uses the shoelace formula, which takes in adjacent points clockwise and sums up a specific product of the two points -- this is not necessary to understand the exploit).</p>
+
+      <p>As expected, this leaks the pointer to our blob nicely. We just need to get the area and 'undo' the simple arithmetic (multiply by two, divide by 1e300).</p>
+
+      <div class='mdb-image-cont'>
+      <pre><code>[!] leaking payload
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (3.240693733576871e-10,)
+leaked address: 0x774fd3fe7738</code></pre>
+      <i>Successful leak (MariaDB client view).</i>
+      </div>
+
+      <p>Neat! We can now leak adjacent pointers. The natural next step is to then leak PIE, but this proves to be a far harder challenge. We leaked a heap pointer because placing a BLOB entry next to our malformed polygons directly inserts a heap pointer adjacent to the polygon data, but we have no such luck for a PIE pointer -- there is no datatype we could place that would just happily insert one of these PIE pointers where we want.</p>
+
+      <p>If we cannot place a PIE pointer in our table, the next idea is then to place a PIE pointer in an adjacent or nearby chunk to our table. The chunk where our polygon data is placed is an `0x2000` sized chunk. If we can somehow get another chunk <i>near</i> that chunk we can control with a PIE pointer, and just make the polygon consume a bunch of points, perhaps this will still work to leak that PIE pointer?</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mdb_pieleak.png' style='width:90%'><br>
+        </div>
+        <i>Potential chunk layout</i>
+      </div>
+
+      <p>This of course comes with its own issues. We would need to get this chunk layout in the first place, we would need to find a fixed-size allocation chunk with a known PIE pointer at a certain offset, and we would need to <i>control</i> the data before that PIE pointer (remember, we need to place an (1e300, 0) point directly before it!)</p>
+
+      <p>Furthermore, a natural question is: If we can't control any of the garbage in between our polygon headers and our PIE pointer, how do we know that this data won't affect our area calculation? That garbage still gets parsed as polygon points! The trick is, it just so happens that the typical garbage left inside chunks (pointers, small integers, strings etc.) are typically very small values when parsed as doubles (on the order of 1e-300). Thus, very very fortunately, it is likely that they are so small (especially when we multiply two of them together) that they underflow to 0 during the area calculation and <b>don't affect the area calculation at all</b>.</p>
+
+      <p>This, to me, is really ridiculous, but it works, apparently! Note the following two examples, where I show the average contents of a freed chunk, and the corresponding doubles they get parsed to.</p>
+
+      <div class='mdb-image-cont'>
+        <pre><code><span style="color:blue;">0x77bd4ef079f0</span>: 0x77bd4ef07a20  0x77bd4ef07b20
+  <span style="color:blue;">0x77bd4ef07a00</span>: 0x77bd4ef07c20  0x77bd4ef07d20
+  <span style="color:blue;">0x77bd4ef07a10</span>: 0x0     0x0
+  <span style="color:blue;">0x77bd4ef07a20</span>: 0x55798cee1e68  0x77bd4ef07821
+  <span style="color:blue;">0x77bd4ef07a30</span>: 0x0     0x77bd4ef07820
+  <span style="color:blue;">0x77bd4ef07a40</span>: 0x0     0x7fbd941e1d30
+  <span style="color:blue;">0x77bd4ef07a50</span>: 0x7fbd941e1d30  0x7fbd941e1e48
+  <span style="color:blue;">0x77bd4ef07a60</span>: 0x77bd4ef0df31  0x1
+  <span style="color:blue;">0x77bd4ef07a70</span>: 0x55798c746ad7  0x0
+  <span style="color:blue;">0x77bd4ef07a80</span>: 0x0     0x0
+  <span style="color:blue;">0x77bd4ef07a90</span>: 0x0     0x0
+  <span style="color:blue;">0x77bd4ef07aa0</span>: 0x0     0x0
+  <span style="color:blue;">0x77bd4ef07ab0</span>: 0x0     0x600000000
+  <span style="color:blue;">0x77bd4ef07ac0</span>: 0x1000000000080 0x3ff0000000000000
+        </code></pre>
+        <i>Contents of a freed chunk. Note the pointers, as well as random other values</i>
+
+      </div>
+
+      <div class='mdb-image-cont'>
+        <pre><code>    [0][1064] @ 0x77bd4ef0bb00: x = 4.64325576627983e-310, y = 4.8e-322
+      [0][1065] @ 0x77bd4ef0bb10: x = 6.50463767476074e-310, y = 6.50463658851315e-310
+      [0][1066] @ 0x77bd4ef0bb20: x = 6.93926121239516e-310, y = 0.0
+      [0][1067] @ 0x77bd4ef0bb30: x = 0.0, y = 6.89903271558634e-310
+      [0][1068] @ 0x77bd4ef0bb40: x = 6.5046232084633e-310, y = 4.64313899021116e-310
+      [0][1069] @ 0x77bd4ef0bb50: x = 0.0, y = 0.0
+      [0][1070] @ 0x77bd4ef0bb60: x = 4.74e-322, y = 8.9e-322
+      [0][1071] @ 0x77bd4ef0bb70: x = 0.0, y = 6.8e-322</code></pre>
+        <i>Above contents parsed as (x,y) pairs. Note how all of them are vanishingly small (1e-310).</i>
+        </div>
+
+      <p>This means that we have <i>some</i> flexibility with leaking PIE. We just need a PIE pointer <i>somewhat</i> close to our initial polygon header, and then configure our polygon to consume a few more points (maybe 1000 or so). Hopefully, the values in the middle will reduce themselves out to 0, and we can leak our pointer (and <b>just</b> our PIE pointer)!</p>
+
+      <p>Here is an additional diagram, in case the concept isn't clear enough. Here is an 'example' closeup of the points we will inevitably consume in our garbage chunks. Note how they are small (in reality, they are far smaller and practically tend to 0).</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+          <img style='width:65%;' src='/assets/mdb_points.png'><br>
+        </div>
+        <i>Points plotted out</i>
+      </div>
+
+      <p>Because they are so tiny, the polygon we calculate simplifies exactly down to our target triangle. We can have a thousand of those tiny points, but they contribute exactly 0 area to the end result: meaning, we can recover the value of our leaked pointer to 100% accuracy.</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+          <img style='width:65%;' src='/assets/mariadb_points2.png'><br>
+        </div>
+        <i>Polygon plotted out</i>
+      </div>
+
+      <p>I earnestly hope you find this as neat as I do! This is really cool to me. One of the first pwns I've ever written was an invalid free that lead to pointer leaks formatted as a double, but I think this is a lot nicer. The fact that it arises organically in a program like this is very cute to me.</p>
+
+      <p>However, we still do not have a suitable target here. We can theoretically perform our leaks, but we do not have a chunk in mind that we can use to perform the PIE leak. Recall our constraints on this target chunk: we need to be able to control the data prior to the PIE pointer exactly, and we need to be able to allocate it easily. This will be detailed in the following section.</p>
+
+      <h2>Second bug -- UAF with SYS_REFCURSOR objects</h2>
+
+      <p>The second bug is a UAF with SYS_REFCURSOR objects. The gist of this bug is that these objects are stored in a dynamically sized array which is occasionally `realloc()'d` when more objects are appended. As we all know, `realloc()` can operate in one of two ways: consolidating adjacent freed chunks to create a larger contiguous space, or simply just freeing the old, small chunk and allocating a newer, bigger chunk. For our use case, the program will almost always take the latter path (that is, freeing the old chunk and allocating another).</p>
+
+      <p>The dynamic arrays happen to grow according to powers of two. This means that if we allocate 15 SYS_REFCURSORs, the dynamic array they are stored inside can still fit another SYS_REFCURSOR object (the 16th), but if we attempt to add a 17th object, the `realloc()` will occur. Similarly, if we keep allocating until our array contains 32 SYS_REFCURSORs, no `realloc()` will occur, but another (the 33rd) and it will.</p>
+
+
+      </main>
+  </body>
+
+  <style>
+
+    .mdb-image-cont {
+      width: 90%;
+      text-align: center;
+      margin: auto;
+    }
+
+    .mdb-image-cont pre {margin-bottom: 10px; text-align: left;}
+
+    .mdb-image-cont img {
+      margin: auto;
+      padding-block: 1rem;
+      width: 70%;
+    }
+
+    .img-wrap { width: 100%; border-block: 1px solid black }
+
+    .mdb-image-cont i {
+      margin: auto;
+      font-size: 1.7rem; line-height: 0.5rem;
+    }
+  </style>
+</html>
+
+

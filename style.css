@@ -30,10 +30,11 @@ header {
 }
 
 body {
-  font-family: 'adwaita';
+  font-family: 'Crimson Pro';
   background-color: #fbfbfb;
-  font-size: 1.25em;
-  width: 90%;
+  font-size: 2rem;
+  line-height: 3.8rem;
+  width: 80%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -72,7 +73,7 @@ p { text-align: justify;}
 
 }
 pre {
-  font-size: 1.25em !important;
+  font-size: 1.6rem !important;
   margin: 2em;
   line-height: 1.25em;
   border-top: 1px solid black;
@@ -84,8 +85,11 @@ pre {
 }
 
 .monospace {
+  font-family: 'adwaita';
   border: 1px solid black;
-  padding-inline: 0.2rem;
+  padding-inline: 0.3rem;
+  margin-inline: 0.2rem;
+  font-size: 1.6rem;
 }
 
 pre::before {
@@ -102,8 +106,13 @@ li {
 
 @media (max-width: 768px) {
   body {
-    font-size: 0.5em;
+    font-size: 1.5rem;
+    line-height: 2.5rem;
     width: 95%;
+  }
+
+  .monospace {
+    font-size: 1.3rem;
   }
 }
 
