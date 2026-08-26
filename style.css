@@ -48,7 +48,7 @@ h1, h2, h3, h4 {
   color: black;
 }
 
-h1 { line-height: 2.2rem}
+h1 { line-height: 1.15; }
 
 
 main {
@@ -102,8 +102,32 @@ li {
 
 @media (max-width: 768px) {
   body {
-    font-size: 0.5em;
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+    text-align: justify;
     width: 95%;
+    overflow-x: hidden;
+  }
+
+  p, li {
+    text-align: left;
+  }
+
+  pre {
+    margin: 1em 0;
+  }
+
+  h1 {
+    font-size: 2.6rem !important;
+    overflow-wrap: break-word;
+  }
+
+  header {
+    padding-top: 1.2rem;
+  }
+
+  .blog-img, img[style*='width'] {
+    width: 100% !important;
   }
 }
 
