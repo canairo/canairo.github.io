@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/style.css">
+    <title> ⍉ Finding a race-condition </title>
+  </head>
+  <body>
+    <header>
+      <h1> ⍉ Finding a race-condition </h1>
+      <div class='music'># recommended listening - <a href='https://www.youtube.com/watch?v=tQS6XfuH2wE'>talking heads - pull up the roots</a></div>
+    </header>
+    <main>
+
+      <h2>Introduction</h2>
+
+      <p>Shorter post. I have a lot of stuff to do recently now that my school year has started but I figured this side-quest was worth writing up. One of my classes is about embedded systems; we are given a Maker Pico board and tasked to make a project using the board. One of my professors has spent the last few months or so porting TRON Forum's μT-Kernel for the Pico. The main issue is that the Pico is a dual-core board and the μT-Kernel does not support symmetric multiprocessing out of the box, so some engineering work is required to get this done.</p>
+
+      <p>Anyways there was an open challenge worth around 30% of our grade (maximum) to anyone who could find a bug in the professor's port. I got lazy and pointed GLM 5.3 at it for around 30 minutes, it produced a finding and I spent the better half of my afternoon understanding it, replicating a proof-of-concept for the bug, testing it on hardware, patching the kernel myself and then verifying the proof-of-concept failed on the newly patched kernel.</p>
+
+      <p>It cost about two dollars in GLM 5.3 Flash tokens; which I figure is a worthwhile tradeoff for getting a decent amount of my grade settled in the first week. To be honest I probably could have identified the bug myself over maybe a week, the codebase is small enough and the vulnerability is simple enough that a manual audit would have been successful. But, ah, I dunno. I think understanding whatever arcane, Borgesian Claudem-Ipsum these models produce and translating it into human-readable English is a worthwhile skill to practice in this day and age. Do I feel like a hack? A little bit. Aren't we all hacks now though?</p>
+
+      <h2>The bug</h2>
+
+      <p>Frankly the bug is sort of lame but it is critical.</p>
+
+      <p>Since the microkernel should now support dual-core processing, new safeguards need to be put in place to prevent race conditions or cross-core corruption of resources. One of these is the acquiring of a shared kernel lock between the two cores. The kernel implements these funny macros <span class='monospace'>BEGIN_CRITICAL_SECTION</span> and <span class='monospace'>END_CRITICAL_SECTION</span>:</p>
+
+      <pre><code><span style="color:#6e7781;">   18   </span><span style="color:#cf222e;">#if TK_SUPPORT_SMP</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   17   </span><span style="color:#cf222e;">#define KNL_KERNEL_LOCK_ENTER()</span><span style="color:#6e7781;">&gt;</span><span style="color:#cf222e;">knl_kernel_lock_enter()</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   16   </span><span style="color:#cf222e;">#define KNL_KERNEL_LOCK_LEAVE()</span><span style="color:#6e7781;">&gt;</span><span style="color:#cf222e;">knl_kernel_lock_leave()</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   15   </span><span style="color:#cf222e;">#else</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   14   </span><span style="color:#cf222e;">#define KNL_KERNEL_LOCK_ENTER()</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   13   </span><span style="color:#cf222e;">#define KNL_KERNEL_LOCK_LEAVE()</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   12   </span><span style="color:#cf222e;">#endif</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   11   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   10   </span><span style="color:#cf222e;">#define BEGIN_CRITICAL_SECTION</span><span style="color:#6e7781;">&gt; </span><span style="color:#cf222e;">{ UINT _primask_ = disint();</span><span style="color:#6e7781;">&gt; &gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    9   │ &gt; &gt; &gt; </span><span style="color:#cf222e;">  KNL_KERNEL_LOCK_ENTER();</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    8   </span><span style="color:#cf222e;">#define END_CRITICAL_SECTION</span><span style="color:#6e7781;">&gt; </span><span style="color:#cf222e;">KNL_KERNEL_LOCK_LEAVE();</span><span style="color:#6e7781;">&gt; &gt; &gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    7   │ &gt; &gt; &gt; </span><span style="color:#cf222e;">if</span><span style="color:#cf222e;"> ( !isDI(_primask_)</span><span style="color:#6e7781;">&gt;&gt; &gt; &gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    6   │ │ │ │ │</span><span style="color:#cf222e;"> &amp;&amp; *knl_ctxtsk_slot() != *knl_schedtsk_slot()</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    5   │ │ │ │ │</span><span style="color:#cf222e;"> &amp;&amp; !*knl_dispatch_disabled_slot() ) {</span><span style="color:#6e7781;">&gt;&gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    4   │ │ │ │ │ </span><span style="color:#cf222e;">knl_dispatch();</span><span style="color:#6e7781;">&gt;&gt; &gt; &gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    3   │ │ │ │ </span><span style="color:#cf222e;">}</span><span style="color:#6e7781;">&gt;&gt; &gt; &gt; &gt; &gt; &gt; </span><span style="color:#cf222e;">\</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    2   │ │ │ │ </span><span style="color:#cf222e;">set_primask(_primask_); }</span><span style="color:#1f2328;"></span>
+      </code></pre>
+
+      <p>These macros call <span class='monospace'>KNL_KERNEL_LOCK_ENTER</span> and <span class='monospace'>KNL_KERNEL_LOCK_LEAVE</span> respectively. Hopefully it is intuitive as to what those clearly-named functions do. These macros are initialized whenever a single core has to acquire a shared kernel resource. However, the original kernel (which does not support symmetric multi-processing) had its own way of preventing race-conditions on a single processor: the <span class='monospace'>EI()</span> and <span class='monospace'>DI()</span> functions. These stand for ENABLE / DISABLE INTERRUPT: they prevent another process on the same core from interrupting a given process.</p>
+
+      <p>These functions both kind of do the same thing, but the difference is that <span class='monospace'>EI()</span> and <span class='monospace'>DI()</span> prevent races with other processes on the same core, and <span class='monospace'>KNL_KERNEL_LOCK_ENTER</span> prevents a race across both cores. So, any function that only masks interrupts without acquiring the shared kernel lock would be safe on one core but not on multiple.</p>
+
+      <p>Hopefully you see where this is going. When the operating system was patched to support SMP, there is one function that was missed: the kernel <span class='monospace'>malloc()</span> and <span class='monospace'>free()</span> functions. Here they are:</p>
+
+      <pre><code><span style="color:#6e7781;"></span><span style="color:#6e7781;">    1   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">DI(imask);  </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#6e7781;">/* Exclusive control by interrupt disable */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    2   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    3   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">/* Search FreeQue */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    4   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">q = knl_searchFreeArea(knl_imacb, size);
+</span><span style="color:#6e7781;">    5   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( q == &amp;(knl_imacb-&gt;freeque) ) {
+</span><span style="color:#6e7781;">    6   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="color:#1f2328;">q = </span><span style="color:#0550ae;">NULL</span><span style="color:#1f2328;">; </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#6e7781;">/* Insufficient memory */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    7   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="color:#cf222e;">goto</span><span style="color:#1f2328;"> err_ret;
+</span><span style="color:#6e7781;">    8   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">    9   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   10   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">/* There is free area: Split from FreeQue once */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   11   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">knl_removeFreeQue(q);
+</span><span style="color:#6e7781;">   12   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   13   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">aq = q - </span><span style="color:#0550ae;">1</span><span style="color:#1f2328;">;
+</span><span style="color:#6e7781;">   14   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   15   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">/* If there are fragments smaller than the minimum fragment size,</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   16   </span><span style="color:#6e7781;">│</span><span style="font-style:italic;color:#cf222e;"></span><span style="font-style:italic;color:#6e7781;"> </span><span style="color:#6e7781;"></span><span style="color:#6e7781;">│</span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">  allocate them also */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   17   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( FreeSize(q) - size &gt;= MIN_FRAGMENT + </span><span style="color:#0550ae;">sizeof</span><span style="color:#1f2328;">(QUEUE) ) {
+</span><span style="color:#6e7781;">   18   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;"> </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   19   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">/* Divide area into 2 */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   20   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="color:#1f2328;">aq2 = (QUEUE*)((VB*)(aq + </span><span style="color:#0550ae;">1</span><span style="color:#1f2328;">) + size);
+</span><span style="color:#6e7781;">   21   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="color:#1f2328;">knl_insertAreaQue(aq, aq2);
+</span><span style="color:#6e7781;">   22   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;"> </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   23   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="font-style:italic;color:#6e7781;"></span><span style="font-style:italic;color:#6e7781;">/* Register remaining area to FreeQue */</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   24   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> │ </span><span style="color:#1f2328;">knl_appendFreeArea(knl_imacb, aq2);
+</span><span style="color:#6e7781;">   25   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">   26   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">setAreaFlag(aq, AREA_USE);
+</span><span style="color:#6e7781;">   27   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   28   </span><span style="color:#cf222e;">err_ret</span><span style="color:#1f2328;">:
+</span><span style="color:#6e7781;">   29   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">EI(imask);</span></code></pre>
+
+      <p>This code disables interrupts, and then performs an allocation. The allocations all invariably modify the kernel freelist through <span class='monospace'>knl_removeFreeQue</span> and <span class='monospace'>knl_searchFreeArea</span>. In our case, the shared kernel resource is that freelist. The PoC should then be simple: we have two processes on two cores spamming mallocs until the freelist is corrupted and subsequent allocations start to fail. Notably there is a single kernel freelist for all allocations of all sizes, so any two concurrent allocations regardless of size have a chance of preventing all further allocations completely. In my experience it took around 500 concurrent allocations for the race to get hit.</p>
+
+      <p>The bug is kinda stupid, subtle yet freakishly obvious and severe at the same time, but I think it's funny. To be honest I have little experience in embedded systems, especially RTOSes for microcontrollers, so coming into this my notional idea of an RTOS was a bit skewed. My understanding is that dynamic allocation for a RTOS is rare and frowned upon, typically these are only used when the microprocessor is initializing all of its structures. The initializations are pretty often concurrent, though -- two tasks could setup their initialization on two different cores at once, thus increasing the likelihood of the race to get hit. I can see this very clearly being an issue for, say, undergraduate student projects (the main use-case for the OS to begin with).</p>
+
+      <p>The patch is really simple; just replace <span class='monospace'>DI()</span> and <span class='monospace'>EI()</span> in the <span class='monospace'>malloc()</span> code with the correct <span class='monospace'>BEGIN_CRITICAL_SECTION</span> macros, so that memory operations acquire the given locks. For completeness sake here is the proof of concept I used:</p>
+
+      <pre><code><span style="color:#6e7781;"></span><span style="color:#6e7781;">  72   </span><span style="color:#cf222e;">#include </span><span style="color:#0a3069;">&lt;tk/tkernel.h&gt;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  71   </span><span style="color:#cf222e;">#include </span><span style="color:#0a3069;">&lt;tm/tmonitor.h&gt;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  70   </span><span style="color:#cf222e;">#include </span><span style="color:#0a3069;">&lt;bsp/libbsp.h&gt;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  69   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  68   </span><span style="color:#cf222e;">#include </span><span style="color:#0a3069;">&quot;usb_console_compat.h&quot;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  67   </span><span style="color:#cf222e;">#include </span><span style="color:#0a3069;">&quot;race_harness.h&quot;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  66   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  65   </span><span style="color:#cf222e;">#define POOL_SIZE</span><span style="color:#6e7781;">&gt;</span><span style="color:#0550ae;">32768</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  64   </span><span style="color:#cf222e;">#define BUTTON_PIN</span><span style="color:#6e7781;">&gt; </span><span style="color:#0550ae;">20</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  63   </span><span style="color:#cf222e;">#define HEARTBEAT_OPS</span><span style="color:#6e7781;">&gt;</span><span style="color:#0550ae;">100</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  62   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  61   </span><span style="color:#1f2328;">LOCAL </span><span style="color:#cf222e;">void</span><span style="color:#1f2328;"> churn_task(INT stacd, </span><span style="color:#cf222e;">void</span><span style="color:#1f2328;"> *exinf)
+</span><span style="color:#6e7781;">  60   </span><span style="color:#1f2328;">{
+</span><span style="color:#6e7781;">  59   │ </span><span style="color:#1f2328;">UW</span><span style="color:#6e7781;">&gt; </span><span style="color:#1f2328;">n = </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;">, ok = </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;">, fail = </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;">;
+</span><span style="color:#6e7781;">  58   │</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  57   │ </span><span style="color:#1f2328;">(</span><span style="color:#cf222e;">void</span><span style="color:#1f2328;">)exinf;
+</span><span style="color:#6e7781;">  56   │</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  55   │</span><span style="color:#1f2328;"> </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#6e7781;">// wait for gp20 to be pressed //</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  54   │ </span><span style="color:#1f2328;">gpio_set_pin(BUTTON_PIN, GPIO_MODE_IN);
+</span><span style="color:#6e7781;">  53   │ </span><span style="color:#1f2328;">tm_printf((UB *)</span><span style="color:#0a3069;">&quot;[churn</span><span style="color:#cf222e;">%d</span><span style="color:#0a3069;">] waiting for GP20</span><span style="color:#cf222e;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;">, stacd);
+</span><span style="color:#6e7781;">  52   │ </span><span style="color:#cf222e;">while</span><span style="color:#1f2328;"> ( gpio_get_val(BUTTON_PIN) != </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;"> ) {
+</span><span style="color:#6e7781;">  51   │ │ </span><span style="color:#1f2328;">tk_dly_tsk(</span><span style="color:#0550ae;">10</span><span style="color:#1f2328;">);
+</span><span style="color:#6e7781;">  50   │ </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">  49   │</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  48   │</span><span style="color:#1f2328;"> tm_printf((UB *)</span><span style="color:#0a3069;">&quot;[RACE COND] program started! </span><span style="color:#cf222e;">\n</span><span style="color:#0a3069;">[RACE COND]it should take around 20k mallocs / frees for the program to suddenly crash.</span><span style="color:#cf222e;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;">, stacd);
+</span><span style="color:#6e7781;">  47   │ </span><span style="color:#1f2328;">tm_printf((UB *)</span><span style="color:#0a3069;">&quot;[churn</span><span style="color:#cf222e;">%d</span><span style="color:#0a3069;">] race started</span><span style="color:#cf222e;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;">, stacd);
+</span><span style="color:#6e7781;">  46   │</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  45   │ </span><span style="color:#cf222e;">for</span><span style="color:#1f2328;">(;;) {
+</span><span style="color:#6e7781;">  44   │ │ </span><span style="color:#cf222e;">void</span><span style="color:#6e7781;">&gt; </span><span style="color:#1f2328;">*p = Kmalloc(POOL_SIZE);
+</span><span style="color:#6e7781;">  43   │</span><span style="color:#1f2328;"> </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  42   │ │ </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( p != </span><span style="color:#0550ae;">NULL</span><span style="color:#1f2328;"> ) {
+</span><span style="color:#6e7781;">  41   │ │ │ </span><span style="color:#1f2328;">ok++;
+</span><span style="color:#6e7781;">  40   │ │ │ </span><span style="color:#1f2328;">Kfree(p);
+</span><span style="color:#6e7781;">  39   │ │ </span><span style="color:#1f2328;">} </span><span style="color:#cf222e;">else</span><span style="color:#1f2328;"> {
+</span><span style="color:#6e7781;">  38   │ │ │ </span><span style="color:#1f2328;">fail++;
+</span><span style="color:#6e7781;">  37   │ │ </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">  36   │</span><span style="color:#1f2328;"> </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  35   │ │ </span><span style="color:#1f2328;">n++;
+</span><span style="color:#6e7781;">  34   │ │ </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( (n % HEARTBEAT_OPS) == </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;"> ) {
+</span><span style="color:#6e7781;">  33   │ │ │ </span><span style="color:#1f2328;">tm_printf((UB *)</span><span style="color:#0a3069;">&quot;[churn</span><span style="color:#cf222e;">%d</span><span style="color:#0a3069;">] n=</span><span style="color:#cf222e;">%u</span><span style="color:#0a3069;"> ok=</span><span style="color:#cf222e;">%u</span><span style="color:#0a3069;"> fail=</span><span style="color:#cf222e;">%u\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;">,
+</span><span style="color:#6e7781;">  32   │ │ │ │ </span><span style="color:#1f2328;">  stacd, n, ok, fail);
+</span><span style="color:#6e7781;">  31   │ │ </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">  30   │ </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">  29   </span><span style="color:#1f2328;">}
+</span><span style="color:#6e7781;">  28   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  27   </span><span style="color:#1f2328;">LOCAL T_CTSK ctsk_churn0 = {
+</span><span style="color:#6e7781;">  26   │ </span><span style="color:#1f2328;">.itskpri</span><span style="color:#6e7781;">&gt; </span><span style="color:#1f2328;">= </span><span style="color:#0550ae;">10</span><span style="color:#1f2328;">,
+</span><span style="color:#6e7781;">  25   │ </span><span style="color:#1f2328;">.stksz</span><span style="color:#6e7781;">&gt; &gt; </span><span style="color:#1f2328;">= </span><span style="color:#0550ae;">4096</span><span style="color:#1f2328;">,
+</span><span style="color:#6e7781;">  24   │ </span><span style="color:#1f2328;">.task</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= churn_task,
+</span><span style="color:#6e7781;">  23   │ </span><span style="color:#1f2328;">.tskatr</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= TA_HLNG | TA_RNG3 | TA_ASSPRC,
+</span><span style="color:#6e7781;">  22   │ </span><span style="color:#1f2328;">.assprc</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= TP_PRC1,
+</span><span style="color:#6e7781;">  21   </span><span style="color:#1f2328;">};
+</span><span style="color:#6e7781;">  20   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  19   </span><span style="color:#1f2328;">LOCAL T_CTSK ctsk_churn1 = {
+</span><span style="color:#6e7781;">  18   │ </span><span style="color:#1f2328;">.itskpri</span><span style="color:#6e7781;">&gt; </span><span style="color:#1f2328;">= </span><span style="color:#0550ae;">10</span><span style="color:#1f2328;">,
+</span><span style="color:#6e7781;">  17   │ </span><span style="color:#1f2328;">.stksz</span><span style="color:#6e7781;">&gt; &gt; </span><span style="color:#1f2328;">= </span><span style="color:#0550ae;">4096</span><span style="color:#1f2328;">,
+</span><span style="color:#6e7781;">  16   │ </span><span style="color:#1f2328;">.task</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= churn_task,
+</span><span style="color:#6e7781;">  15   │ </span><span style="color:#1f2328;">.tskatr</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= TA_HLNG | TA_RNG3 | TA_ASSPRC,
+</span><span style="color:#6e7781;">  14   │ </span><span style="color:#1f2328;">.assprc</span><span style="color:#6e7781;">&gt;&gt; </span><span style="color:#1f2328;">= TP_PRC2,
+</span><span style="color:#6e7781;">  13   </span><span style="color:#1f2328;">};
+</span><span style="color:#6e7781;">  12   </span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">  11   </span><span style="color:#1f2328;">EXPORT INT usermain_raceharness(</span><span style="color:#cf222e;">void</span><span style="color:#1f2328;">)
+</span><span style="color:#6e7781;">  10   </span><span style="font-weight:bold;color:#6e7781;"></span><span style="font-weight:bold;color:#0550ae;">{</span><span style="color:#1f2328;"></span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   9   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">ID</span><span style="color:#6e7781;">&gt; </span><span style="color:#1f2328;">tid;
+</span><span style="color:#6e7781;">   8   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   7   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">tid = tk_cre_tsk(&amp;ctsk_churn0);
+</span><span style="color:#6e7781;">   6   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( tid &gt; E_OK ) tk_sta_tsk(tid, </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;">);
+</span><span style="color:#6e7781;">   5   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">tid = tk_cre_tsk(&amp;ctsk_churn1);
+</span><span style="color:#6e7781;">   4   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#cf222e;">if</span><span style="color:#1f2328;"> ( tid &gt; E_OK ) tk_sta_tsk(tid, </span><span style="color:#0550ae;">1</span><span style="color:#1f2328;">);
+</span><span style="color:#6e7781;">   3   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   2   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#1f2328;">tk_slp_tsk(TMO_FEVR);
+</span><span style="color:#6e7781;">   1   </span><span style="color:#6e7781;">│</span><span style="color:#6e7781;"> </span><span style="color:#cf222e;">return</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">0</span><span style="color:#1f2328;">;
+</span><span style="font-weight:bold;color:#1f2328;"></span><span style="font-weight:bold;color:#0550ae;">  73   </span><span style="font-weight:bold;color:#0550ae;">}</span><span style="color:#1f2328;"></span><span style="color:#1f2328;"></span></code></pre>
+
+      <p>This code was, of course, generated by an AI. But it is simple enough -- you just create two tasks, pin them to core 0 an core 1 respectively, and make them spam allocations and frees. In about a second the kernel freelist corruption will occur, at which point the tasks will continue printing their failed allocations or some arcane kernel corruption will hard-crash the microprocessor entirely.</p>
+
+      <p>This was a fun way to spend like, an afternoon. On some level I do enjoy working with real, physical microcontrollers -- I like the low-levelness of it all, I like holding a chip in my hands. I am drawn to these machines in a strange, theological way; I could stare at them for hours. They look like the corkscrew passageways of some wind-eroded temple, worshipped at by antediluvian cultures with inscrutable languages and incomprehensible rituals. Anyways, that's all from me -- like and retweet for my inevitable pivot out of cybersecurity into hardware, and then my subsequent decades-long descent after that into mysticism. The final bleedinghe.art post will be me recreating the <a href="https://en.wikipedia.org/wiki/Zairja">zairja</a>.</p>
+
+      <a href='https://www.youtube.com/watch?v=OZscv36UUHo'>Reward for reaching the end of this post</a>
+
+      <br><br>
+  
+  </body>
+
+  <style>
+    .excerpt { border-left: 2px solid black; padding-inline: 2rem; font-style: italic; text-align: justify}
+  </style>
+</html>
+
+
