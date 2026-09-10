@@ -30,15 +30,21 @@ header {
 }
 
 body {
-  font-family: 'adwaita';
+  font-family: "Lexend";
   background-color: #fbfbfb;
-  font-size: 1.8rem;
-  line-height: 2.5rem;
+  font-size: 1.4rem;
+  line-height: 2.3rem;
   width: 77%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  font-weight: 350;
 }
+
+.monospace {
+  font-family: "adwaita";
+}
+
 
 a {
   color: red;
@@ -102,8 +108,6 @@ li {
 
 @media (max-width: 768px) {
   body {
-    font-size: 0.8rem;
-    line-height: 1.2rem;
     text-align: justify;
     width: 95%;
     overflow-x: hidden;
@@ -111,6 +115,8 @@ li {
 
   p, li {
     text-align: left;
+    line-height: 2.2rem;
+    font-size: 1.5rem !important;
   }
 
   pre {
@@ -118,7 +124,7 @@ li {
   }
 
   h1 {
-    font-size: 2.6rem !important;
+    font-size: 2.3rem !important;
     overflow-wrap: break-word;
   }
 
