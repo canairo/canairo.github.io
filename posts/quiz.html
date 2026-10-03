@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Cane's Network Security Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main>
+  
+  <div class='question'>
+    <div class='question-body'>
+      <div class='question-heading'>QUESTION 1.</div>
+      <img class='question-img'>
+      <div class='question-text'>Assume that PC A and PC B have populated ARP tables for one another, but the single switch C that connects them has an empty CAM table. An attacker D is also connected to switch C. PC A sends a series of pings to PC B. What observation will the attacker D make?</div>
+    </div>
+    <div class='answer-body'>
+      <div class='answer'>The attacker will not be able to see the pings.</div>
+      <div class='answer'>The attacker will be able to see the first ping, but not any subsequent ones.</div>
+      <div class='answer'>The attacker will be able to see the first two pings, but not any subsequent ones.</div>
+      <div class='answer'>The attacker will be able to see all pings.</div>
+      <button class='submit'>Submit</button>
+    </div>
+  </div>
+
+  </main>
+</body>
+
+  <style>
+
+  * { box-sizing: border-box; }
+
+  main {
+    font-family: "Schibsted Grotesk", serif;
+    font-size: 25px;
+    width: 50%;
+    margin: auto;
+    margin-top: 50px;
+  }
+
+  .question-img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .question-heading { font-weight: bold; }
+
+  .question-body {
+    margin-block: 30px;
+    text-align: justify;
+  }
+
+  .answer {
+    padding: 10px;
+    border: 2px solid black;
+    margin-block: 10px;
+    transition: 0.5s;
+  }
+
+  .answer:hover, .submit:hover {
+    background-color: black;
+    color: white;
+    cursor: pointer;
+  }
+
+  .submit {
+    background-color: white;
+    font-size: 25px;
+    border: 2px solid black;
+    padding-inline: 25px;
+    padding-block: 10px;
+    margin-block: 20px;
+    float: right;
+    transition: 0.5s;
+  }
+
+  @media screen and (width <= 768px) {
+
+    main {
+      width: 90%;
+      font-size: 18px;
+      margin-top: 30px;
+    }
+
+    .question-body {
+      margin-block: 20px;
+      text-align: left;
+    }
+
+    .answer {
+      padding: 14px;
+      margin-block: 8px;
+      border: 1px solid black;
+    }
+
+    .answer:hover, .submit:hover {
+      background-color: white;
+      color: black;
+    }
+
+    .answer:active, .submit:active {
+      background-color: black;
+      color: white;
+    }
+
+    .submit {
+      font-size: 18px;
+      width: 100%;
+      float: none;
+      padding-block: 14px;
+      border: 1px solid black;
+    }
+  }
+
+  </style>
+</html>
+
