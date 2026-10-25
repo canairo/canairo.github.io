@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-c.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+
+    <title> ⍉ website ⍉ </title>
+  </head>
+  <body>
+    <header>
+      <h1> ⍉ php2slop </h1>
+      <div class='music'># recommended listening - <a href='https://www.youtube.com/watch?v=3NmXL_iSRUw'>betcover!! -  超人 (Live)</a></div>
+
+      <h3>Introductory essay</h3>
+
+      <p>A quick writeup analysing a fake proof-of-concept for php2shell. php2shell functions as a seriously interesting case study; I think it's the first time people have -- due to their agents -- felt emboldened enough to try making homebrew <i>binary exploitation</i> scripts for a properly challenging attack surface, as opposed to one-liner logic bugs like Log4Shell. The bug underlying php2shell is a significant step up from the old MetaSploit scripts of yore; this is the first time a script kiddie will ever have to account for something like ASLR. Tough stuff! But this is AI as grand democratizer, enabling laypeople to tackle the very frontier of cybersecurity research, a real hearts-and-minds sort of deal. A wonderfully empowering force, to be sure.</p>
+
+      <p>I'm kidding. The only laypeople opportunistic and confident enough in their AI systems to try creating an exploit for something like php2shell are -- uniformly -- clueless charlatans. I am not going to make the bold claim that all php2shell scripts published are faulty (that would require a thorough understanding of php2shell as a whole, far deeper than what I have at the moment, in order to verify this sort of thing) but I am making the bold claim that the percentage of slop here is at least 99% of all published exploits. This is what happens when you try to use the robot for a task you don't fully understand: it will cheat, but most importantly it has the integrity to <b>explain</b> to you how it cheated, and if you don't know anything about anything you won't understand that it was cheating in the first place.</p>
+
+      <p>A case study: I'd recently written a pwnable for a future CTF competition I'm hosting. It's a heap pwnable that requires a fairly rudimentary knowledge of the heap and its requisite bins -- the tcache; the fastbins, and then the small-large-unsorted bins, and then the top chunk / wilderness. As an experiment I'd asked a friend to throw GPT 5.6 Sol at it, and GPT 5.6 Sol responded in the affirmative in around 30 minutes. One small thing:</p>
+
+      <div class='mdb-image-cont'>
+        <div class='img-wrap'>
+        <img src='/assets/lmfao.png'><br>
+        </div>
+        <i>GPT 5.6 Sol output. Can you spot the issue here?</i>
+      </div>
+
+      <p>If you do not know anything about anything when it comes to binary exploitation, this, like the rest of the model's output, will seem like a wholly reasonable adaptation to make. What is GLIBC TUNABLES, one might ask, oh well, must be the same sort of arcane nonsense that `int main()` and `malloc()` are, obscure objects of desire far beyond my knowledge, I am but a humble human and these machines are far more equipped to analyse themselves anyway. Looks good to me. Time to open a ticket when the solve fails.</p>
+
+      <p>Back to php2shell. The style of open charlatanry displayed here is, to me, wildly interesting: it's rare to see quacks that do not know that they are quacks. It's a sort of second-order deception, where you use AI so much your brain gets entirely pwned by it and it takes over your mind like the Symbiote. The Anthropic and OpenAI folks are continually doomsaying about misaligned models breaching containment and accessing the Internet, agent swarms running amok like locusts, but it seems they are not considering the now-sizable section of people who function entirely as flesh conduits for AI anyways. The AI speaks through these people, through their GitHub repositories and personal essays and Twitter accounts (here, on the bleedinghe.art website you can be assured that I am no such conduit, I write way too obnoxiously to be AI).
+
+      <p>I am not decrying AI usage entirely, and even AI usage as a source of misplaced confidence. Let he who has never artificially inflated his own skills before cast the first stone. But I take a more hostile tack when it comes to these things. It's sort of like if we'd actually invented the cloudbuster, and a gaggle of calculating freaks started roaming the ravaged streets after a hurricane, trying to scam people into buying -- not food, or water -- but cloudbusters. It does not really matter if the cloudbusters worked or not, the principle of doing something like this is so patently horrific, and the disinterest and ignorance displayed by these people really only makes it worse. (Note to reader: I have an actual working cloudbuster, and a working 100% reliability universal XSS on Google, all with the help of GPT 5.6 Sol. No, I will not show it to you. I will show you my Lean proofs about them though.)</p>
+
+      <p>Which is why it's good to take some humour in it sometimes, and why it's good to try and understand things better so you are not swept up by the panics people try relentlessly to gin up. <a href='https://www.youtube.com/watch?v=OzWNJtN86kU'>We are being lead towards glorious times</a> now by Dario Amodei et alia. As such, here is a small analysis of one of these fake proofs-of-concepts, as well as some general pointers towards identifying slop when it comes to autonomously produced exploits. You'll forgive me if I am overly uncharitable here.</p>
+
+      <h3>ASLR</h3>
+
+      <p>The one thing the robot always cheats at is ASLR, address space layout randomization. This is a feature of all programs that randomize where critical regions are mapped in memory; at one runtime it might be at point A, at another time it might be at point `A + 0x5ff6050`, or some other random number (like four). Binary exploitation typically involves knowing where the program's structures are in memory; it is no good trying to overwrite important data from within the program if the attacker does not know where it is.</p>
+
+      <p>Finding where important structures of the binary are located in memory is colloquially called an ASLR leak; indeed, this is one of the nastiest problems in modern-day binary exploitation. Memory is ephemeral, dreamlike. Not only does it keep moving around on different runs of the binary, the same program at different points in time will invariably have different memory layouts, so on and so forth.</p>
+
+      <p>The models are like humans in that they really struggle with this as well. This is because binary exploitation is really two problems: getting your leaks, and then corrupting memory using the information from those leaks. It seems that models start <i>with</i> the corruption, finding some valid primitive to be able to corrupt whichever piece of memory they have, and </p>
+
+    </header>
+<main>
+
+<a href="https://www.youtube.com/watch?v=kSQ3mUlMcQI">Reward for reaching the end of this post</a>
+
+<br><br>
+    </main>
+  </body>
+</html>
+
+
